@@ -1,0 +1,124 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{AF6BF553-077D-4632-9424-B0AD19F1581C}|SERVICE\\SERVICE.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\service\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AF6BF553-077D-4632-9424-B0AD19F1581C}|SERVICE\\SERVICE.csproj|solutionrelative:service\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{710221EB-5F69-4DE8-81A7-886617AB0CC1}|DAL\\DAL.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\dal\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{710221EB-5F69-4DE8-81A7-886617AB0CC1}|DAL\\DAL.csproj|solutionrelative:dal\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\bll\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|solutionrelative:bll\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{88F3A440-E2DB-4F49-99B2-C8A3A71D6FDF}|BE\\BE.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\be\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{88F3A440-E2DB-4F49-99B2-C8A3A71D6FDF}|BE\\BE.csproj|solutionrelative:be\\class1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\gui\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|solutionrelative:gui\\form1.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 5,
+          "Children": [
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{1c4feeaa-4718-4aa9-859d-94ce25d182ba}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:129:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
+            },
+            {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cde3}"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\SERVICE\\Class1.cs",
+              "RelativeDocumentMoniker": "SERVICE\\Class1.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\SERVICE\\Class1.cs",
+              "RelativeToolTip": "SERVICE\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAwAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-04T22:31:57.399Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\DAL\\Class1.cs",
+              "RelativeDocumentMoniker": "DAL\\Class1.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\DAL\\Class1.cs",
+              "RelativeToolTip": "DAL\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-04T22:31:48.598Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\Class1.cs",
+              "RelativeDocumentMoniker": "BLL\\Class1.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\Class1.cs",
+              "RelativeToolTip": "BLL\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-04T22:31:30.03Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
+              "Title": "Class1.cs",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Class1.cs",
+              "RelativeDocumentMoniker": "BE\\Class1.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Class1.cs",
+              "RelativeToolTip": "BE\\Class1.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-04T22:31:18.263Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "Form1.cs [Dise\u00F1o]",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Form1.cs",
+              "RelativeDocumentMoniker": "GUI\\Form1.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Form1.cs [Dise\u00F1o]",
+              "RelativeToolTip": "GUI\\Form1.cs [Dise\u00F1o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-04T22:02:46.77Z",
+              "EditorCaption": " [Dise\u00F1o]"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
