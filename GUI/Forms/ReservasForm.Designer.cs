@@ -17,6 +17,7 @@
 #region Código generado por el Diseñador de Windows Forms
 		private void InitializeComponent()
 		{
+			this.components = new System.ComponentModel.Container();
 			System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
 			this.tabs = new System.Windows.Forms.TabControl();
 			this.solicitudTab = new System.Windows.Forms.TabPage();
@@ -40,6 +41,10 @@
 			this.gestionTab = new System.Windows.Forms.TabPage();
 			this.datos = new System.Windows.Forms.TableLayoutPanel();
 			this.reservas = new System.Windows.Forms.DataGridView();
+			this.reservasSenaRequeridaColumna = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.reservasGarantiaRequeridaColumna = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.reservasSeguroColumna = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.reservasAntecedentesColumna = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.detalle = new System.Windows.Forms.TextBox();
 			this.entrega = new System.Windows.Forms.FlowLayoutPanel();
 			this.actualizarBoton = new System.Windows.Forms.Button();
@@ -49,13 +54,13 @@
 			this.aprobacion = new System.Windows.Forms.FlowLayoutPanel();
 			this.revision = new System.Windows.Forms.Label();
 			this.revisarBoton = new System.Windows.Forms.Button();
-			this.senaCampo = new System.Windows.Forms.FlowLayoutPanel();
-			this.senaCampoLabel = new System.Windows.Forms.Label();
-			this.sena = new System.Windows.Forms.NumericUpDown();
-			this.garantiaCampo = new System.Windows.Forms.FlowLayoutPanel();
-			this.garantiaCampoLabel = new System.Windows.Forms.Label();
-			this.garantia = new System.Windows.Forms.NumericUpDown();
 			this.aceptarBoton = new System.Windows.Forms.Button();
+			this.rechazarBoton = new System.Windows.Forms.Button();
+			this.pagoPanel = new System.Windows.Forms.FlowLayoutPanel();
+			this.pagarBoton = new System.Windows.Forms.Button();
+			this.pagoEstado = new System.Windows.Forms.Label();
+			this.avisoActualizacion = new System.Windows.Forms.Label();
+			this.actualizacionTimer = new System.Windows.Forms.Timer(this.components);
 			this.tabs.SuspendLayout();
 			this.solicitudTab.SuspendLayout();
 			this.importes.SuspendLayout();
@@ -68,10 +73,7 @@
 			((System.ComponentModel.ISupportInitialize)(this.reservas)).BeginInit();
 			this.entrega.SuspendLayout();
 			this.aprobacion.SuspendLayout();
-			this.senaCampo.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.sena)).BeginInit();
-			this.garantiaCampo.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.garantia)).BeginInit();
+			this.pagoPanel.SuspendLayout();
 			this.SuspendLayout();
 			//
 			// tabs
@@ -101,14 +103,16 @@
 			// unidades
 			//
 			this.unidades.CheckOnClick = true;
-			this.unidades.DisplayMember = "CodigoInventario";
+			this.unidades.DisplayMember = "";
 			this.unidades.Dock = System.Windows.Forms.DockStyle.Fill;
 			this.unidades.FormattingEnabled = true;
+			this.unidades.HorizontalScrollbar = true;
 			this.unidades.Location = new System.Drawing.Point(3, 103);
 			this.unidades.Name = "unidades";
 			this.unidades.Size = new System.Drawing.Size(1166, 429);
 			this.unidades.TabIndex = 0;
 			this.unidades.Format += new System.Windows.Forms.ListControlConvertEventHandler(this.FormatearEquipo);
+			this.unidades.ItemCheck += new System.Windows.Forms.ItemCheckEventHandler(this.UnidadCambio);
 			//
 			// importes
 			//
@@ -234,6 +238,7 @@
 			this.desde.Name = "desde";
 			this.desde.Size = new System.Drawing.Size(220, 25);
 			this.desde.TabIndex = 1;
+			this.desde.ValueChanged += new System.EventHandler(this.FechasCambio);
 			//
 			// hastaCampo
 			//
@@ -262,6 +267,7 @@
 			this.hasta.Name = "hasta";
 			this.hasta.Size = new System.Drawing.Size(220, 25);
 			this.hasta.TabIndex = 1;
+			this.hasta.ValueChanged += new System.EventHandler(this.FechasCambio);
 			//
 			// disponiblesBoton
 			//
@@ -279,6 +285,7 @@
 			this.gestionTab.Controls.Add(this.datos);
 			this.gestionTab.Controls.Add(this.entrega);
 			this.gestionTab.Controls.Add(this.aprobacion);
+			this.gestionTab.Controls.Add(this.pagoPanel);
 			this.gestionTab.Location = new System.Drawing.Point(4, 26);
 			this.gestionTab.Name = "gestionTab";
 			this.gestionTab.Padding = new System.Windows.Forms.Padding(3);
@@ -306,6 +313,9 @@
 			//
 			this.reservas.AllowUserToAddRows = false;
 			this.reservas.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+			this.reservas.Columns.AddRange(
+				new System.Windows.Forms.DataGridViewColumn[] { this.reservasSenaRequeridaColumna, this.reservasGarantiaRequeridaColumna, this.reservasSeguroColumna, this.reservasAntecedentesColumna }
+			);
 			dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 10F);
 			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
 			this.reservas.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
@@ -320,6 +330,40 @@
 			this.reservas.TabIndex = 0;
 			this.reservas.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.FormatearCliente);
 			this.reservas.SelectionChanged += new System.EventHandler(this.ReservaCambio);
+			//
+			// reservasSenaRequeridaColumna
+			//
+			this.reservasSenaRequeridaColumna.DataPropertyName = "SenaRequerida";
+			this.reservasSenaRequeridaColumna.DefaultCellStyle.Format = "N2";
+			this.reservasSenaRequeridaColumna.HeaderText = "Seña requerida ARS";
+			this.reservasSenaRequeridaColumna.MinimumWidth = 115;
+			this.reservasSenaRequeridaColumna.Name = "SenaRequerida";
+			this.reservasSenaRequeridaColumna.ReadOnly = true;
+			//
+			// reservasGarantiaRequeridaColumna
+			//
+			this.reservasGarantiaRequeridaColumna.DataPropertyName = "GarantiaRequerida";
+			this.reservasGarantiaRequeridaColumna.DefaultCellStyle.Format = "N2";
+			this.reservasGarantiaRequeridaColumna.HeaderText = "Garantía requerida ARS";
+			this.reservasGarantiaRequeridaColumna.MinimumWidth = 115;
+			this.reservasGarantiaRequeridaColumna.Name = "GarantiaRequerida";
+			this.reservasGarantiaRequeridaColumna.ReadOnly = true;
+			//
+			// reservasSeguroColumna
+			//
+			this.reservasSeguroColumna.HeaderText = "Tipo de seguro";
+			this.reservasSeguroColumna.MinimumWidth = 110;
+			this.reservasSeguroColumna.Name = "TipoSeguro";
+			this.reservasSeguroColumna.ReadOnly = true;
+			this.reservasSeguroColumna.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+			//
+			// reservasAntecedentesColumna
+			//
+			this.reservasAntecedentesColumna.HeaderText = "Antecedentes del cliente";
+			this.reservasAntecedentesColumna.MinimumWidth = 180;
+			this.reservasAntecedentesColumna.Name = "Antecedentes";
+			this.reservasAntecedentesColumna.ReadOnly = true;
+			this.reservasAntecedentesColumna.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
 			//
 			// detalle
 			//
@@ -336,6 +380,7 @@
 			// entrega
 			//
 			this.entrega.Controls.Add(this.actualizarBoton);
+			this.entrega.Controls.Add(this.avisoActualizacion);
 			this.entrega.Controls.Add(this.cotejo);
 			this.entrega.Controls.Add(this.firma);
 			this.entrega.Controls.Add(this.registrarBoton);
@@ -356,6 +401,15 @@
 			this.actualizarBoton.Text = "Actualizar lista";
 			this.actualizarBoton.UseVisualStyleBackColor = true;
 			this.actualizarBoton.Click += new System.EventHandler(this.ActualizarClick);
+			//
+			// avisoActualizacion
+			//
+			this.avisoActualizacion.Name = "avisoActualizacion";
+			this.avisoActualizacion.AutoSize = true;
+			this.avisoActualizacion.MaximumSize = new System.Drawing.Size(950, 0);
+			this.avisoActualizacion.Margin = new System.Windows.Forms.Padding(10, 8, 3, 3);
+			this.avisoActualizacion.Text = "La lista se actualiza automáticamente cada 10 segundos.";
+			this.entrega.SetFlowBreak(this.avisoActualizacion, true);
 			//
 			// cotejo
 			//
@@ -390,14 +444,13 @@
 			//
 			this.aprobacion.Controls.Add(this.revisarBoton);
 			this.aprobacion.Controls.Add(this.revision);
-			this.aprobacion.Controls.Add(this.senaCampo);
-			this.aprobacion.Controls.Add(this.garantiaCampo);
 			this.aprobacion.Controls.Add(this.aceptarBoton);
+			this.aprobacion.Controls.Add(this.rechazarBoton);
 			this.aprobacion.Dock = System.Windows.Forms.DockStyle.Top;
 			this.aprobacion.Location = new System.Drawing.Point(3, 3);
 			this.aprobacion.Name = "aprobacion";
 			this.aprobacion.Padding = new System.Windows.Forms.Padding(10);
-			this.aprobacion.Size = new System.Drawing.Size(1166, 160);
+			this.aprobacion.Size = new System.Drawing.Size(1166, 100);
 			this.aprobacion.TabIndex = 2;
 			//
 			// revision
@@ -421,64 +474,6 @@
 			this.revisarBoton.UseVisualStyleBackColor = true;
 			this.revisarBoton.Click += new System.EventHandler(this.CotizarClick);
 			//
-			// senaCampo
-			//
-			this.senaCampo.Controls.Add(this.senaCampoLabel);
-			this.senaCampo.Controls.Add(this.sena);
-			this.senaCampo.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this.senaCampo.Location = new System.Drawing.Point(13, 55);
-			this.senaCampo.Name = "senaCampo";
-			this.senaCampo.Size = new System.Drawing.Size(210, 70);
-			this.senaCampo.TabIndex = 2;
-			//
-			// senaCampoLabel
-			//
-			this.senaCampoLabel.AutoSize = true;
-			this.senaCampoLabel.Location = new System.Drawing.Point(3, 0);
-			this.senaCampoLabel.Name = "senaCampoLabel";
-			this.senaCampoLabel.Size = new System.Drawing.Size(117, 19);
-			this.senaCampoLabel.TabIndex = 0;
-			this.senaCampoLabel.Text = "Seña recibida ARS";
-			//
-			// sena
-			//
-			this.sena.DecimalPlaces = 2;
-			this.sena.Location = new System.Drawing.Point(3, 22);
-			this.sena.Maximum = new decimal (new int[] { -727379968, 232, 0, 0 });
-			this.sena.Name = "sena";
-			this.sena.Size = new System.Drawing.Size(200, 25);
-			this.sena.TabIndex = 1;
-			this.sena.ThousandsSeparator = true;
-			//
-			// garantiaCampo
-			//
-			this.garantiaCampo.Controls.Add(this.garantiaCampoLabel);
-			this.garantiaCampo.Controls.Add(this.garantia);
-			this.garantiaCampo.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this.garantiaCampo.Location = new System.Drawing.Point(229, 55);
-			this.garantiaCampo.Name = "garantiaCampo";
-			this.garantiaCampo.Size = new System.Drawing.Size(210, 70);
-			this.garantiaCampo.TabIndex = 3;
-			//
-			// garantiaCampoLabel
-			//
-			this.garantiaCampoLabel.AutoSize = true;
-			this.garantiaCampoLabel.Location = new System.Drawing.Point(3, 0);
-			this.garantiaCampoLabel.Name = "garantiaCampoLabel";
-			this.garantiaCampoLabel.Size = new System.Drawing.Size(140, 19);
-			this.garantiaCampoLabel.TabIndex = 0;
-			this.garantiaCampoLabel.Text = "Garantía recibida ARS";
-			//
-			// garantia
-			//
-			this.garantia.DecimalPlaces = 2;
-			this.garantia.Location = new System.Drawing.Point(3, 22);
-			this.garantia.Maximum = new decimal (new int[] { -727379968, 232, 0, 0 });
-			this.garantia.Name = "garantia";
-			this.garantia.Size = new System.Drawing.Size(200, 25);
-			this.garantia.TabIndex = 1;
-			this.garantia.ThousandsSeparator = true;
-			//
 			// aceptarBoton
 			//
 			this.aceptarBoton.AutoSize = true;
@@ -489,6 +484,39 @@
 			this.aceptarBoton.Text = "Aceptar solicitud";
 			this.aceptarBoton.UseVisualStyleBackColor = true;
 			this.aceptarBoton.Click += new System.EventHandler(this.ConfirmarClick);
+			//
+			// rechazarBoton
+			//
+			this.rechazarBoton.Name = "rechazarBoton";
+			this.rechazarBoton.Text = "Rechazar solicitud";
+			this.rechazarBoton.AutoSize = true;
+			this.rechazarBoton.Size = new System.Drawing.Size(140, 36);
+			this.rechazarBoton.TabIndex = 5;
+			this.rechazarBoton.Enabled = false;
+			this.rechazarBoton.UseVisualStyleBackColor = true;
+			this.rechazarBoton.Click += new System.EventHandler(this.RechazarClick);
+			//
+			// pagoPanel
+			//
+			this.pagoPanel.Name = "pagoPanel";
+			this.pagoPanel.Dock = System.Windows.Forms.DockStyle.Top;
+			this.pagoPanel.Size = new System.Drawing.Size(1166, 85);
+			this.pagoPanel.Padding = new System.Windows.Forms.Padding(10);
+			this.pagoPanel.Controls.Add(this.pagarBoton);
+			this.pagoPanel.Controls.Add(this.pagoEstado);
+			this.pagarBoton.Name = "pagarBoton";
+			this.pagarBoton.Text = "Pagar seña y garantía";
+			this.pagarBoton.Size = new System.Drawing.Size(185, 36);
+			this.pagarBoton.Enabled = false;
+			this.pagarBoton.UseVisualStyleBackColor = true;
+			this.pagarBoton.Click += new System.EventHandler(this.PagarClick);
+			this.pagoEstado.Name = "pagoEstado";
+			this.pagoEstado.AutoSize = true;
+			this.pagoEstado.MaximumSize = new System.Drawing.Size(890, 0);
+			this.pagoEstado.Margin = new System.Windows.Forms.Padding(10, 8, 3, 3);
+			this.pagoEstado.Text = "Seleccioná una solicitud aceptada para pagar la seña y la garantía.";
+			this.actualizacionTimer.Interval = 10000;
+			this.actualizacionTimer.Tick += new System.EventHandler(this.ActualizacionAutomatica);
 			//
 			// ReservasForm
 			//
@@ -522,12 +550,8 @@
 			this.entrega.PerformLayout();
 			this.aprobacion.ResumeLayout(false);
 			this.aprobacion.PerformLayout();
-			this.senaCampo.ResumeLayout(false);
-			this.senaCampo.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.sena)).EndInit();
-			this.garantiaCampo.ResumeLayout(false);
-			this.garantiaCampo.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.garantia)).EndInit();
+			this.pagoPanel.ResumeLayout(false);
+			this.pagoPanel.PerformLayout();
 			this.ResumeLayout(false);
 		}
 
@@ -553,6 +577,10 @@
 		private System.Windows.Forms.Button solicitarBoton;
 		private System.Windows.Forms.Label solicitudNota;
 		private System.Windows.Forms.DataGridView reservas;
+		private System.Windows.Forms.DataGridViewTextBoxColumn reservasSenaRequeridaColumna;
+		private System.Windows.Forms.DataGridViewTextBoxColumn reservasGarantiaRequeridaColumna;
+		private System.Windows.Forms.DataGridViewTextBoxColumn reservasSeguroColumna;
+		private System.Windows.Forms.DataGridViewTextBoxColumn reservasAntecedentesColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn reservasIdColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn reservasClienteIdColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn reservasDesdeColumna;
@@ -573,12 +601,12 @@
 		private System.Windows.Forms.FlowLayoutPanel aprobacion;
 		private System.Windows.Forms.Button revisarBoton;
 		private System.Windows.Forms.Label revision;
-		private System.Windows.Forms.NumericUpDown sena;
-		private System.Windows.Forms.NumericUpDown garantia;
-		private System.Windows.Forms.FlowLayoutPanel senaCampo;
-		private System.Windows.Forms.Label senaCampoLabel;
-		private System.Windows.Forms.FlowLayoutPanel garantiaCampo;
-		private System.Windows.Forms.Label garantiaCampoLabel;
 		private System.Windows.Forms.Button aceptarBoton;
+		private System.Windows.Forms.Button rechazarBoton;
+		private System.Windows.Forms.FlowLayoutPanel pagoPanel;
+		private System.Windows.Forms.Button pagarBoton;
+		private System.Windows.Forms.Label pagoEstado;
+		private System.Windows.Forms.Label avisoActualizacion;
+		private System.Windows.Forms.Timer actualizacionTimer;
 	}
 }

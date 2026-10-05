@@ -52,22 +52,15 @@
 			this.reposicionCampo = new System.Windows.Forms.FlowLayoutPanel();
 			this.reposicionCampoLabel = new System.Windows.Forms.Label();
 			this.reposicion = new System.Windows.Forms.NumericUpDown();
-			this.diasCampo = new System.Windows.Forms.FlowLayoutPanel();
-			this.diasCampoLabel = new System.Windows.Forms.Label();
-			this.dias = new System.Windows.Forms.NumericUpDown();
 			this.estadoCampo = new System.Windows.Forms.FlowLayoutPanel();
 			this.estadoCampoLabel = new System.Windows.Forms.Label();
 			this.estado = new System.Windows.Forms.ComboBox();
-			this.clienteCampo = new System.Windows.Forms.FlowLayoutPanel();
-			this.clienteCampoLabel = new System.Windows.Forms.Label();
-			this.cliente = new System.Windows.Forms.ComboBox();
-			this.seguroCampo = new System.Windows.Forms.FlowLayoutPanel();
-			this.seguroCampoLabel = new System.Windows.Forms.Label();
-			this.seguro = new System.Windows.Forms.ComboBox();
 			this.guardarBoton = new System.Windows.Forms.Button();
 			this.nuevoBoton = new System.Windows.Forms.Button();
-			this.polizaNota = new System.Windows.Forms.Label();
+			this.unidadNota = new System.Windows.Forms.Label();
 			this.grilla = new System.Windows.Forms.DataGridView();
+			this.grillaSenaRequeridaColumna = new System.Windows.Forms.DataGridViewTextBoxColumn();
+			this.grillaGarantiaRequeridaColumna = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.filtro.SuspendLayout();
 			this.desdeCampo.SuspendLayout();
 			this.hastaCampo.SuspendLayout();
@@ -82,11 +75,7 @@
 			((System.ComponentModel.ISupportInitialize)(this.tarifa)).BeginInit();
 			this.reposicionCampo.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.reposicion)).BeginInit();
-			this.diasCampo.SuspendLayout();
-			((System.ComponentModel.ISupportInitialize)(this.dias)).BeginInit();
 			this.estadoCampo.SuspendLayout();
-			this.clienteCampo.SuspendLayout();
-			this.seguroCampo.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.grilla)).BeginInit();
 			this.SuspendLayout();
 			//
@@ -130,6 +119,7 @@
 			this.desde.Name = "desde";
 			this.desde.Size = new System.Drawing.Size(175, 25);
 			this.desde.TabIndex = 1;
+			this.desde.ValueChanged += new System.EventHandler(this.FechasCambio);
 			//
 			// hastaCampo
 			//
@@ -158,6 +148,7 @@
 			this.hasta.Name = "hasta";
 			this.hasta.Size = new System.Drawing.Size(175, 25);
 			this.hasta.TabIndex = 1;
+			this.hasta.ValueChanged += new System.EventHandler(this.FechasCambio);
 			//
 			// disponiblesBoton
 			//
@@ -191,13 +182,11 @@
 			this.mantenimiento.Controls.Add(this.descripcionCampo);
 			this.mantenimiento.Controls.Add(this.tarifaCampo);
 			this.mantenimiento.Controls.Add(this.reposicionCampo);
-			this.mantenimiento.Controls.Add(this.diasCampo);
 			this.mantenimiento.Controls.Add(this.estadoCampo);
-			this.mantenimiento.Controls.Add(this.clienteCampo);
-			this.mantenimiento.Controls.Add(this.seguroCampo);
+			this.mantenimiento.SetFlowBreak(this.estadoCampo, true);
 			this.mantenimiento.Controls.Add(this.guardarBoton);
 			this.mantenimiento.Controls.Add(this.nuevoBoton);
-			this.mantenimiento.Controls.Add(this.polizaNota);
+			this.mantenimiento.Controls.Add(this.unidadNota);
 			this.mantenimiento.Dock = System.Windows.Forms.DockStyle.Top;
 			this.mantenimiento.Location = new System.Drawing.Point(0, 90);
 			this.mantenimiento.Name = "mantenimiento";
@@ -425,34 +414,6 @@
 			this.reposicion.TabIndex = 1;
 			this.reposicion.ThousandsSeparator = true;
 			//
-			// diasCampo
-			//
-			this.diasCampo.Controls.Add(this.diasCampoLabel);
-			this.diasCampo.Controls.Add(this.dias);
-			this.diasCampo.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this.diasCampo.Location = new System.Drawing.Point(395, 87);
-			this.diasCampo.Name = "diasCampo";
-			this.diasCampo.Size = new System.Drawing.Size(185, 68);
-			this.diasCampo.TabIndex = 8;
-			//
-			// diasCampoLabel
-			//
-			this.diasCampoLabel.AutoSize = true;
-			this.diasCampoLabel.Location = new System.Drawing.Point(3, 0);
-			this.diasCampoLabel.Name = "diasCampoLabel";
-			this.diasCampoLabel.Size = new System.Drawing.Size(166, 19);
-			this.diasCampoLabel.TabIndex = 0;
-			this.diasCampoLabel.Text = "Días reacondicionamiento";
-			//
-			// dias
-			//
-			this.dias.Location = new System.Drawing.Point(3, 22);
-			this.dias.Maximum = new decimal (new int[] { 365, 0, 0, 0 });
-			this.dias.Name = "dias";
-			this.dias.Size = new System.Drawing.Size(175, 25);
-			this.dias.TabIndex = 1;
-			this.dias.Value = new decimal (new int[] { 1, 0, 0, 0 });
-			//
 			// estadoCampo
 			//
 			this.estadoCampo.Controls.Add(this.estadoCampoLabel);
@@ -482,65 +443,6 @@
 			this.estado.Size = new System.Drawing.Size(175, 25);
 			this.estado.TabIndex = 1;
 			//
-			// clienteCampo
-			//
-			this.clienteCampo.Controls.Add(this.clienteCampoLabel);
-			this.clienteCampo.Controls.Add(this.cliente);
-			this.clienteCampo.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this.clienteCampo.Location = new System.Drawing.Point(777, 87);
-			this.clienteCampo.Name = "clienteCampo";
-			this.clienteCampo.Size = new System.Drawing.Size(185, 68);
-			this.clienteCampo.TabIndex = 10;
-			//
-			// clienteCampoLabel
-			//
-			this.clienteCampoLabel.AutoSize = true;
-			this.clienteCampoLabel.Location = new System.Drawing.Point(3, 0);
-			this.clienteCampoLabel.Name = "clienteCampoLabel";
-			this.clienteCampoLabel.Size = new System.Drawing.Size(123, 19);
-			this.clienteCampoLabel.TabIndex = 0;
-			this.clienteCampoLabel.Text = "Cliente de la póliza";
-			//
-			// cliente
-			//
-			this.cliente.DisplayMember = "Nombre";
-			this.cliente.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.cliente.FormattingEnabled = true;
-			this.cliente.Location = new System.Drawing.Point(3, 22);
-			this.cliente.Name = "cliente";
-			this.cliente.Size = new System.Drawing.Size(175, 25);
-			this.cliente.TabIndex = 1;
-			this.cliente.SelectedIndexChanged += new System.EventHandler(this.ClienteCambio);
-			//
-			// seguroCampo
-			//
-			this.seguroCampo.Controls.Add(this.seguroCampoLabel);
-			this.seguroCampo.Controls.Add(this.seguro);
-			this.seguroCampo.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this.seguroCampo.Location = new System.Drawing.Point(968, 87);
-			this.seguroCampo.Name = "seguroCampo";
-			this.seguroCampo.Size = new System.Drawing.Size(185, 68);
-			this.seguroCampo.TabIndex = 11;
-			//
-			// seguroCampoLabel
-			//
-			this.seguroCampoLabel.AutoSize = true;
-			this.seguroCampoLabel.Location = new System.Drawing.Point(3, 0);
-			this.seguroCampoLabel.Name = "seguroCampoLabel";
-			this.seguroCampoLabel.Size = new System.Drawing.Size(115, 19);
-			this.seguroCampoLabel.TabIndex = 0;
-			this.seguroCampoLabel.Text = "Seguro (opcional)";
-			//
-			// seguro
-			//
-			this.seguro.DisplayMember = "Poliza";
-			this.seguro.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-			this.seguro.FormattingEnabled = true;
-			this.seguro.Location = new System.Drawing.Point(3, 22);
-			this.seguro.Name = "seguro";
-			this.seguro.Size = new System.Drawing.Size(175, 25);
-			this.seguro.TabIndex = 1;
-			//
 			// guardarBoton
 			//
 			this.guardarBoton.AutoSize = true;
@@ -548,7 +450,7 @@
 			this.guardarBoton.Name = "guardarBoton";
 			this.guardarBoton.Size = new System.Drawing.Size(120, 36);
 			this.guardarBoton.TabIndex = 12;
-			this.guardarBoton.Text = "Guardar unidad";
+			this.guardarBoton.Text = "Agregar unidad";
 			this.guardarBoton.UseVisualStyleBackColor = true;
 			this.guardarBoton.Click += new System.EventHandler(this.GuardarClick);
 			//
@@ -563,19 +465,22 @@
 			this.nuevoBoton.UseVisualStyleBackColor = true;
 			this.nuevoBoton.Click += new System.EventHandler(this.NuevoClick);
 			//
-			// polizaNota
+			// unidadNota
 			//
-			this.polizaNota.AutoSize = true;
-			this.polizaNota.Location = new System.Drawing.Point(265, 158);
-			this.polizaNota.Name = "polizaNota";
-			this.polizaNota.Size = new System.Drawing.Size(461, 19);
-			this.polizaNota.TabIndex = 14;
-			this.polizaNota.Text = "Una póliza puede asignarse a varias unidades. Su cobertura es por unidad.";
+			this.unidadNota.AutoSize = true;
+			this.unidadNota.Location = new System.Drawing.Point(265, 158);
+			this.unidadNota.Name = "unidadNota";
+			this.unidadNota.Size = new System.Drawing.Size(461, 19);
+			this.unidadNota.TabIndex = 14;
+			this.unidadNota.Text = "Nueva unidad: completá los datos y pulsá Agregar unidad.";
 			//
 			// grilla
 			//
 			this.grilla.AllowUserToAddRows = false;
 			this.grilla.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+			this.grilla.Columns.AddRange(
+				new System.Windows.Forms.DataGridViewColumn[] { this.grillaSenaRequeridaColumna, this.grillaGarantiaRequeridaColumna }
+			);
 			dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 10F);
 			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
 			this.grilla.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
@@ -588,7 +493,25 @@
 			this.grilla.SelectionMode = System.Windows.Forms.DataGridViewSelectionMode.FullRowSelect;
 			this.grilla.Size = new System.Drawing.Size(1180, 300);
 			this.grilla.TabIndex = 0;
+			this.grilla.DataBindingComplete += new System.Windows.Forms.DataGridViewBindingCompleteEventHandler(this.ColumnasCatalogo);
 			this.grilla.SelectionChanged += new System.EventHandler(this.EquipoCambio);
+			this.grilla.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.FormatearImportes);
+			//
+			// grillaSenaRequeridaColumna
+			//
+			this.grillaSenaRequeridaColumna.HeaderText = "Seña requerida ARS (fechas elegidas)";
+			this.grillaSenaRequeridaColumna.MinimumWidth = 135;
+			this.grillaSenaRequeridaColumna.Name = "SenaRequerida";
+			this.grillaSenaRequeridaColumna.ReadOnly = true;
+			this.grillaSenaRequeridaColumna.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
+			//
+			// grillaGarantiaRequeridaColumna
+			//
+			this.grillaGarantiaRequeridaColumna.HeaderText = "Garantía requerida ARS";
+			this.grillaGarantiaRequeridaColumna.MinimumWidth = 135;
+			this.grillaGarantiaRequeridaColumna.Name = "GarantiaRequerida";
+			this.grillaGarantiaRequeridaColumna.ReadOnly = true;
+			this.grillaGarantiaRequeridaColumna.SortMode = System.Windows.Forms.DataGridViewColumnSortMode.NotSortable;
 			//
 			// EquiposForm
 			//
@@ -630,15 +553,8 @@
 			this.reposicionCampo.ResumeLayout(false);
 			this.reposicionCampo.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.reposicion)).EndInit();
-			this.diasCampo.ResumeLayout(false);
-			this.diasCampo.PerformLayout();
-			((System.ComponentModel.ISupportInitialize)(this.dias)).EndInit();
 			this.estadoCampo.ResumeLayout(false);
 			this.estadoCampo.PerformLayout();
-			this.clienteCampo.ResumeLayout(false);
-			this.clienteCampo.PerformLayout();
-			this.seguroCampo.ResumeLayout(false);
-			this.seguroCampo.PerformLayout();
 			((System.ComponentModel.ISupportInitialize)(this.grilla)).EndInit();
 			this.ResumeLayout(false);
 		}
@@ -662,10 +578,7 @@
 		private System.Windows.Forms.TextBox descripcion;
 		private System.Windows.Forms.NumericUpDown tarifa;
 		private System.Windows.Forms.NumericUpDown reposicion;
-		private System.Windows.Forms.NumericUpDown dias;
 		private System.Windows.Forms.ComboBox estado;
-		private System.Windows.Forms.ComboBox cliente;
-		private System.Windows.Forms.ComboBox seguro;
 		private System.Windows.Forms.FlowLayoutPanel codigoCampo;
 		private System.Windows.Forms.Label codigoCampoLabel;
 		private System.Windows.Forms.FlowLayoutPanel serieCampo;
@@ -682,18 +595,14 @@
 		private System.Windows.Forms.Label tarifaCampoLabel;
 		private System.Windows.Forms.FlowLayoutPanel reposicionCampo;
 		private System.Windows.Forms.Label reposicionCampoLabel;
-		private System.Windows.Forms.FlowLayoutPanel diasCampo;
-		private System.Windows.Forms.Label diasCampoLabel;
 		private System.Windows.Forms.FlowLayoutPanel estadoCampo;
 		private System.Windows.Forms.Label estadoCampoLabel;
-		private System.Windows.Forms.FlowLayoutPanel clienteCampo;
-		private System.Windows.Forms.Label clienteCampoLabel;
-		private System.Windows.Forms.FlowLayoutPanel seguroCampo;
-		private System.Windows.Forms.Label seguroCampoLabel;
 		private System.Windows.Forms.Button guardarBoton;
 		private System.Windows.Forms.Button nuevoBoton;
-		private System.Windows.Forms.Label polizaNota;
+		private System.Windows.Forms.Label unidadNota;
 		private System.Windows.Forms.DataGridView grilla;
+		private System.Windows.Forms.DataGridViewTextBoxColumn grillaSenaRequeridaColumna;
+		private System.Windows.Forms.DataGridViewTextBoxColumn grillaGarantiaRequeridaColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn grillaIdColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn grillaCodigoInventarioColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn grillaCategoriaColumna;
@@ -703,6 +612,5 @@
 		private System.Windows.Forms.DataGridViewTextBoxColumn grillaEstadoColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn grillaTarifaDiariaColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn grillaValorReposicionColumna;
-		private System.Windows.Forms.DataGridViewTextBoxColumn grillaDiasReacondicionamientoColumna;
 	}
 }

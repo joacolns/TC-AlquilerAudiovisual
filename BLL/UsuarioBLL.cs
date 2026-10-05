@@ -76,6 +76,7 @@ namespace BLL
 					"Equipo.Consultar",
 					"Reserva.Cotizar",
 					"Reserva.Solicitar",
+					"Reserva.Pagar",
 					"Reserva.Consultar"
 				};
 			}
@@ -119,10 +120,43 @@ namespace BLL
 
 			ValidarRol(usuario.Rol);
 			usuario.NombreUsuario = usuario.NombreUsuario.Trim();
+			ValidarSeguro(usuario.Rol, usuario.TipoSeguro);
 			usuario.Sal = seguridad.CrearSal();
 			usuario.Hash = seguridad.Hashear(clave, usuario.Sal);
 			usuario.Id = mapper.Insertar(usuario);
 			return usuario.Id;
+		}
+
+		public bool ConfigurarSeguro(int usuarioId, string tipo)
+		{
+			Autorizar();
+
+			if (usuarioId <= 0)
+			{
+				throw new ArgumentException("Seleccioná un usuario.");
+			}
+
+			ValidarSeguro("Cliente", tipo);
+			return mapper.ConfigurarSeguro(usuarioId, tipo);
+		}
+
+		public bool CambiarClave(int usuarioId, string clave)
+		{
+			Autorizar();
+
+			if (usuarioId <= 0)
+			{
+				throw new ArgumentException("Seleccioná un usuario.");
+			}
+
+			if (string.IsNullOrEmpty(clave) || clave.Length < 8 || clave.Length > 128)
+			{
+				throw new ArgumentException("La contraseña debe tener entre 8 y 128 caracteres.");
+			}
+
+			byte[] sal = seguridad.CrearSal();
+			byte[] hash = seguridad.Hashear(clave, sal);
+			return mapper.CambiarClave(usuarioId, hash, sal);
 		}
 
 		public bool AsignarRol(int usuarioId, string rol)
@@ -150,6 +184,19 @@ namespace BLL
 			if (!seguridad.TienePermiso("Usuario.Gestionar"))
 			{
 				throw new UnauthorizedAccessException("No tenés permiso para gestionar usuarios.");
+			}
+		}
+
+		private void ValidarSeguro(string rol, string tipo)
+		{
+			if (tipo != "SinSeguro" && tipo != "Basico" && tipo != "Intermedio" && tipo != "Completo")
+			{
+				throw new ArgumentException("Elegí Sin seguro, Básico, Intermedio o Completo.");
+			}
+
+			if (rol != "Cliente" && tipo != "SinSeguro")
+			{
+				throw new ArgumentException("El seguro de alquiler corresponde a cuentas con rol Cliente.");
 			}
 		}
 

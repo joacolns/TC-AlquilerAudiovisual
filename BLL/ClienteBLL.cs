@@ -65,6 +65,27 @@ namespace BLL
 			return cliente.Id;
 		}
 
+		public void EliminarAntecedentes(int clienteId)
+		{
+			Autorizar("Cliente.Gestionar");
+			Usuario usuario = SesionSingleton.Instancia.UsuarioActual;
+
+			if (usuario == null || usuario.Rol != "Administrador")
+			{
+				throw new UnauthorizedAccessException("Solo el administrador puede eliminar antecedentes.");
+			}
+
+			if (clienteId <= 0)
+			{
+				throw new ArgumentException("Seleccioná un cliente de la lista.");
+			}
+
+			if (mapper.EliminarAntecedentes(clienteId, usuario.Id) != 1)
+			{
+				throw new InvalidOperationException("El cliente ya no existe.");
+			}
+		}
+
 		public int GuardarSeguro(Seguro seguro)
 		{
 			Autorizar("Seguro.Gestionar");
@@ -85,9 +106,16 @@ namespace BLL
 				|| string.IsNullOrWhiteSpace(seguro.Aseguradora)
 				|| seguro.Aseguradora.Length > 100
 				|| seguro.Hasta <= seguro.Desde
-				|| seguro.Cobertura <= 0)
+				|| seguro.Cobertura <= 0
+				|| (seguro.Tipo != "Basico"
+					&& seguro.Tipo != "Intermedio"
+					&& seguro.Tipo != "Completo")
+				|| string.IsNullOrWhiteSpace(seguro.Detalle)
+				|| seguro.Detalle.Length > 500)
 			{
-				throw new ArgumentException("Completá cliente, póliza, aseguradora, vigencia y cobertura positiva por unidad.");
+				throw new ArgumentException(
+					"Completá cliente, póliza, aseguradora, vigencia, tipo, detalle y tope de cobertura positivo por unidad."
+				);
 			}
 
 			seguro.Id = mapper.GuardarSeguro(seguro);
@@ -99,24 +127,12 @@ namespace BLL
 			Autorizar("Reserva.Confirmar");
 			Cliente cliente = mapper.Buscar(clienteId);
 
-			if (cliente == null
-				|| cliente.AntecedenteNegativo
-				|| cliente.Usuario == null
-				|| !cliente.Usuario.Activo
-				|| hasta <= desde)
+			if (cliente == null || cliente.Usuario == null || !cliente.Usuario.Activo || hasta <= desde)
 			{
 				return false;
 			}
 
-			foreach (Seguro seguro in mapper.ListarSeguros(clienteId))
-			{
-				if (seguro.Desde <= desde && seguro.Hasta >= hasta && seguro.Cobertura > 0)
-				{
-					return true;
-				}
-			}
-
-			return false;
+			return true;
 		}
 
 		public List<Cliente> Listar()

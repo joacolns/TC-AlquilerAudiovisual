@@ -22,6 +22,7 @@
 			this.tabs = new System.Windows.Forms.TabControl();
 			this.ficha = new System.Windows.Forms.TabPage();
 			this.clientes = new System.Windows.Forms.DataGridView();
+			this.clientesAntecedentesColumna = new System.Windows.Forms.DataGridViewTextBoxColumn();
 			this.alta = new System.Windows.Forms.FlowLayoutPanel();
 			this.cuentaCampo = new System.Windows.Forms.FlowLayoutPanel();
 			this.cuentaCampoLabel = new System.Windows.Forms.Label();
@@ -38,8 +39,8 @@
 			this.emailCampo = new System.Windows.Forms.FlowLayoutPanel();
 			this.emailCampoLabel = new System.Windows.Forms.Label();
 			this.email = new System.Windows.Forms.TextBox();
-			this.antecedente = new System.Windows.Forms.CheckBox();
 			this.clienteBoton = new System.Windows.Forms.Button();
+			this.eliminarAntecedentesBoton = new System.Windows.Forms.Button();
 			this.coberturaTab = new System.Windows.Forms.TabPage();
 			this.seguros = new System.Windows.Forms.DataGridView();
 			this.formulario = new System.Windows.Forms.FlowLayoutPanel();
@@ -64,6 +65,12 @@
 			this.guardarSeguroBoton = new System.Windows.Forms.Button();
 			this.nuevoSeguroBoton = new System.Windows.Forms.Button();
 			this.seguroNota = new System.Windows.Forms.Label();
+			this.tipoSeguro = new System.Windows.Forms.ComboBox();
+			this.tipoSeguroCampo = new System.Windows.Forms.FlowLayoutPanel();
+			this.tipoSeguroLabel = new System.Windows.Forms.Label();
+			this.detalleSeguro = new System.Windows.Forms.TextBox();
+			this.detalleSeguroCampo = new System.Windows.Forms.FlowLayoutPanel();
+			this.detalleSeguroLabel = new System.Windows.Forms.Label();
 			this.tabs.SuspendLayout();
 			this.ficha.SuspendLayout();
 			((System.ComponentModel.ISupportInitialize)(this.clientes)).BeginInit();
@@ -112,6 +119,14 @@
 			//
 			this.clientes.AllowUserToAddRows = false;
 			this.clientes.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.Fill;
+			this.clientes.Columns.Add(this.clientesAntecedentesColumna);
+			this.clientes.CellFormatting += new System.Windows.Forms.DataGridViewCellFormattingEventHandler(this.FormatearAntecedentes);
+			this.clientes.SelectionChanged += new System.EventHandler(this.SeleccionarCliente);
+			this.clientesAntecedentesColumna.DataPropertyName = "Antecedentes";
+			this.clientesAntecedentesColumna.Name = "Antecedentes";
+			this.clientesAntecedentesColumna.HeaderText = "Antecedentes (historial de incidentes)";
+			this.clientesAntecedentesColumna.MinimumWidth = 220;
+			this.clientesAntecedentesColumna.ReadOnly = true;
 			dataGridViewCellStyle1.Font = new System.Drawing.Font("Segoe UI", 10F);
 			dataGridViewCellStyle1.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
 			this.clientes.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle1;
@@ -132,8 +147,8 @@
 			this.alta.Controls.Add(this.nombreCampo);
 			this.alta.Controls.Add(this.telefonoCampo);
 			this.alta.Controls.Add(this.emailCampo);
-			this.alta.Controls.Add(this.antecedente);
 			this.alta.Controls.Add(this.clienteBoton);
+			this.alta.Controls.Add(this.eliminarAntecedentesBoton);
 			this.alta.Dock = System.Windows.Forms.DockStyle.Top;
 			this.alta.Location = new System.Drawing.Point(3, 3);
 			this.alta.Name = "alta";
@@ -278,15 +293,6 @@
 			this.email.Size = new System.Drawing.Size(185, 25);
 			this.email.TabIndex = 1;
 			//
-			// antecedente
-			//
-			this.antecedente.AutoSize = true;
-			this.antecedente.Location = new System.Drawing.Point(214, 85);
-			this.antecedente.Name = "antecedente";
-			this.antecedente.Size = new System.Drawing.Size(162, 23);
-			this.antecedente.TabIndex = 5;
-			this.antecedente.Text = "Antecedente negativo";
-			//
 			// clienteBoton
 			//
 			this.clienteBoton.AutoSize = true;
@@ -297,6 +303,18 @@
 			this.clienteBoton.Text = "Crear cliente";
 			this.clienteBoton.UseVisualStyleBackColor = true;
 			this.clienteBoton.Click += new System.EventHandler(this.GuardarClienteClick);
+			//
+			// eliminarAntecedentesBoton
+			//
+			this.eliminarAntecedentesBoton.AutoSize = true;
+			this.eliminarAntecedentesBoton.Enabled = false;
+			this.eliminarAntecedentesBoton.Location = new System.Drawing.Point(508, 85);
+			this.eliminarAntecedentesBoton.Name = "eliminarAntecedentesBoton";
+			this.eliminarAntecedentesBoton.Size = new System.Drawing.Size(260, 36);
+			this.eliminarAntecedentesBoton.TabIndex = 7;
+			this.eliminarAntecedentesBoton.Text = "Eliminar antecedentes del seleccionado";
+			this.eliminarAntecedentesBoton.UseVisualStyleBackColor = true;
+			this.eliminarAntecedentesBoton.Click += new System.EventHandler(this.EliminarAntecedentesClick);
 			//
 			// coberturaTab
 			//
@@ -336,6 +354,8 @@
 			this.formulario.Controls.Add(this.desdeCampo);
 			this.formulario.Controls.Add(this.hastaCampo);
 			this.formulario.Controls.Add(this.coberturaCampo);
+			this.formulario.Controls.Add(this.tipoSeguroCampo);
+			this.formulario.Controls.Add(this.detalleSeguroCampo);
 			this.formulario.Controls.Add(this.guardarSeguroBoton);
 			this.formulario.Controls.Add(this.nuevoSeguroBoton);
 			this.formulario.Controls.Add(this.seguroNota);
@@ -343,7 +363,8 @@
 			this.formulario.Location = new System.Drawing.Point(3, 3);
 			this.formulario.Name = "formulario";
 			this.formulario.Padding = new System.Windows.Forms.Padding(10);
-			this.formulario.Size = new System.Drawing.Size(186, 200);
+			this.formulario.Size = new System.Drawing.Size(1016, 310);
+			this.formulario.AutoScroll = true;
 			this.formulario.TabIndex = 1;
 			//
 			// clienteCampo
@@ -501,7 +522,7 @@
 			this.coberturaCampoLabel.Name = "coberturaCampoLabel";
 			this.coberturaCampoLabel.Size = new System.Drawing.Size(170, 19);
 			this.coberturaCampoLabel.TabIndex = 0;
-			this.coberturaCampoLabel.Text = "Cobertura ARS por unidad";
+			this.coberturaCampoLabel.Text = "Tope ARS por unidad";
 			//
 			// cobertura
 			//
@@ -520,7 +541,7 @@
 			this.guardarSeguroBoton.Name = "guardarSeguroBoton";
 			this.guardarSeguroBoton.Size = new System.Drawing.Size(120, 36);
 			this.guardarSeguroBoton.TabIndex = 6;
-			this.guardarSeguroBoton.Text = "Guardar seguro";
+			this.guardarSeguroBoton.Text = "Crear seguro";
 			this.guardarSeguroBoton.UseVisualStyleBackColor = true;
 			this.guardarSeguroBoton.Click += new System.EventHandler(this.GuardarSeguroClick);
 			//
@@ -542,7 +563,35 @@
 			this.seguroNota.Name = "seguroNota";
 			this.seguroNota.Size = new System.Drawing.Size(159, 38);
 			this.seguroNota.TabIndex = 8;
-			this.seguroNota.Text = "La póliza se asigna a las unidades desde Equipos.";
+			this.seguroNota.MaximumSize = new System.Drawing.Size(960, 0);
+			this.seguroNota.Text = "Básico: 25% de daño reparable. Intermedio: 50% de daños. Completo: 80% de daños y faltantes. Hasta el tope por unidad; atraso sin cobertura. La póliza se asigna desde Equipos; alquilar sin seguro está permitido.";
+			this.tipoSeguroCampo.Name = "tipoSeguroCampo";
+			this.tipoSeguroCampo.Size = new System.Drawing.Size(195, 66);
+			this.tipoSeguroCampo.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+			this.tipoSeguroCampo.Controls.Add(this.tipoSeguroLabel);
+			this.tipoSeguroCampo.Controls.Add(this.tipoSeguro);
+			this.tipoSeguroLabel.Name = "tipoSeguroLabel";
+			this.tipoSeguroLabel.Text = "Tipo de seguro";
+			this.tipoSeguroLabel.AutoSize = true;
+			this.tipoSeguro.Name = "tipoSeguro";
+			this.tipoSeguro.Size = new System.Drawing.Size(180, 25);
+			this.tipoSeguro.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+			this.tipoSeguro.Items.AddRange(new object[] { "Basico", "Intermedio", "Completo" });
+			this.tipoSeguro.SelectedIndex = 0;
+			this.detalleSeguroCampo.Name = "detalleSeguroCampo";
+			this.detalleSeguroCampo.Size = new System.Drawing.Size(580, 90);
+			this.detalleSeguroCampo.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
+			this.detalleSeguroCampo.Controls.Add(this.detalleSeguroLabel);
+			this.detalleSeguroCampo.Controls.Add(this.detalleSeguro);
+			this.detalleSeguroLabel.Name = "detalleSeguroLabel";
+			this.detalleSeguroLabel.Text = "Detalle de la póliza (obligatorio)";
+			this.detalleSeguroLabel.AutoSize = true;
+			this.detalleSeguro.Name = "detalleSeguro";
+			this.detalleSeguro.Size = new System.Drawing.Size(560, 55);
+			this.detalleSeguro.Multiline = true;
+			this.detalleSeguro.MaxLength = 500;
+			this.formulario.SetFlowBreak(this.tipoSeguroCampo, true);
+			this.formulario.SetFlowBreak(this.nuevoSeguroBoton, true);
 			//
 			// ClientesForm
 			//
@@ -613,16 +662,16 @@
 		private System.Windows.Forms.Label telefonoCampoLabel;
 		private System.Windows.Forms.FlowLayoutPanel emailCampo;
 		private System.Windows.Forms.Label emailCampoLabel;
-		private System.Windows.Forms.CheckBox antecedente;
 		private System.Windows.Forms.Button clienteBoton;
+		private System.Windows.Forms.Button eliminarAntecedentesBoton;
 		private System.Windows.Forms.DataGridView clientes;
+		private System.Windows.Forms.DataGridViewTextBoxColumn clientesAntecedentesColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn clientesIdColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn clientesUsuarioIdColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn clientesDniCuitColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn clientesNombreColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn clientesTelefonoColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn clientesEmailColumna;
-		private System.Windows.Forms.DataGridViewTextBoxColumn clientesAntecedenteNegativoColumna;
 		private System.Windows.Forms.FlowLayoutPanel formulario;
 		private System.Windows.Forms.ComboBox clienteSeguro;
 		private System.Windows.Forms.DateTimePicker desde;
@@ -643,6 +692,12 @@
 		private System.Windows.Forms.Button guardarSeguroBoton;
 		private System.Windows.Forms.Button nuevoSeguroBoton;
 		private System.Windows.Forms.Label seguroNota;
+		private System.Windows.Forms.ComboBox tipoSeguro;
+		private System.Windows.Forms.FlowLayoutPanel tipoSeguroCampo;
+		private System.Windows.Forms.Label tipoSeguroLabel;
+		private System.Windows.Forms.TextBox detalleSeguro;
+		private System.Windows.Forms.FlowLayoutPanel detalleSeguroCampo;
+		private System.Windows.Forms.Label detalleSeguroLabel;
 		private System.Windows.Forms.DataGridView seguros;
 		private System.Windows.Forms.DataGridViewTextBoxColumn segurosIdColumna;
 		private System.Windows.Forms.DataGridViewTextBoxColumn segurosPolizaColumna;

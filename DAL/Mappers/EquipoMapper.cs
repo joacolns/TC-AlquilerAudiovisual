@@ -161,7 +161,7 @@ namespace DAL
 				DniCuit = Convert.ToString(fila["DniCuit"]),
 				Telefono = Convert.ToString(fila["Telefono"]),
 				Email = Convert.ToString(fila["Email"]),
-				AntecedenteNegativo = Convert.ToBoolean(fila["AntecedenteNegativo"]),
+				Antecedentes = Convert.ToString(fila["Antecedentes"]),
 				Usuario = new Usuario
 				{
 					Id = Convert.ToInt32(fila["UsuarioId"]),
@@ -175,6 +175,8 @@ namespace DAL
 				Id = Convert.ToInt32(fila["SeguroId"]),
 				ClienteId = cliente.Id,
 				Cliente = cliente,
+				Tipo = Convert.ToString(fila["TipoSeguro"]),
+				Detalle = Convert.ToString(fila["DetalleSeguro"]),
 				Poliza = Convert.ToString(fila["Poliza"]),
 				Aseguradora = Convert.ToString(fila["Aseguradora"]),
 				Desde = Convert.ToDateTime(fila["SeguroDesde"]),

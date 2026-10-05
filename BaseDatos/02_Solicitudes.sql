@@ -16,7 +16,7 @@ BEGIN
  AND parent_column_id=COLUMNPROPERTY(OBJECT_ID(N'dbo.Reserva'),N'Estado',N'ColumnId');
  IF @ddlEstado<>N'' EXEC sys.sp_executesql @ddlEstado;
  ALTER TABLE dbo.Reserva WITH CHECK ADD CONSTRAINT CK_Reserva_EstadoSolicitud
- CHECK(Estado IN(N'Pendiente',N'Firme',N'Entregada',N'ConIncidencia',N'Cerrada'));
+ CHECK(Estado IN(N'Pendiente',N'Rechazada',N'Aceptada',N'Firme',N'Entregada',N'ConIncidencia',N'Cerrada'));
 END;
 IF NOT EXISTS(SELECT 1 FROM sys.check_constraints WHERE parent_object_id=OBJECT_ID(N'dbo.ReservaEquipo') AND name=N'CK_ReservaEquipo_CoberturaSolicitud')
 BEGIN

@@ -30,6 +30,38 @@ namespace DAL
 			return acceso.Escribir("sp_Reserva_Confirmar", parametros) == 1;
 		}
 
+		public bool Pagar(int reservaId, int usuarioId)
+		{
+			return acceso.Escribir(
+				"sp_Reserva_Pagar",
+				new List<SqlParameter>
+				{
+					new SqlParameter("@ReservaId", SqlDbType.Int)
+					{
+						Value = reservaId
+					},
+					new SqlParameter("@UsuarioId", SqlDbType.Int)
+					{
+						Value = usuarioId
+					}
+				}
+			) == 1;
+		}
+
+		public bool Rechazar(int reservaId)
+		{
+			return acceso.Escribir(
+				"sp_Reserva_Rechazar",
+				new List<SqlParameter>
+				{
+					new SqlParameter("@ReservaId", SqlDbType.Int)
+					{
+						Value = reservaId
+					}
+				}
+			) == 1;
+		}
+
 		private List<SqlParameter> Parametros(Reserva reserva)
 		{
 			DataTable unidades = new DataTable();
@@ -91,17 +123,17 @@ namespace DAL
 					Scale = 2,
 					Value = reserva.Importe
 				},
-				new SqlParameter("@Sena", SqlDbType.Decimal)
+				new SqlParameter("@SenaRequerida", SqlDbType.Decimal)
 				{
 					Precision = 18,
 					Scale = 2,
-					Value = reserva.Sena
+					Value = reserva.SenaRequerida
 				},
-				new SqlParameter("@Garantia", SqlDbType.Decimal)
+				new SqlParameter("@GarantiaRequerida", SqlDbType.Decimal)
 				{
 					Precision = 18,
 					Scale = 2,
-					Value = reserva.Garantia
+					Value = reserva.GarantiaRequerida
 				},
 				new SqlParameter("@PorcentajeSena", SqlDbType.Decimal)
 				{
@@ -214,18 +246,21 @@ namespace DAL
 							DniCuit = Convert.ToString(fila["ClienteDniCuit"]),
 							Telefono = Convert.ToString(fila["ClienteTelefono"]),
 							Email = Convert.ToString(fila["ClienteEmail"]),
-							AntecedenteNegativo = Convert.ToBoolean(fila["ClienteAntecedente"]),
+							Antecedentes = Convert.ToString(fila["ClienteAntecedentes"]),
 							Usuario = new Usuario
 							{
 								Id = Convert.ToInt32(fila["ReservaUsuarioId"]),
 								NombreUsuario = Convert.ToString(fila["ReservaNombreUsuario"]),
 								Rol = Convert.ToString(fila["ReservaRol"]),
-								Activo = Convert.ToBoolean(fila["ReservaActivo"])
+								Activo = Convert.ToBoolean(fila["ReservaActivo"]),
+								TipoSeguro = Convert.ToString(fila["ClienteTipoSeguro"])
 							}
 						},
 						Desde = Convert.ToDateTime(fila["Desde"]),
 						Hasta = Convert.ToDateTime(fila["Hasta"]),
 						Importe = Convert.ToDecimal(fila["Importe"]),
+						SenaRequerida = Convert.ToDecimal(fila["SenaRequerida"]),
+						GarantiaRequerida = Convert.ToDecimal(fila["GarantiaRequerida"]),
 						Sena = Convert.ToDecimal(fila["Sena"]),
 						Garantia = Convert.ToDecimal(fila["Garantia"]),
 						Estado = Convert.ToString(fila["Estado"]),
@@ -274,7 +309,7 @@ namespace DAL
 				DniCuit = Convert.ToString(fila["DniCuit"]),
 				Telefono = Convert.ToString(fila["Telefono"]),
 				Email = Convert.ToString(fila["Email"]),
-				AntecedenteNegativo = Convert.ToBoolean(fila["AntecedenteNegativo"]),
+				Antecedentes = Convert.ToString(fila["Antecedentes"]),
 				Usuario = new Usuario
 				{
 					Id = Convert.ToInt32(fila["UsuarioId"]),
@@ -288,6 +323,8 @@ namespace DAL
 				Id = Convert.ToInt32(fila["SeguroId"]),
 				ClienteId = cliente.Id,
 				Cliente = cliente,
+				Tipo = Convert.ToString(fila["TipoSeguro"]),
+				Detalle = Convert.ToString(fila["DetalleSeguro"]),
 				Poliza = Convert.ToString(fila["Poliza"]),
 				Aseguradora = Convert.ToString(fila["Aseguradora"]),
 				Desde = Convert.ToDateTime(fila["SeguroDesde"]),

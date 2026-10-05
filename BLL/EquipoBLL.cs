@@ -10,6 +10,7 @@ namespace BLL
 	{
 		private readonly EquipoMapper mapper = new EquipoMapper();
 		private readonly Seguridad seguridad = new Seguridad();
+		private readonly UsuarioMapper usuarios = new UsuarioMapper();
 
 		public int Guardar(Equipo equipo)
 		{
@@ -33,7 +34,7 @@ namespace BLL
 				|| equipo.DiasReacondicionamiento < 0
 				|| equipo.DiasReacondicionamiento > 365)
 			{
-				throw new ArgumentException("Completá los datos de la unidad, importes positivos y días entre 0 y 365.");
+				throw new ArgumentException("Completá los datos de la unidad y los importes positivos de tarifa y reposición.");
 			}
 
 			// Alquilado y ConIncidencia se asignan en sus procesos, no desde el catálogo.
@@ -80,13 +81,20 @@ namespace BLL
 		private List<Equipo> FiltrarSeguros(List<Equipo> lista)
 		{
 			Usuario usuario = SesionSingleton.Instancia.UsuarioActual;
+			Seguro propio = null;
+
+			if (usuario.Rol == "Cliente")
+			{
+				propio = usuarios.BuscarSeguro(usuario.Id);
+			}
 
 			foreach (Equipo equipo in lista)
 			{
-				if (usuario.Rol == "Tecnico"
-					|| (usuario.Rol == "Cliente"
-						&& equipo.Seguro != null
-						&& equipo.Seguro.Cliente.UsuarioId != usuario.Id))
+				if (usuario.Rol == "Cliente")
+				{
+					equipo.Seguro = propio;
+				}
+				else if (usuario.Rol == "Tecnico")
 				{
 					equipo.Seguro = null;
 				}

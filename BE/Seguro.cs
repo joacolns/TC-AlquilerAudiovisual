@@ -7,6 +7,8 @@ namespace BE
 		public int Id { get; set; }
 		public int ClienteId { get; set; }
 		public Cliente Cliente { get; set; }
+		public string Tipo { get; set; }
+		public string Detalle { get; set; }
 		public string Poliza { get; set; }
 		public string Aseguradora { get; set; }
 		public DateTime Desde { get; set; }

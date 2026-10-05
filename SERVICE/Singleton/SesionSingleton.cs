@@ -34,7 +34,10 @@ namespace SERVICE
 				Id = usuario.Id,
 				NombreUsuario = usuario.NombreUsuario,
 				Rol = usuario.Rol,
-				Activo = usuario.Activo
+				Activo = usuario.Activo,
+				TipoSeguro = usuario.TipoSeguro,
+				SeguroId = usuario.SeguroId,
+				Seguro = usuario.Seguro
 			};
 			Permisos = permisos;
 		}

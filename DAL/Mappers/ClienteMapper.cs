@@ -33,10 +33,24 @@ namespace DAL
 					new SqlParameter("@Email", SqlDbType.NVarChar, 150)
 					{
 						Value = cliente.Email
-					},
-					new SqlParameter("@AntecedenteNegativo", SqlDbType.Bit)
+					}
+				}
+			);
+		}
+
+		public int EliminarAntecedentes(int clienteId, int usuarioId)
+		{
+			return acceso.Escribir(
+				"sp_Cliente_EliminarAntecedentes",
+				new List<SqlParameter>
+				{
+					new SqlParameter("@ClienteId", SqlDbType.Int)
 					{
-						Value = cliente.AntecedenteNegativo
+						Value = clienteId
+					},
+					new SqlParameter("@UsuarioId", SqlDbType.Int)
+					{
+						Value = usuarioId
 					}
 				}
 			);
@@ -112,6 +126,14 @@ namespace DAL
 					{
 						Value = seguro.ClienteId
 					},
+					new SqlParameter("@Tipo", SqlDbType.NVarChar, 25)
+					{
+						Value = seguro.Tipo
+					},
+					new SqlParameter("@Detalle", SqlDbType.NVarChar, 500)
+					{
+						Value = seguro.Detalle
+					},
 					new SqlParameter("@Poliza", SqlDbType.NVarChar, 50)
 					{
 						Value = seguro.Poliza
@@ -160,6 +182,8 @@ namespace DAL
 						Id = Convert.ToInt32(fila["Id"]),
 						ClienteId = Convert.ToInt32(fila["ClienteId"]),
 						Cliente = MapearClienteSeguro(fila),
+						Tipo = Convert.ToString(fila["Tipo"]),
+						Detalle = Convert.ToString(fila["Detalle"]),
 						Poliza = Convert.ToString(fila["Poliza"]),
 						Aseguradora = Convert.ToString(fila["Aseguradora"]),
 						Desde = Convert.ToDateTime(fila["Desde"]),
@@ -182,7 +206,7 @@ namespace DAL
 				Nombre = Convert.ToString(fila["Nombre"]),
 				Telefono = Convert.ToString(fila["Telefono"]),
 				Email = Convert.ToString(fila["Email"]),
-				AntecedenteNegativo = Convert.ToBoolean(fila["AntecedenteNegativo"]),
+				Antecedentes = Convert.ToString(fila["Antecedentes"]),
 				Usuario = MapearUsuario(fila)
 			};
 		}
@@ -209,7 +233,7 @@ namespace DAL
 				DniCuit = Convert.ToString(fila["DniCuit"]),
 				Telefono = Convert.ToString(fila["Telefono"]),
 				Email = Convert.ToString(fila["Email"]),
-				AntecedenteNegativo = Convert.ToBoolean(fila["AntecedenteNegativo"])
+				Antecedentes = Convert.ToString(fila["Antecedentes"])
 			};
 		}
 	}

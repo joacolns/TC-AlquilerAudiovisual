@@ -30,6 +30,7 @@
 			this.estado = new System.Windows.Forms.Label();
 			this.equiposBoton = new System.Windows.Forms.Button();
 			this.reservasBoton = new System.Windows.Forms.Button();
+			this.devolucionesBoton = new System.Windows.Forms.Button();
 			this.clientesBoton = new System.Windows.Forms.Button();
 			this.usuariosBoton = new System.Windows.Forms.Button();
 			this.cerrarBoton = new System.Windows.Forms.Button();
@@ -138,6 +139,7 @@
 			this.menu.Controls.Add(this.estado);
 			this.menu.Controls.Add(this.equiposBoton);
 			this.menu.Controls.Add(this.reservasBoton);
+			this.menu.Controls.Add(this.devolucionesBoton);
 			this.menu.Controls.Add(this.clientesBoton);
 			this.menu.Controls.Add(this.usuariosBoton);
 			this.menu.Controls.Add(this.cerrarBoton);
@@ -177,6 +179,12 @@
 			this.reservasBoton.Text = "Solicitudes, reservas y entrega";
 			this.reservasBoton.UseVisualStyleBackColor = true;
 			this.reservasBoton.Click += new System.EventHandler(this.ReservasClick);
+			// devolucionesBoton
+			this.devolucionesBoton.Name = "devolucionesBoton";
+			this.devolucionesBoton.Text = "Devolución, incidencias y alta técnica";
+			this.devolucionesBoton.Size = new System.Drawing.Size(400, 38);
+			this.devolucionesBoton.UseVisualStyleBackColor = true;
+			this.devolucionesBoton.Click += new System.EventHandler(this.DevolucionesClick);
 			//
 			// clientesBoton
 			//
@@ -218,7 +226,7 @@
 			this.Font = new System.Drawing.Font("Segoe UI", 10F);
 			this.Name = "LoginForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.Text = "Alquiler audiovisual · ENTREGA1";
+			this.Text = "Alquiler audiovisual · N01 / N02";
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Salir);
 			this.Load += new System.EventHandler(this.PrepararPantalla);
 			this.vistas.ResumeLayout(false);
@@ -245,6 +253,7 @@
 		private System.Windows.Forms.Label estado;
 		private System.Windows.Forms.Button equiposBoton;
 		private System.Windows.Forms.Button reservasBoton;
+		private System.Windows.Forms.Button devolucionesBoton;
 		private System.Windows.Forms.Button clientesBoton;
 		private System.Windows.Forms.Button usuariosBoton;
 		private System.Windows.Forms.Button cerrarBoton;

@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Security.Cryptography;
+using System.Runtime.InteropServices;
+using System.Text;
 using BE;
 
 namespace SERVICE
@@ -8,6 +10,12 @@ namespace SERVICE
 	{
 		// Formato único de esta entrega: PBKDF2-SHA256, sal de 16 y hash de 32 bytes.
 		private const int Iteraciones = 600000;
+		[DllImport("bcrypt.dll", CharSet = CharSet.Unicode)]
+		private static extern int BCryptOpenAlgorithmProvider(out IntPtr algoritmo, string nombre, string proveedor, uint opciones);
+		[DllImport("bcrypt.dll")]
+		private static extern int BCryptDeriveKeyPBKDF2(IntPtr algoritmo, byte[] clave, uint longitudClave, byte[] sal, uint longitudSal, ulong iteraciones, [Out] byte[] hash, uint longitudHash, uint opciones);
+		[DllImport("bcrypt.dll")]
+		private static extern int BCryptCloseAlgorithmProvider(IntPtr algoritmo, uint opciones);
 
 		public byte[] CrearSal()
 		{
@@ -28,9 +36,43 @@ namespace SERVICE
 				throw new ArgumentException("La contraseña y su sal son obligatorias.");
 			}
 
-			using (Rfc2898DeriveBytes derivacion = new Rfc2898DeriveBytes(clave, sal, Iteraciones, HashAlgorithmName.SHA256))
+			// Windows calcula el mismo PBKDF2-SHA256 sin el costo de iterar en código administrado.
+			IntPtr algoritmo;
+			int estado = BCryptOpenAlgorithmProvider(out algoritmo, "SHA256", null, 0x00000008);
+
+			if (estado != 0)
 			{
-				return derivacion.GetBytes(32);
+				throw new CryptographicException("No se pudo iniciar la protección de la contraseña.");
+			}
+
+			byte[] texto = Encoding.UTF8.GetBytes(clave);
+
+			try
+			{
+				byte[] hash = new byte[32];
+				estado = BCryptDeriveKeyPBKDF2(
+					algoritmo,
+					texto,
+					(uint)texto.Length,
+					sal,
+					(uint)sal.Length,
+					Iteraciones,
+					hash,
+					(uint)hash.Length,
+					0
+				);
+
+				if (estado != 0)
+				{
+					throw new CryptographicException("No se pudo proteger la contraseña.");
+				}
+
+				return hash;
+			}
+			finally
+			{
+				Array.Clear(texto, 0, texto.Length);
+				BCryptCloseAlgorithmProvider(algoritmo, 0);
 			}
 		}
 

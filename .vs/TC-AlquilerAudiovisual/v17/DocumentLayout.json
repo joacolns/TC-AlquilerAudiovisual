@@ -3,40 +3,68 @@
   "WorkspaceRootPath": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{AF6BF553-077D-4632-9424-B0AD19F1581C}|SERVICE\\SERVICE.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\service\\seguridad.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{AF6BF553-077D-4632-9424-B0AD19F1581C}|SERVICE\\SERVICE.csproj|solutionrelative:service\\seguridad.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{88F3A440-E2DB-4F49-99B2-C8A3A71D6FDF}|BE\\BE.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\be\\cliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{88F3A440-E2DB-4F49-99B2-C8A3A71D6FDF}|BE\\BE.csproj|solutionrelative:be\\cliente.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\gui\\forms\\reservasform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|solutionrelative:gui\\forms\\reservasform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\gui\\forms\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
-      "RelativeMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|solutionrelative:gui\\forms\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+      "AbsoluteMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\bll\\classdiagram1.cd||{59B0B277-7DDF-4E36-A3ED-02DAC5B9E2FA}|",
+      "RelativeMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|solutionrelative:bll\\classdiagram1.cd||{59B0B277-7DDF-4E36-A3ED-02DAC5B9E2FA}|"
     },
     {
       "AbsoluteMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\gui\\forms\\equiposform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
       "RelativeMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|solutionrelative:gui\\forms\\equiposform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{710221EB-5F69-4DE8-81A7-886617AB0CC1}|DAL\\DAL.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\dal\\acceso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{710221EB-5F69-4DE8-81A7-886617AB0CC1}|DAL\\DAL.csproj|solutionrelative:dal\\acceso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\gui\\forms\\equiposform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|solutionrelative:gui\\forms\\equiposform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\bll\\reservabll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|solutionrelative:bll\\reservabll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\gui\\forms\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|solutionrelative:gui\\forms\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\bll\\equipobll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|solutionrelative:bll\\equipobll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\gui\\forms\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|solutionrelative:gui\\forms\\loginform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\bll\\clientebll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "AbsoluteMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\gui\\forms\\reservasform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form",
+      "RelativeMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|solutionrelative:gui\\forms\\reservasform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}|Form"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\bll\\clientebll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
       "RelativeMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|solutionrelative:bll\\clientebll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|d:\\uai\\trabajocampo\\tp\\codigo\\tc-alquileraudiovisual\\gui\\forms\\equiposform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|solutionrelative:gui\\forms\\equiposform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{88F3A440-E2DB-4F49-99B2-C8A3A71D6FDF}|BE\\BE.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\be\\incidencia.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{88F3A440-E2DB-4F49-99B2-C8A3A71D6FDF}|BE\\BE.csproj|solutionrelative:be\\incidencia.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\bll\\equipobll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|solutionrelative:bll\\equipobll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\bll\\devolucionbll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|solutionrelative:bll\\devolucionbll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{88F3A440-E2DB-4F49-99B2-C8A3A71D6FDF}|BE\\BE.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\be\\devolucion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{88F3A440-E2DB-4F49-99B2-C8A3A71D6FDF}|BE\\BE.csproj|solutionrelative:be\\devolucion.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{88F3A440-E2DB-4F49-99B2-C8A3A71D6FDF}|BE\\BE.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\be\\seguro.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{88F3A440-E2DB-4F49-99B2-C8A3A71D6FDF}|BE\\BE.csproj|solutionrelative:be\\seguro.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{AF6BF553-077D-4632-9424-B0AD19F1581C}|SERVICE\\SERVICE.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\service\\seguridad.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{AF6BF553-077D-4632-9424-B0AD19F1581C}|SERVICE\\SERVICE.csproj|solutionrelative:service\\seguridad.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{710221EB-5F69-4DE8-81A7-886617AB0CC1}|DAL\\DAL.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\dal\\acceso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{710221EB-5F69-4DE8-81A7-886617AB0CC1}|DAL\\DAL.csproj|solutionrelative:dal\\acceso.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\bll\\reservabll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{984C94F9-F12B-4980-995D-F391BF05F85D}|BLL\\BLL.csproj|solutionrelative:bll\\reservabll.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{56226396-65B5-45E3-B7BB-879ABB295DF1}|GUI\\GUI.csproj|D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\gui\\forms\\clientesform.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
@@ -78,10 +106,6 @@
           "Children": [
             {
               "$type": "Bookmark",
-              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
-            },
-            {
-              "$type": "Bookmark",
               "Name": "ST:128:0:{1fc202d4-d401-403c-9834-5b218574bb67}"
             },
             {
@@ -97,33 +121,60 @@
               "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cde3}"
             },
             {
+              "$type": "Bookmark",
+              "Name": "ST:0:0:{aa2115a1-9712-457b-9047-dbb71ca2cdd2}"
+            },
+            {
               "$type": "Document",
               "DocumentIndex": 0,
+              "Title": "Cliente.cs",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Cliente.cs",
+              "RelativeDocumentMoniker": "BE\\Cliente.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Cliente.cs",
+              "RelativeToolTip": "BE\\Cliente.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA4AAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-05T15:07:10.468Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 4,
+              "Title": "LoginForm.cs",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\LoginForm.cs",
+              "RelativeDocumentMoniker": "GUI\\Forms\\LoginForm.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\LoginForm.cs",
+              "RelativeToolTip": "GUI\\Forms\\LoginForm.cs",
+              "ViewState": "AgIAAH8AAAAAAAAAAAAUwIwAAAAYAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-05T14:50:19.6Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 13,
               "Title": "Seguridad.cs",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\SERVICE\\Seguridad.cs",
               "RelativeDocumentMoniker": "SERVICE\\Seguridad.cs",
               "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\SERVICE\\Seguridad.cs",
               "RelativeToolTip": "SERVICE\\Seguridad.cs",
-              "ViewState": "AgIAAAkAAAAAAAAAAADwvwgAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABsAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:59:28.817Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-05T05:59:28.817Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 6,
               "Title": "ReservasForm.cs [Dise\u00F1o]",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\ReservasForm.cs",
               "RelativeDocumentMoniker": "GUI\\Forms\\ReservasForm.cs",
               "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\ReservasForm.cs [Dise\u00F1o]",
               "RelativeToolTip": "GUI\\Forms\\ReservasForm.cs [Dise\u00F1o]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:59:25.926Z",
-              "EditorCaption": " [Dise\u00F1o]"
+              "WhenOpened": "2026-10-05T05:59:25.926Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 14,
               "Title": "Acceso.cs",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\DAL\\Acceso.cs",
               "RelativeDocumentMoniker": "DAL\\Acceso.cs",
@@ -131,12 +182,11 @@
               "RelativeToolTip": "DAL\\Acceso.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:59:10.426Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-05T05:59:10.426Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 5,
+              "DocumentIndex": 15,
               "Title": "ReservaBLL.cs",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\ReservaBLL.cs",
               "RelativeDocumentMoniker": "BLL\\ReservaBLL.cs",
@@ -144,34 +194,112 @@
               "RelativeToolTip": "BLL\\ReservaBLL.cs",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:59:09.799Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-05T05:59:09.799Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 9,
               "Title": "EquipoBLL.cs",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\EquipoBLL.cs",
               "RelativeDocumentMoniker": "BLL\\EquipoBLL.cs",
               "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\EquipoBLL.cs",
               "RelativeToolTip": "BLL\\EquipoBLL.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAGEAAAAAAAAAAAAIwAAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:59:09.076Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-05T05:59:09.076Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 8,
+              "DocumentIndex": 3,
               "Title": "EquiposForm.cs",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\EquiposForm.cs",
               "RelativeDocumentMoniker": "GUI\\Forms\\EquiposForm.cs",
               "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\EquiposForm.cs",
               "RelativeToolTip": "GUI\\Forms\\EquiposForm.cs",
-              "ViewState": "AgIAAG8AAAAAAAAAAAAIwLsAAAADAAAAAAAAAA==",
+              "ViewState": "AgIAACoAAAAAAAAAAAAqwDoAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:59:01.152Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-05T05:59:01.152Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 5,
+              "Title": "LoginForm.cs [Dise\u00F1o]",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\LoginForm.cs",
+              "RelativeDocumentMoniker": "GUI\\Forms\\LoginForm.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\LoginForm.cs [Dise\u00F1o]",
+              "RelativeToolTip": "GUI\\Forms\\LoginForm.cs [Dise\u00F1o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-05T05:27:36.504Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "EquiposForm.cs [Dise\u00F1o]",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\EquiposForm.cs",
+              "RelativeDocumentMoniker": "GUI\\Forms\\EquiposForm.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\EquiposForm.cs [Dise\u00F1o]",
+              "RelativeToolTip": "GUI\\Forms\\EquiposForm.cs [Dise\u00F1o]",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-05T05:27:25.157Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "ClassDiagram1.cd",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\ClassDiagram1.cd",
+              "RelativeDocumentMoniker": "BLL\\ClassDiagram1.cd",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\ClassDiagram1.cd",
+              "RelativeToolTip": "BLL\\ClassDiagram1.cd",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000463|",
+              "WhenOpened": "2026-10-05T14:23:36.731Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 12,
+              "Title": "Seguro.cs",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Seguro.cs",
+              "RelativeDocumentMoniker": "BE\\Seguro.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Seguro.cs",
+              "RelativeToolTip": "BE\\Seguro.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-05T11:01:36.535Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 11,
+              "Title": "Devolucion.cs",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Devolucion.cs",
+              "RelativeDocumentMoniker": "BE\\Devolucion.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Devolucion.cs",
+              "RelativeToolTip": "BE\\Devolucion.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-05T11:01:38.162Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 10,
+              "Title": "DevolucionBLL.cs",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\DevolucionBLL.cs",
+              "RelativeDocumentMoniker": "BLL\\DevolucionBLL.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\DevolucionBLL.cs",
+              "RelativeToolTip": "BLL\\DevolucionBLL.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-05T11:01:39.483Z"
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Incidencia.cs",
+              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Incidencia.cs",
+              "RelativeDocumentMoniker": "BE\\Incidencia.cs",
+              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Incidencia.cs",
+              "RelativeToolTip": "BE\\Incidencia.cs",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2026-10-05T14:23:31.078Z"
             },
             {
               "$type": "Document",
@@ -181,38 +309,13 @@
               "RelativeDocumentMoniker": "BLL\\ClienteBLL.cs",
               "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\ClienteBLL.cs",
               "RelativeToolTip": "BLL\\ClienteBLL.cs",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAowAAAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAGMAAAAAAAAAAAAowIAAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:58:41.485Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-05T05:58:41.485Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
-              "Title": "LoginForm.cs [Dise\u00F1o]",
-              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\LoginForm.cs",
-              "RelativeDocumentMoniker": "GUI\\Forms\\LoginForm.cs",
-              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\LoginForm.cs [Dise\u00F1o]",
-              "RelativeToolTip": "GUI\\Forms\\LoginForm.cs [Dise\u00F1o]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:27:36.504Z",
-              "EditorCaption": " [Dise\u00F1o]"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
-              "Title": "EquiposForm.cs [Dise\u00F1o]",
-              "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\EquiposForm.cs",
-              "RelativeDocumentMoniker": "GUI\\Forms\\EquiposForm.cs",
-              "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\EquiposForm.cs [Dise\u00F1o]",
-              "RelativeToolTip": "GUI\\Forms\\EquiposForm.cs [Dise\u00F1o]",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:27:25.157Z",
-              "EditorCaption": " [Dise\u00F1o]"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 9,
+              "DocumentIndex": 16,
               "Title": "ClientesForm.cs",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\ClientesForm.cs",
               "RelativeDocumentMoniker": "GUI\\Forms\\ClientesForm.cs",
@@ -220,24 +323,22 @@
               "RelativeToolTip": "GUI\\Forms\\ClientesForm.cs",
               "ViewState": "AgIAAL4AAAAAAAAAAAAAAIgAAAADAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:27:13.632Z",
-              "EditorCaption": ""
+              "WhenOpened": "2026-10-05T05:27:13.632Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 10,
+              "DocumentIndex": 17,
               "Title": "ClientesForm.cs [Dise\u00F1o]",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\ClientesForm.cs",
               "RelativeDocumentMoniker": "GUI\\Forms\\ClientesForm.cs",
               "ToolTip": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Forms\\ClientesForm.cs [Dise\u00F1o]",
               "RelativeToolTip": "GUI\\Forms\\ClientesForm.cs [Dise\u00F1o]",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2026-10-05T05:27:09.737Z",
-              "EditorCaption": " [Dise\u00F1o]"
+              "WhenOpened": "2026-10-05T05:27:09.737Z"
             },
             {
               "$type": "Document",
-              "DocumentIndex": 11,
+              "DocumentIndex": 18,
               "Title": "Class1.cs",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\SERVICE\\Class1.cs",
               "RelativeDocumentMoniker": "SERVICE\\Class1.cs",
@@ -248,7 +349,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 12,
+              "DocumentIndex": 19,
               "Title": "Class1.cs",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\DAL\\Class1.cs",
               "RelativeDocumentMoniker": "DAL\\Class1.cs",
@@ -260,7 +361,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 13,
+              "DocumentIndex": 20,
               "Title": "Class1.cs",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BLL\\Class1.cs",
               "RelativeDocumentMoniker": "BLL\\Class1.cs",
@@ -272,7 +373,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 14,
+              "DocumentIndex": 21,
               "Title": "Class1.cs",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\BE\\Class1.cs",
               "RelativeDocumentMoniker": "BE\\Class1.cs",
@@ -284,7 +385,7 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 15,
+              "DocumentIndex": 22,
               "Title": "Form1.cs [Dise\u00F1o]",
               "DocumentMoniker": "D:\\UAI\\TrabajoCampo\\TP\\codigo\\TC-AlquilerAudiovisual\\GUI\\Form1.cs",
               "RelativeDocumentMoniker": "GUI\\Form1.cs",

@@ -11,9 +11,13 @@ namespace GUI
 	public partial class EquiposForm : Form
 	{
 		private readonly EquipoBLL bll = new EquipoBLL();
-		private readonly ClienteBLL clientes = new ClienteBLL();
 		private readonly Seguridad seguridad = new Seguridad();
+		private readonly ReservaBLL reservas = new ReservaBLL();
+		private readonly List<Reserva> importesPorEquipo = new List<Reserva>();
 		private int equipoId;
+		private Seguro seguroEquipo;
+		private int diasEquipo;
+		private bool preparandoUnidad;
 
 		public EquiposForm()
 		{
@@ -24,13 +28,6 @@ namespace GUI
 		{
 			try
 			{
-				Seguro seleccion = seguro.SelectedItem as Seguro;
-
-				if (seleccion == null || seleccion.Id == 0)
-				{
-					seleccion = null;
-				}
-
 				int id = bll.Guardar(
 					new Equipo
 					{
@@ -44,8 +41,8 @@ namespace GUI
 						Estado = Convert.ToString(estado.SelectedItem),
 						TarifaDiaria = tarifa.Value,
 						ValorReposicion = reposicion.Value,
-						DiasReacondicionamiento = (int)dias.Value,
-						Seguro = seleccion
+						DiasReacondicionamiento = diasEquipo,
+						Seguro = seguroEquipo
 					}
 				);
 				Cargar();
@@ -62,7 +59,9 @@ namespace GUI
 		{
 			try
 			{
-				grilla.DataSource = bll.ListarDisponibles(desde.Value, hasta.Value);
+				List<Equipo> lista = bll.ListarDisponibles(desde.Value, hasta.Value);
+				PrepararImportes(lista);
+				grilla.DataSource = lista;
 				grilla.ClearSelection();
 			}
 			catch (Exception ex)
@@ -73,52 +72,137 @@ namespace GUI
 
 		private void Cargar()
 		{
-			grilla.DataSource = bll.Listar();
+			List<Equipo> lista = bll.Listar();
+			PrepararImportes(lista);
+			grilla.DataSource = lista;
 		}
 
-		private void CargarSeguros()
+		private void PrepararImportes(List<Equipo> lista)
 		{
-			List<Seguro> opciones = new List<Seguro>
-			{
-				new Seguro
-				{
-					Poliza = "Sin seguro"
-				}
-			};
-			Cliente actual = cliente.SelectedItem as Cliente;
+			importesPorEquipo.Clear();
+			bool puedeCotizar = seguridad.TienePermiso("Reserva.Cotizar");
+			grillaSenaRequeridaColumna.Visible = puedeCotizar;
+			grillaGarantiaRequeridaColumna.Visible = puedeCotizar;
 
-			if (actual != null)
+			if (!puedeCotizar || hasta.Value <= desde.Value)
 			{
-				opciones.AddRange(clientes.ListarSeguros(actual.Id));
+				return;
 			}
 
-			seguro.DataSource = opciones;
+			foreach (Equipo equipo in lista)
+			{
+				Reserva consulta = new Reserva
+				{
+					Desde = desde.Value,
+					Hasta = hasta.Value,
+					Equipos = new List<Equipo>
+					{
+						equipo
+					}
+				};
+				reservas.CalcularImportes(consulta);
+				importesPorEquipo.Add(consulta);
+			}
+		}
+
+		private void FormatearImportes(object sender, DataGridViewCellFormattingEventArgs e)
+		{
+			if (e.RowIndex < 0
+				|| (grilla.Columns[e.ColumnIndex] != grillaSenaRequeridaColumna
+					&& grilla.Columns[e.ColumnIndex] != grillaGarantiaRequeridaColumna))
+			{
+				return;
+			}
+
+			Equipo equipo = grilla.Rows[e.RowIndex].DataBoundItem as Equipo;
+			e.Value = "—";
+			e.FormattingApplied = true;
+
+			if (equipo == null)
+			{
+				return;
+			}
+
+			foreach (Reserva consulta in importesPorEquipo)
+			{
+				if (consulta.Equipos[0].Id == equipo.Id)
+				{
+					if (grilla.Columns[e.ColumnIndex] == grillaSenaRequeridaColumna)
+					{
+						e.Value = consulta.SenaRequerida.ToString("N2");
+					}
+					else
+					{
+						e.Value = consulta.GarantiaRequerida.ToString("N2");
+					}
+
+					break;
+				}
+			}
+		}
+
+		private void FechasCambio(object sender, EventArgs e)
+		{
+			if (DesignMode
+				|| System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
+			{
+				return;
+			}
+
+			List<Equipo> lista = grilla.DataSource as List<Equipo>;
+
+			if (lista == null)
+			{
+				return;
+			}
+
+			try
+			{
+				PrepararImportes(lista);
+				grilla.Refresh();
+			}
+			catch (Exception ex)
+			{
+				importesPorEquipo.Clear();
+				grilla.Refresh();
+				MessageBox.Show(this, ex.Message, "Importes requeridos");
+			}
 		}
 
 		private void Nuevo()
 		{
-			grilla.ClearSelection();
-			equipoId = 0;
-			codigo.Clear();
-			serie.Clear();
-			categoria.Clear();
-			marca.Clear();
-			modelo.Clear();
-			descripcion.Clear();
-			tarifa.Value = 0;
-			reposicion.Value = 0;
-			dias.Value = 1;
-			estado.SelectedIndex = 0;
+			preparandoUnidad = true;
 
-			if (seguro.Items.Count > 0)
+			try
 			{
-				seguro.SelectedIndex = 0;
+				grilla.ClearSelection();
+				grilla.CurrentCell = null;
+				equipoId = 0;
+				seguroEquipo = null;
+				diasEquipo = 0;
+				codigo.Clear();
+				serie.Clear();
+				categoria.Clear();
+				marca.Clear();
+				modelo.Clear();
+				descripcion.Clear();
+				tarifa.Value = 0;
+				reposicion.Value = 0;
+				estado.SelectedIndex = 0;
+				guardarBoton.Enabled = true;
+				guardarBoton.Text = "Agregar unidad";
+				unidadNota.Text = "Nueva unidad: completá los datos y pulsá Agregar unidad.";
+				codigo.Focus();
+			}
+			finally
+			{
+				preparandoUnidad = false;
 			}
 		}
 
 		private void EquipoCambio(object sender, EventArgs e)
 		{
-			if (!mantenimiento.Visible)
+			if (preparandoUnidad || !mantenimiento.Visible)
 			{
 				return;
 			}
@@ -136,6 +220,8 @@ namespace GUI
 			}
 
 			equipoId = actual.Id;
+			seguroEquipo = actual.Seguro;
+			diasEquipo = actual.DiasReacondicionamiento;
 			codigo.Text = actual.CodigoInventario;
 			serie.Text = actual.Serie;
 			categoria.Text = actual.Categoria;
@@ -144,32 +230,14 @@ namespace GUI
 			descripcion.Text = actual.Descripcion;
 			tarifa.Value = actual.TarifaDiaria;
 			reposicion.Value = actual.ValorReposicion;
-			dias.Value = actual.DiasReacondicionamiento;
 			estado.SelectedItem = actual.Estado;
+			guardarBoton.Text = "Guardar cambios";
+			guardarBoton.Enabled = actual.Estado == "Disponible" || actual.Estado == "Baja";
+			unidadNota.Text = "Editando unidad: " + actual.CodigoInventario + ". Para agregar otra, pulsá Nueva unidad.";
 
-			if (actual.Seguro != null)
+			if (!guardarBoton.Enabled)
 			{
-				for (int i = 0; i < cliente.Items.Count; i++)
-				{
-					if (((Cliente)cliente.Items[i]).Id == actual.Seguro.ClienteId)
-					{
-						cliente.SelectedIndex = i;
-						break;
-					}
-				}
-
-				for (int i = 0; i < seguro.Items.Count; i++)
-				{
-					if (((Seguro)seguro.Items[i]).Id == actual.Seguro.Id)
-					{
-						seguro.SelectedIndex = i;
-						break;
-					}
-				}
-			}
-			else if (seguro.Items.Count > 0)
-			{
-				seguro.SelectedIndex = 0;
+				unidadNota.Text = "La unidad está en un alquiler o incidencia. Pulsá Nueva unidad para agregar otro equipo.";
 			}
 		}
 
@@ -200,21 +268,16 @@ namespace GUI
 			}
 		}
 
-		private void ClienteCambio(object sender, EventArgs e)
+		private void ColumnasCatalogo(object sender, DataGridViewBindingCompleteEventArgs e)
 		{
-			if (DesignMode
-				|| System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
+			if (grilla.Columns.Contains("DiasReacondicionamiento"))
 			{
-				return;
+				grilla.Columns["DiasReacondicionamiento"].Visible = false;
 			}
 
-			try
+			if (grilla.Columns.Contains("Seguro"))
 			{
-				CargarSeguros();
-			}
-			catch (Exception ex)
-			{
-				MessageBox.Show(this, ex.Message);
+				grilla.Columns["Seguro"].Visible = false;
 			}
 		}
 
@@ -228,11 +291,6 @@ namespace GUI
 
 			try
 			{
-				if (mantenimiento.Visible)
-				{
-					cliente.DataSource = clientes.Listar();
-				}
-
 				Cargar();
 				Nuevo();
 			}
