@@ -3,6 +3,10 @@
 Aplicación académica en C# / .NET Framework 4.7.2, WinForms y SQL Server.
 Capas: GUI, BLL, BE, DAL y SERVICE. BE contiene solo propiedades.
 
+Builder sigue el ejemplo `patrones/builder.jpg`: `DirectorReserva` ordena la construcción mediante `ReservaBuilder` abstracto; `ReservaBuilderConcreto` construye el producto `Reserva`. `ReservaBLL` usa el Director al solicitar y confirmar, y conserva las reglas de negocio y la persistencia.
+
+El código usa tabulaciones de ancho 4, llaves en líneas separadas y bloques `if`/`else` explícitos. `.editorconfig` mantiene este estilo en Visual Studio y desactiva las sugerencias para convertir esos bloques en ternarios.
+
 ## Preparar y abrir
 
 Requisitos: Visual Studio 2022 con desarrollo de escritorio .NET y targeting pack 4.7.2, SQL Server local `.` con autenticación Windows y `sqlcmd`.
@@ -16,6 +20,12 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\Inicializar-N01.ps1
 
 También podés abrir `TC-AlquilerAudiovisual.sln`, seleccionar GUI como proyecto de inicio y ejecutar con F5.
 El script crea la base/tablas faltantes, actualiza los procedimientos y agrega los ejemplos que aún no existen. Conserva registros y contraseñas existentes. `-SinDatosDemo` aplica solo la estructura.
+
+## Editar los formularios en Visual Studio
+
+En `GUI/Forms`, seleccioná el archivo del formulario (por ejemplo `ReservasForm.cs`) y pulsá **Shift+F7**, o clic derecho → **Ver diseñador**. Si tenías abierto el diseñador antes de este cambio, cerrá esa pestaña y volvé a abrirla. Si Visual Studio pide recargar el proyecto, aceptá la recarga.
+
+Los cinco formularios tienen `.cs`, `.Designer.cs` y `.resx`: los controles, propiedades y eventos se pueden editar desde el diseñador visual, y el comportamiento queda en el `.cs`. En el editor se muestran todos los controles; al ejecutar se aplican los permisos del usuario. Login tiene las pestañas Acceso y Menú para editar ambas vistas; al ejecutar muestra la vista correspondiente a la sesión.
 
 ## Cuentas de ejemplo
 

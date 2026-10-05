@@ -51,17 +51,44 @@
     <Compile Include="Forms\ClientesForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\ClientesForm.Designer.cs">
+      <DependentUpon>ClientesForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Forms\ClientesForm.resx">
+      <DependentUpon>ClientesForm.cs</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Forms\EquiposForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\EquiposForm.Designer.cs">
+      <DependentUpon>EquiposForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Forms\EquiposForm.resx">
+      <DependentUpon>EquiposForm.cs</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Forms\LoginForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\LoginForm.Designer.cs">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Forms\LoginForm.resx">
+      <DependentUpon>LoginForm.cs</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Forms\ReservasForm.cs">
       <SubType>Form</SubType>
     </Compile>
+    <Compile Include="Forms\ReservasForm.Designer.cs">
+      <DependentUpon>ReservasForm.cs</DependentUpon>
+    </Compile>
+    <EmbeddedResource Include="Forms\ReservasForm.resx">
+      <DependentUpon>ReservasForm.cs</DependentUpon>
+    </EmbeddedResource>
     <Compile Include="Forms\UsuariosForm.cs">
       <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Forms\UsuariosForm.Designer.cs">
+      <DependentUpon>UsuariosForm.cs</DependentUpon>
     </Compile>
     <EmbeddedResource Include="Forms\UsuariosForm.resx">
       <DependentUpon>UsuariosForm.cs</DependentUpon>
