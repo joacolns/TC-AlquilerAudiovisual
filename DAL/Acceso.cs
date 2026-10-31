@@ -13,20 +13,38 @@ namespace DAL
 		public void Abrir()
 		{
 			ConnectionStringSettings configuracion = ConfigurationManager.ConnectionStrings["Alquiler"];
-			string cadena;
+			string cadenaPrincipal;
 
 			if (configuracion == null)
 			{
-				cadena = "Data Source=.;Initial Catalog=TC-AlquilerAudiovisual;Integrated Security=True;Connect Timeout=5";
+				cadenaPrincipal = "Data Source=.;Initial Catalog=TC-AlquilerAudiovisual;Integrated Security=True;Connect Timeout=5";
 			}
 			else
 			{
-				cadena = configuracion.ConnectionString;
+				cadenaPrincipal = configuracion.ConnectionString;
 			}
 
-			conexion = new SqlConnection(cadena);
-			conexion.Open();
+			string cadenaRespaldo = "Data Source=ADMINB33C\\SQLEXPRESS;Initial Catalog=TC-AlquilerAudiovisual;Integrated Security=True;Connect Timeout=5";
+
+			try
+			{
+				conexion = new SqlConnection(cadenaPrincipal);
+				conexion.Open();
+			}
+			catch (SqlException)
+			{
+				try
+				{
+					conexion = new SqlConnection(cadenaRespaldo);
+					conexion.Open();
+				}
+				catch (SqlException ex)
+				{
+					throw new Exception("No se pudo conectar a ningún servidor de base de datos.", ex);
+				}
+			}
 		}
+
 
 		public void Cerrar()
 		{
