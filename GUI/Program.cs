@@ -16,6 +16,16 @@ namespace GUI
 		{
 			System.Threading.Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("es-AR");
 			System.Threading.Thread.CurrentThread.CurrentUICulture = new System.Globalization.CultureInfo("es-AR");
+			Application.SetUnhandledExceptionMode(UnhandledExceptionMode.CatchException);
+			Application.ThreadException += delegate(object remitente, System.Threading.ThreadExceptionEventArgs error)
+			{
+				MessageBox.Show(
+					"Ocurrió un problema inesperado: " + error.Exception.Message + Environment.NewLine + "Podés seguir trabajando; si se repite, avisá a soporte.",
+					"FOCO",
+					MessageBoxButtons.OK,
+					MessageBoxIcon.Warning
+				);
+			};
 			Application.EnableVisualStyles();
 			Application.SetCompatibleTextRenderingDefault(false);
 			Application.Run(new LoginForm());

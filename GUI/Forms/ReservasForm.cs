@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
+using System.IO;
 using System.Text;
 using System.Windows.Forms;
 using BE;
@@ -16,53 +18,32 @@ namespace GUI
 		private readonly EquipoBLL equipos = new EquipoBLL();
 		private readonly Seguridad seguridad = new Seguridad();
 		private bool cargandoUnidades;
+		private bool iniciando = true;
 		private List<Reserva> reservasActuales = new List<Reserva>();
 
 		public ReservasForm()
 		{
 			InitializeComponent();
-			InicializarInventario();
-			AplicarEstilo();
 		}
 
 		public void Cotizar()
 		{
 			try
 			{
-				Reserva consulta;
-
-				if (tabs.SelectedTab == gestionTab)
+				Reserva seleccionada = SeleccionarPendiente();
+				Reserva consulta = new Reserva
 				{
-					Reserva seleccionada = SeleccionarPendiente();
-					consulta = new Reserva
-					{
-						Cliente = seleccionada.Cliente,
-						ClienteId = seleccionada.ClienteId,
-						Desde = seleccionada.Desde,
-						Hasta = seleccionada.Hasta,
-						Equipos = seleccionada.Equipos
-					};
-				}
-				else
-				{
-					consulta = LeerReserva();
-				}
-
+					Cliente = seleccionada.Cliente,
+					ClienteId = seleccionada.ClienteId,
+					Desde = seleccionada.Desde,
+					Hasta = seleccionada.Hasta,
+					Equipos = seleccionada.Equipos
+				};
 				bll.Cotizar(consulta);
-				string resumen = ResumenImportes(consulta);
-
-				if (tabs.SelectedTab == gestionTab)
-				{
-					revision.Text = resumen;
-				}
-				else
-				{
-					cotizacion.Text = resumen;
-				}
+				revision.Text = ResumenImportes(consulta);
 			}
 			catch (Exception ex)
 			{
-				cotizacion.Text = "No se pudo cotizar.";
 				MessageBox.Show(this, ex.Message, "Cotización");
 			}
 		}
@@ -84,7 +65,7 @@ namespace GUI
 						+ "Todavía no se registraron pagos ni una reserva firme.",
 					"Solicitud enviada"
 				);
-				cotizacion.Text = "Solicitud " + id + " enviada. Consultá su estado en Solicitudes y reservas.";
+				cotizacion.Text = "Solicitud " + id + " enviada. Consultá su estado en Mis pedidos.";
 				Actualizar();
 				Disponibles();
 				tabs.SelectedTab = gestionTab;
@@ -92,6 +73,7 @@ namespace GUI
 			catch (Exception ex)
 			{
 				MessageBox.Show(this, ex.Message, "Resultado de la solicitud");
+				RefrescarTrasError();
 			}
 		}
 
@@ -106,13 +88,14 @@ namespace GUI
 				};
 				int id = bll.Confirmar(reserva);
 				// Informar el éxito confirmado antes de recargar consultas independientes.
-				MessageBox.Show(this, "Solicitud " + id + " aceptada. El cliente debe pagar la seña y la garantía.", "Aceptación");
+				MessageBox.Show(this, "Solicitud " + id + " aceptada. El cliente debe pagar la seña.", "Aceptación");
 				Actualizar();
 				avisoActualizacion.Text = "Solicitud " + id + " aceptada. Pendiente del pago del cliente.";
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show(this, ex.Message, "Resultado de la operación");
+				RefrescarTrasError();
 			}
 		}
 
@@ -137,13 +120,29 @@ namespace GUI
 					throw new InvalidOperationException("No se registró el pago. Actualizá la lista.");
 				}
 
-				MessageBox.Show(this, "Seña y garantía pagadas. Stock ya puede entregar los equipos.", "Pago registrado");
 				Actualizar();
+				string aviso = "Seña pagada. Stock ya puede entregar los equipos.";
+
+				// Con el pago completo el remito se emite en PDF.
+				try
+				{
+					Reserva pagada = reservasActuales.Find(delegate(Reserva r) { return r.Id == actual.Id; });
+					string ruta = GenerarRemito(pagada ?? actual);
+					aviso += Environment.NewLine + "Remito guardado en: " + ruta;
+					Process.Start(ruta);
+				}
+				catch (Exception ex)
+				{
+					aviso += Environment.NewLine + "No se pudo generar el remito en PDF: " + ex.Message;
+				}
+
+				MessageBox.Show(this, aviso, "Pago registrado");
 				avisoActualizacion.Text = "Pago de la solicitud " + actual.Id + " registrado. Pendiente de entrega por stock.";
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(this, ex.Message, "Pagar seña y garantía");
+				MessageBox.Show(this, ex.Message, "Pagar seña");
+				RefrescarTrasError();
 			}
 		}
 
@@ -168,6 +167,7 @@ namespace GUI
 			catch (Exception ex)
 			{
 				MessageBox.Show(this, ex.Message, "Rechazar solicitud");
+				RefrescarTrasError();
 			}
 		}
 
@@ -205,6 +205,7 @@ namespace GUI
 			catch (Exception ex)
 			{
 				MessageBox.Show(this, ex.Message, "Resultado de la entrega");
+				RefrescarTrasError();
 			}
 		}
 
@@ -214,9 +215,9 @@ namespace GUI
 			Cliente seleccionado = cliente.SelectedItem as Cliente;
 			List<Equipo> seleccion = new List<Equipo>();
 
-			foreach (object item in unidades.CheckedItems)
+			foreach (ListViewItem item in unidades.CheckedItems)
 			{
-				seleccion.Add(((Reserva)item).Equipos[0]);
+				seleccion.Add(((Reserva)item.Tag).Equipos[0]);
 			}
 
 			int clienteId;
@@ -242,9 +243,9 @@ namespace GUI
 
 		private void ValidarFechasAlquiler()
 		{
-			if (desde.Value < DateTime.Now.AddMinutes(-1))
+			if (desde.Value.Date < DateTime.Today)
 			{
-				throw new ArgumentException("La fecha de inicio no puede ser anterior a la fecha y hora actual.");
+				throw new ArgumentException("La fecha de inicio no puede ser anterior a hoy.");
 			}
 
 			if (hasta.Value <= desde.Value)
@@ -258,7 +259,7 @@ namespace GUI
 			ValidarFechasAlquiler();
 			List<Reserva> cotizaciones = new List<Reserva>();
 
-			foreach (Equipo equipo in equipos.ListarDisponibles(desde.Value, hasta.Value))
+			foreach (Equipo equipo in equipos.ListarLibres(desde.Value, hasta.Value))
 			{
 				cotizaciones.Add(CotizacionEquipo(equipo, desde.Value, hasta.Value));
 			}
@@ -268,10 +269,48 @@ namespace GUI
 			try
 			{
 				unidades.Items.Clear();
+				unidades.Groups.Clear();
+				cotizaciones.Sort(
+					delegate(Reserva a, Reserva b)
+					{
+						Equipo x = a.Equipos[0];
+						Equipo y = b.Equipos[0];
+						int orden = OrdenSeccion(x.Categoria).CompareTo(OrdenSeccion(y.Categoria));
+						return orden != 0 ? orden : string.Compare(x.CodigoInventario, y.CodigoInventario, StringComparison.Ordinal);
+					}
+				);
+				ListViewGroup grupo = null;
+				string categoriaActual = null;
+				int enGrupo = 0;
 
 				foreach (Reserva consulta in cotizaciones)
 				{
-					unidades.Items.Add(consulta);
+					Equipo equipo = consulta.Equipos[0];
+
+					if (grupo == null || equipo.Categoria != categoriaActual)
+					{
+						if (grupo != null)
+						{
+							grupo.Header = NombreSeccion(categoriaActual) + " (" + enGrupo + ")";
+						}
+
+						categoriaActual = equipo.Categoria;
+						grupo = new ListViewGroup(NombreSeccion(categoriaActual));
+						unidades.Groups.Add(grupo);
+						enGrupo = 0;
+					}
+
+					ListViewItem fila = new ListViewItem(equipo.Marca + " " + equipo.Modelo + " (" + equipo.CodigoInventario + ")");
+					fila.Tag = consulta;
+					fila.Group = grupo;
+					fila.SubItems.Add(equipo.TarifaDiaria.ToString("N2"));
+					unidades.Items.Add(fila);
+					enGrupo++;
+				}
+
+				if (grupo != null)
+				{
+					grupo.Header = NombreSeccion(categoriaActual) + " (" + enGrupo + ")";
 				}
 			}
 			finally
@@ -280,8 +319,7 @@ namespace GUI
 			}
 
 			cotizacion.ForeColor = Color.FromArgb(71, 85, 105);
-			cotizacion.Text = "Cada equipo muestra el alquiler, la seña y la garantía para las fechas elegidas.";
-			cotizarBoton.Enabled = false;
+			cotizacion.Text = "Cada equipo muestra el precio por día; al elegir equipos verás el total del alquiler y la seña.";
 			solicitarBoton.Enabled = false;
 		}
 
@@ -302,12 +340,25 @@ namespace GUI
 
 		private string ResumenImportes(Reserva consulta)
 		{
-			return "Alquiler ARS "
+			decimal porDia = 0;
+
+			foreach (Equipo equipo in consulta.Equipos)
+			{
+				porDia += equipo.TarifaDiaria;
+			}
+
+			int dias = (int)Math.Ceiling((consulta.Hasta - consulta.Desde).TotalDays);
+
+			if (dias < 1)
+			{
+				dias = 1;
+			}
+
+			return "Total del alquiler ARS "
 				+ consulta.Importe.ToString("N2")
+				+ " (" + dias + " día(s) × ARS " + porDia.ToString("N2") + " por día)"
 				+ " · seña requerida ARS "
-				+ consulta.SenaRequerida.ToString("N2")
-				+ " · garantía requerida ARS "
-				+ consulta.GarantiaRequerida.ToString("N2");
+				+ consulta.SenaRequerida.ToString("N2");
 		}
 
 		private void Actualizar()
@@ -330,24 +381,6 @@ namespace GUI
 			string revisionAnterior = revision.Text;
 			reservasActuales = lista;
 			reservas.DataSource = lista;
-			reservas.Columns["Sena"].HeaderText = "Seña pagada ARS";
-			reservas.Columns["Garantia"].HeaderText = "Garantía pagada ARS";
-			reservas.Columns["Sena"].DefaultCellStyle.Format = "N2";
-			reservas.Columns["Garantia"].DefaultCellStyle.Format = "N2";
-			reservas.Columns["Estado"].HeaderText = "Estado del pedido";
-			reservas.Columns["Id"].DisplayIndex = 0;
-			reservas.Columns["ClienteId"].DisplayIndex = 1;
-			reservas.Columns["Estado"].DisplayIndex = 2;
-
-			if (reservas.Columns.Contains("Cliente"))
-			{
-				reservas.Columns["Cliente"].Visible = false;
-			}
-
-			if (reservas.Columns.Contains("Equipos"))
-			{
-				reservas.Columns["Equipos"].Visible = false;
-			}
 
 			if (seleccionada != null)
 			{
@@ -357,7 +390,7 @@ namespace GUI
 
 					if (actual != null && actual.Id == seleccionada.Id)
 					{
-						reservas.CurrentCell = fila.Cells["Id"];
+						reservas.CurrentCell = fila.Cells[reservasIdColumna.Index];
 						fila.Selected = true;
 
 						if (actual.Estado == seleccionada.Estado)
@@ -408,7 +441,25 @@ namespace GUI
 			rechazarBoton.Enabled = puedeRevisar;
 			pagarBoton.Enabled = actual != null && actual.Estado == "Aceptada" && seguridad.TienePermiso("Reserva.Pagar");
 			registrarBoton.Enabled = actual != null && actual.Estado == "Firme" && seguridad.TienePermiso("Reserva.Entregar");
-			pagoEstado.Text = "Seleccioná una solicitud aceptada para pagar la seña y la garantía.";
+
+			// Solo se muestra la acción que corresponde al estado del pedido seleccionado.
+			bool esCliente = SesionSingleton.Instancia.UsuarioActual != null && SesionSingleton.Instancia.UsuarioActual.Rol == "Cliente";
+			bool verPago = actual != null && actual.Estado == "Aceptada" && seguridad.TienePermiso("Reserva.Pagar");
+			bool verEntrega = actual != null && actual.Estado == "Firme" && seguridad.TienePermiso("Reserva.Entregar");
+			aprobacion.Visible = puedeRevisar;
+			pagoPanel.Visible = verPago;
+			entrega.Visible = verEntrega;
+			bool verCancelar = actual != null
+				&& (actual.Estado == "Pendiente" || actual.Estado == "Aceptada")
+				&& seguridad.TienePermiso("Reserva.Cancelar")
+				&& actual.Cliente != null
+				&& SesionSingleton.Instancia.UsuarioActual != null
+				&& actual.Cliente.UsuarioId == SesionSingleton.Instancia.UsuarioActual.Id;
+			cancelacion.Visible = verCancelar;
+			bool verRemito = actual != null && (actual.Estado == "Firme" || actual.Estado == "Entregada" || actual.Estado == "ConIncidencia" || actual.Estado == "Cerrada");
+			documentos.Visible = verRemito;
+			accionesNota.Visible = !esCliente && !puedeRevisar && !verPago && !verEntrega && !verRemito && !verCancelar;
+			pagoEstado.Text = "Seleccioná una solicitud aceptada para pagar la seña.";
 
 			if (actual == null)
 			{
@@ -422,11 +473,8 @@ namespace GUI
 			{
 				pagoEstado.Text = "Solicitud aceptada. Seña ARS "
 					+ actual.SenaRequerida.ToString("N2")
-					+ " · garantía ARS "
-					+ actual.GarantiaRequerida.ToString("N2")
-					+ " · total a pagar ARS "
-					+ (actual.SenaRequerida
-					+ actual.GarantiaRequerida).ToString("N2");
+					+ " · saldo del alquiler ARS "
+					+ (actual.Importe - actual.SenaRequerida).ToString("N2");
 			}
 			else if (actual.Estado == "Pendiente")
 			{
@@ -439,6 +487,10 @@ namespace GUI
 			else if (actual.Estado == "Rechazada")
 			{
 				pagoEstado.Text = "Stock rechazó el pedido. Podés enviar otra solicitud.";
+			}
+			else if (actual.Estado == "Cancelada")
+			{
+				pagoEstado.Text = "El pedido fue cancelado.";
 			}
 			else
 			{
@@ -455,9 +507,13 @@ namespace GUI
 					"SOLICITUD RECHAZADA POR STOCK · No reserva ni bloquea equipos. El cliente puede enviar otro pedido."
 				);
 			}
+			else if (actual.Estado == "Cancelada")
+			{
+				texto.AppendLine("PEDIDO CANCELADO · No reserva ni bloquea equipos.");
+			}
 			else if (actual.Estado == "Aceptada")
 			{
-				texto.AppendLine("SOLICITUD ACEPTADA · Pendiente del pago de seña y garantía por el cliente.");
+				texto.AppendLine("SOLICITUD ACEPTADA · Pendiente del pago de la seña por el cliente.");
 			}
 			else if (actual.Estado == "Firme")
 			{
@@ -500,12 +556,12 @@ namespace GUI
 			}
 			else if (actual.Estado == "Aceptada")
 			{
-				texto.AppendLine("Seña y garantía pendientes de pago. Stock entregará los equipos después del pago.");
+				texto.AppendLine("Seña pendiente de pago. Stock entregará los equipos después del pago.");
 			}
 			else
 			{
 				texto.AppendLine(
-					"Seña pagada ARS " + actual.Sena.ToString("N2") + " · Garantía pagada ARS " + actual.Garantia.ToString("N2")
+					"Seña pagada ARS " + actual.Sena.ToString("N2")
 				);
 			}
 
@@ -593,22 +649,34 @@ namespace GUI
 			Solicitar();
 		}
 
-		private void FormatearEquipo(object sender, ListControlConvertEventArgs e)
+		private int OrdenSeccion(string categoria)
 		{
-			Reserva consulta = e.ListItem as Reserva;
+			int indice = Array.IndexOf(new[] { "Cámara", "Lente", "Estabilizador", "Soporte", "Iluminación", "Audio", "Monitor", "Energía" }, categoria);
 
-			if (consulta != null)
+			if (indice < 0)
 			{
-				Equipo equipo = consulta.Equipos[0];
-				e.Value = equipo.CodigoInventario
-					+ " · "
-					+ equipo.Marca
-					+ " "
-					+ equipo.Modelo
-					+ " · ARS "
-					+ equipo.TarifaDiaria.ToString("N2")
-					+ " por día · "
-					+ ResumenImportes(consulta);
+				return 99;
+			}
+
+			return indice;
+		}
+
+		private string NombreSeccion(string categoria)
+		{
+			switch (categoria)
+			{
+				case "Cámara":
+					return "Cámaras";
+				case "Lente":
+					return "Lentes";
+				case "Estabilizador":
+					return "Estabilizadores";
+				case "Soporte":
+					return "Soportes";
+				case "Monitor":
+					return "Monitores";
+				default:
+					return categoria;
 			}
 		}
 
@@ -626,7 +694,7 @@ namespace GUI
 
 				for (int i = 0; i < unidades.Items.Count; i++)
 				{
-					bool marcada = unidades.GetItemChecked(i);
+					bool marcada = unidades.Items[i].Checked;
 
 					if (i == e.Index)
 					{
@@ -635,16 +703,15 @@ namespace GUI
 
 					if (marcada)
 					{
-						consulta.Equipos.Add(((Reserva)unidades.Items[i]).Equipos[0]);
+						consulta.Equipos.Add(((Reserva)unidades.Items[i].Tag).Equipos[0]);
 					}
 				}
 
-				cotizarBoton.Enabled = consulta.Equipos.Count > 0;
 				solicitarBoton.Enabled = consulta.Equipos.Count > 0;
 
 				if (consulta.Equipos.Count == 0)
 				{
-					cotizacion.Text = "Elegí equipos para ver el alquiler, la seña y la garantía totales.";
+					cotizacion.Text = "Elegí equipos para ver el alquiler, la seña totales.";
 					return;
 				}
 
@@ -700,9 +767,7 @@ namespace GUI
 					|| nueva.Estado != anterior.Estado
 					|| nueva.Importe != anterior.Importe
 					|| nueva.Sena != anterior.Sena
-					|| nueva.Garantia != anterior.Garantia
 					|| nueva.SenaRequerida != anterior.SenaRequerida
-					|| nueva.GarantiaRequerida != anterior.GarantiaRequerida
 					|| TipoSeguroReserva(nueva) != TipoSeguroReserva(anterior)
 					|| AntecedentesCliente(nueva.Cliente) != AntecedentesCliente(anterior.Cliente))
 				{
@@ -726,11 +791,15 @@ namespace GUI
 					{
 						if (esCliente && nueva.Estado == "Aceptada")
 						{
-							aviso = "Stock aceptó la solicitud " + nueva.Id + ". Seleccionala para pagar la seña y la garantía.";
+							aviso = "Stock aceptó la solicitud " + nueva.Id + ". Seleccionala para pagar la seña.";
 						}
 						else if (!esCliente && nueva.Estado == "Firme")
 						{
 							aviso = "El cliente pagó la solicitud " + nueva.Id + ". Ya podés entregar los equipos.";
+						}
+						else if (!esCliente && nueva.Estado == "Cancelada")
+						{
+							aviso = "El cliente canceló la solicitud " + nueva.Id + ".";
 						}
 						else if (esCliente && nueva.Estado == "Rechazada")
 						{
@@ -766,7 +835,6 @@ namespace GUI
 				cargandoUnidades = false;
 			}
 
-			cotizarBoton.Enabled = false;
 			solicitarBoton.Enabled = false;
 
 			if (hasta.Value <= desde.Value)
@@ -774,15 +842,24 @@ namespace GUI
 				cotizacion.ForeColor = Color.FromArgb(185, 28, 28);
 				cotizacion.Text = "La fecha de finalización debe ser posterior a la fecha de inicio.";
 			}
-			else if (desde.Value < DateTime.Now.AddMinutes(-1))
+			else if (desde.Value.Date < DateTime.Today)
 			{
 				cotizacion.ForeColor = Color.FromArgb(185, 28, 28);
-				cotizacion.Text = "La fecha de inicio no puede ser anterior a la fecha y hora actual.";
+				cotizacion.Text = "La fecha de inicio no puede ser anterior a hoy.";
 			}
 			else
 			{
-				cotizacion.ForeColor = Color.FromArgb(71, 85, 105);
-				cotizacion.Text = "Fechas actualizadas. Consultá disponibilidad para ver los equipos y los importes.";
+				if (!iniciando)
+				{
+					try
+					{
+						Disponibles();
+					}
+					catch (Exception ex)
+					{
+						cotizacion.Text = ex.Message;
+					}
+				}
 			}
 		}
 
@@ -800,12 +877,7 @@ namespace GUI
 				return;
 			}
 
-			if (reservas.Columns[e.ColumnIndex] == reservasSeguroColumna)
-			{
-				e.Value = TipoSeguroReserva(actual);
-				e.FormattingApplied = true;
-			}
-			else if (reservas.Columns[e.ColumnIndex].DataPropertyName == "Estado")
+			if (reservas.Columns[e.ColumnIndex].DataPropertyName == "Estado")
 			{
 				if (actual.Estado == "Aceptada")
 				{
@@ -895,94 +967,6 @@ namespace GUI
 			return "Sin seguro";
 		}
 
-		private void AplicarEstilo()
-		{
-			BackColor = Color.FromArgb(244, 247, 251);
-			ForeColor = Color.FromArgb(15, 23, 42);
-			Text = "Equipos y reservas";
-			tabs.Font = new Font("Segoe UI", 10F);
-			fechas.BackColor = Color.White;
-			importes.BackColor = Color.White;
-			aprobacion.BackColor = Color.White;
-			pagoPanel.BackColor = Color.White;
-			entrega.BackColor = Color.White;
-			unidades.BackColor = Color.White;
-			unidades.BorderStyle = BorderStyle.FixedSingle;
-			unidades.IntegralHeight = false;
-			detalle.Font = new Font("Segoe UI", 10F);
-			detalle.BackColor = Color.White;
-			detalle.BorderStyle = BorderStyle.FixedSingle;
-
-			foreach (TabPage pagina in tabs.TabPages)
-			{
-				pagina.BackColor = Color.FromArgb(244, 247, 251);
-				pagina.Padding = new Padding(12);
-			}
-
-			EstilizarBotones(this);
-			EstiloBotonPrincipal(disponiblesBoton);
-			EstiloBotonPrincipal(solicitarBoton);
-			EstiloBotonPrincipal(aceptarBoton);
-			EstiloBotonPrincipal(pagarBoton);
-			EstiloBotonPrincipal(registrarBoton);
-			EstiloBotonPrincipal(guardarEquipoBoton);
-			ConfigurarGrilla(reservas);
-			ConfigurarGrilla(inventario);
-		}
-
-		private void EstilizarBotones(Control contenedor)
-		{
-			foreach (Control control in contenedor.Controls)
-			{
-				Button boton = control as Button;
-
-				if (boton != null)
-				{
-					boton.FlatStyle = FlatStyle.Flat;
-					boton.FlatAppearance.BorderSize = 1;
-					boton.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
-					boton.BackColor = Color.White;
-					boton.ForeColor = Color.FromArgb(51, 65, 85);
-					boton.Cursor = Cursors.Hand;
-					boton.MinimumSize = new Size(110, 36);
-				}
-
-				if (control.HasChildren)
-				{
-					EstilizarBotones(control);
-				}
-			}
-		}
-
-		private void EstiloBotonPrincipal(Button boton)
-		{
-			boton.BackColor = Color.FromArgb(37, 99, 235);
-			boton.ForeColor = Color.White;
-			boton.FlatAppearance.BorderSize = 0;
-			boton.FlatAppearance.MouseOverBackColor = Color.FromArgb(29, 78, 216);
-		}
-
-		private void ConfigurarGrilla(DataGridView grilla)
-		{
-			grilla.BackgroundColor = Color.White;
-			grilla.BorderStyle = BorderStyle.None;
-			grilla.RowHeadersVisible = false;
-			grilla.EnableHeadersVisualStyles = false;
-			grilla.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(15, 23, 42);
-			grilla.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-			grilla.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			grilla.ColumnHeadersDefaultCellStyle.Padding = new Padding(4);
-			grilla.ColumnHeadersHeight = 38;
-			grilla.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-			grilla.DefaultCellStyle.BackColor = Color.White;
-			grilla.DefaultCellStyle.ForeColor = Color.FromArgb(30, 41, 59);
-			grilla.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
-			grilla.DefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 23, 42);
-			grilla.DefaultCellStyle.Padding = new Padding(3);
-			grilla.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
-			grilla.RowTemplate.Height = 32;
-		}
-
 		private void EntregaClick(object sender, EventArgs e)
 		{
 			RegistrarEntrega();
@@ -1012,17 +996,78 @@ namespace GUI
 			}
 		}
 
-		private void CargarClick(object sender, EventArgs e)
+		private void ReservasForm_Load(object sender, EventArgs e)
 		{
-			if (DesignMode
-				|| System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
-			{
-				return;
-			}
+			CargarPantalla();
+		}
+
+		private void CargarPantalla()
+		{
+			iniciando = true;
 
 			try
 			{
+				bool esCliente = SesionSingleton.Instancia.UsuarioActual.Rol == "Cliente";
+				bool esAdministrador = SesionSingleton.Instancia.UsuarioActual.Rol == "Administrador";
+				bool puedeSolicitar = seguridad.TienePermiso("Reserva.Solicitar");
+
+				desde.Value = DateTime.Now;
+				hasta.Value = DateTime.Now.AddDays(1);
+				cliente.Enabled = !esCliente;
+				solicitarBoton.Visible = puedeSolicitar;
+				accionesNota.Visible = !esCliente;
+				solicitudNota.Visible = puedeSolicitar;
+
+				if (esCliente)
+				{
+					reservas.Columns.Remove(reservasAntecedentesColumna);
+				}
+
+				if (!seguridad.TienePermiso("Equipo.Guardar"))
+				{
+					tabs.TabPages.Remove(inventarioTab);
+				}
+
+				// El cliente empieza por pedir equipos; stock y administración, por la bandeja de solicitudes.
+				if (esCliente)
+				{
+					// El cliente no ve la revisión de stock ni la entrega, ni el detalle interno del pedido.
+					gestionTab.Text = "Mis pedidos";
+					tabs.SelectedTab = solicitudTab;
+					detalle.Visible = false;
+					acciones.FlowDirection = FlowDirection.LeftToRight;
+					gestionTabLayout.RowStyles[1] = new RowStyle(SizeType.Percent, 100F);
+					gestionTabLayout.RowStyles[2] = new RowStyle(SizeType.Absolute, 190F);
+					datos.SetCellPosition(acciones, new TableLayoutPanelCellPosition(0, 0));
+					datos.SetColumnSpan(acciones, 2);
+				}
+				else
+				{
+					if (!esAdministrador)
+					{
+						tabs.TabPages.Remove(cuentaTab);
+					}
+
+					if (!puedeSolicitar)
+					{
+						solicitudTab.Text = "Disponibilidad";
+					}
+				}
+
 				cliente.DataSource = clientes.Listar();
+
+				// El administrador, que también alquila, arranca con su propia ficha seleccionada.
+				if (esAdministrador)
+				{
+					foreach (Cliente ficha in cliente.Items)
+					{
+						if (ficha.UsuarioId == SesionSingleton.Instancia.UsuarioActual.Id)
+						{
+							cliente.SelectedItem = ficha;
+							break;
+						}
+					}
+				}
 
 				if (tabs.TabPages.Contains(inventarioTab))
 				{
@@ -1031,48 +1076,214 @@ namespace GUI
 
 				Disponibles();
 				Actualizar();
+
+				if (esCliente || esAdministrador)
+				{
+					CargarCuenta();
+				}
 			}
 			catch (Exception ex)
 			{
 				MessageBox.Show(this, ex.Message, "No se pudo abrir la pantalla", MessageBoxButtons.OK, MessageBoxIcon.Error);
-				Close();
+			}
+			finally
+			{
+				iniciando = false;
 			}
 		}
 
-		private void PrepararPantalla(object sender, EventArgs e)
+		private void CargarCuenta()
 		{
-			if (DesignMode
-				|| System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
+			Usuario perfil = new UsuarioBLL().PerfilActual();
+			List<Cliente> propios = clientes.ListarPropios();
+			cuentaUsuario.Text = perfil.NombreUsuario;
+			cuentaNombre.Text = perfil.Nombre;
+			cuentaDocumento.Text = perfil.DniCuit;
+			cuentaCorreo.Text = perfil.Email;
+			cuentaTelefono.Text = perfil.Telefono;
+			cuentaSeguro.Text = NombreSeguro(perfil.TipoSeguro);
+
+			if (propios.Count == 0)
+			{
+				cuentaAntecedentes.Text = "Tu cuenta todavía no tiene una ficha de cliente registrada.";
+				cuentaSeguros.DataSource = new List<Seguro>();
+				return;
+			}
+
+			cuentaAntecedentes.Text = AntecedentesCliente(propios[0]);
+			cuentaSeguros.DataSource = clientes.ListarSeguros(propios[0].Id);
+		}
+
+		// Recibe una propuesta del asesor: fija las fechas, lista lo disponible y tilda los equipos propuestos.
+		public void PrepararSolicitud(DateTime inicio, DateTime fin, List<int> equipoIds)
+		{
+			try
+			{
+				iniciando = true;
+
+				try
+				{
+					desde.Value = inicio;
+					hasta.Value = fin;
+				}
+				finally
+				{
+					iniciando = false;
+				}
+
+				tabs.SelectedTab = solicitudTab;
+				Disponibles();
+				int faltantes = equipoIds.Count;
+
+				for (int i = 0; i < unidades.Items.Count; i++)
+				{
+					Reserva item = unidades.Items[i].Tag as Reserva;
+
+					if (item != null && equipoIds.Contains(item.Equipos[0].Id))
+					{
+						unidades.Items[i].Checked = true;
+						faltantes--;
+					}
+				}
+
+				if (faltantes > 0)
+				{
+					cotizacion.Text = faltantes + " equipo(s) de la propuesta ya no están disponibles para esas fechas. " + cotizacion.Text;
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(this, ex.Message, "Nueva solicitud");
+			}
+		}
+
+		// Si una acción falló porque los datos estaban viejos, se recarga todo para no repetir el error.
+		private void RefrescarTrasError()
+		{
+			try
+			{
+				Actualizar();
+				Disponibles();
+			}
+			catch (Exception)
+			{
+				avisoActualizacion.Text = "No se pudo actualizar la lista. Pulsá Actualizar lista para reintentar.";
+			}
+		}
+
+		public void CancelarPedido()
+		{
+			try
+			{
+				Reserva actual = null;
+
+				if (reservas.CurrentRow != null)
+				{
+					actual = reservas.CurrentRow.DataBoundItem as Reserva;
+				}
+
+				if (actual == null)
+				{
+					throw new ArgumentException("Seleccioná el pedido que querés cancelar.");
+				}
+
+				if (MessageBox.Show(
+					this,
+					"¿Cancelar el pedido " + actual.Id + "? Los equipos quedan libres para otras personas.",
+					"Cancelar pedido",
+					MessageBoxButtons.OKCancel
+				) != DialogResult.OK)
+				{
+					return;
+				}
+
+				bll.Cancelar(actual.Id);
+				Actualizar();
+				Disponibles();
+				MessageBox.Show(this, "Pedido " + actual.Id + " cancelado.", "Cancelar pedido");
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(this, ex.Message, "Cancelar pedido");
+				RefrescarTrasError();
+			}
+		}
+
+		private void CancelarClick(object sender, EventArgs e)
+		{
+			CancelarPedido();
+		}
+
+		private string GenerarRemito(Reserva reserva)
+		{
+			string numero = string.IsNullOrEmpty(reserva.NumeroRemito) ? "R-" + reserva.Id : reserva.NumeroRemito;
+			string carpeta = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "FOCO", "Remitos");
+			string ruta = Path.Combine(carpeta, "Remito-" + numero + ".pdf");
+			return new GeneradorPdf().Remito(reserva, ruta);
+		}
+
+		private void RemitoClick(object sender, EventArgs e)
+		{
+			try
+			{
+				Reserva actual = null;
+
+				if (reservas.CurrentRow != null)
+				{
+					actual = reservas.CurrentRow.DataBoundItem as Reserva;
+				}
+
+				if (actual == null)
+				{
+					throw new ArgumentException("Seleccioná un pedido.");
+				}
+
+				Process.Start(GenerarRemito(actual));
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(this, ex.Message, "Remito en PDF");
+			}
+		}
+
+		private void ClienteSolicitudCambio(object sender, EventArgs e)
+		{
+			if (iniciando)
 			{
 				return;
 			}
 
-			desde.Value = DateTime.Now;
-			hasta.Value = DateTime.Now.AddDays(1);
-			cliente.Enabled = SesionSingleton.Instancia.UsuarioActual.Rol != "Cliente";
-
-			bool puedeSolicitar = seguridad.TienePermiso("Reserva.Solicitar");
-			solicitarBoton.Visible = puedeSolicitar;
-			solicitudNota.Visible = puedeSolicitar;
-
-			if (!seguridad.TienePermiso("Equipo.Guardar"))
+			try
 			{
-				tabs.TabPages.Remove(inventarioTab);
+				Disponibles();
 			}
-
-			aprobacion.Visible = seguridad.TienePermiso("Reserva.Confirmar");
-			pagoPanel.Visible = seguridad.TienePermiso("Reserva.Pagar");
-			bool puedeEntregar = seguridad.TienePermiso("Reserva.Entregar");
-			registrarBoton.Enabled = puedeEntregar;
-			registrarBoton.Visible = puedeEntregar;
-			cotejo.Enabled = puedeEntregar;
-			cotejo.Visible = puedeEntregar;
-			firma.Enabled = puedeEntregar;
-			firma.Visible = puedeEntregar;
-
-			if (!puedeEntregar)
+			catch (Exception ex)
 			{
-				entrega.Height = 65;
+				cotizacion.Text = ex.Message;
+			}
+		}
+
+		private void TabCambio(object sender, EventArgs e)
+		{
+			if (!iniciando && tabs.SelectedTab == cuentaTab)
+			{
+				try
+				{
+					CargarCuenta();
+				}
+				catch (Exception ex)
+				{
+					MessageBox.Show(this, ex.Message, "Mi cuenta");
+				}
+			}
+		}
+
+		private void FormatearSeguroCuenta(object sender, DataGridViewCellFormattingEventArgs e)
+		{
+			if (e.RowIndex >= 0 && cuentaSeguros.Columns[e.ColumnIndex].DataPropertyName == "Tipo")
+			{
+				e.Value = NombreSeguro(Convert.ToString(e.Value));
+				e.FormattingApplied = true;
 			}
 		}
 	}

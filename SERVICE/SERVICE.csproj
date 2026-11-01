@@ -39,6 +39,10 @@
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="PdfSharp, Version=1.50.5147.0, Culture=neutral, PublicKeyToken=f94615aa0424f9eb, processorArchitecture=MSIL">
+      <HintPath>..\packages\PDFsharp.1.50.5147\lib\net20\PdfSharp.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -48,6 +52,7 @@
     <Compile Include="Builder\ReservaBuilder.cs" />
     <Compile Include="Builder\ReservaBuilderConcreto.cs" />
     <Compile Include="Composite\Rol.cs" />
+    <Compile Include="GeneradorPdf.cs" />
     <Compile Include="Seguridad.cs" />
     <Compile Include="Singleton\SesionSingleton.cs" />
   </ItemGroup>
@@ -59,6 +64,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="ClassDiagram1.cd" />
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

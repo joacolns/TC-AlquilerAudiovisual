@@ -43,6 +43,47 @@ namespace DAL
 			);
 		}
 
+		// Catálogo: equipos sin compromisos firmes ni solicitudes pendientes en el período.
+		public List<Equipo> ListarLibres(DateTime desde, DateTime hasta)
+		{
+			return Mapear(
+				acceso.Leer(
+					"sp_Equipo_Libres",
+					new List<SqlParameter>
+					{
+						new SqlParameter("@Desde", SqlDbType.DateTime2)
+						{
+							Value = desde
+						},
+						new SqlParameter("@Hasta", SqlDbType.DateTime2)
+						{
+							Value = hasta
+						}
+					}
+				)
+			);
+		}
+
+		public List<Equipo> ListarParaAsesor(DateTime desde, DateTime hasta)
+		{
+			return Mapear(
+				acceso.Leer(
+					"sp_Equipo_DisponiblesAsesor",
+					new List<SqlParameter>
+					{
+						new SqlParameter("@Desde", SqlDbType.DateTime2)
+						{
+							Value = desde
+						},
+						new SqlParameter("@Hasta", SqlDbType.DateTime2)
+						{
+							Value = hasta
+						}
+					}
+				)
+			);
+		}
+
 		private List<SqlParameter> Parametros(Equipo equipo, bool incluirId)
 		{
 			object seguroId;
@@ -138,7 +179,11 @@ namespace DAL
 						Estado = Convert.ToString(fila["Estado"]),
 						TarifaDiaria = Convert.ToDecimal(fila["TarifaDiaria"]),
 						ValorReposicion = Convert.ToDecimal(fila["ValorReposicion"]),
-						DiasReacondicionamiento = Convert.ToInt32(fila["DiasReacondicionamiento"])
+						DiasReacondicionamiento = Convert.ToInt32(fila["DiasReacondicionamiento"]),
+						Gama = tabla.Columns.Contains("Gama") ? Convert.ToInt32(fila["Gama"]) : 0,
+						Etiquetas = tabla.Columns.Contains("Etiquetas") ? Convert.ToString(fila["Etiquetas"]) : null,
+						Ventaja = tabla.Columns.Contains("Ventaja") ? Convert.ToString(fila["Ventaja"]) : null,
+						Limitacion = tabla.Columns.Contains("Limitacion") ? Convert.ToString(fila["Limitacion"]) : null
 					}
 				);
 			}

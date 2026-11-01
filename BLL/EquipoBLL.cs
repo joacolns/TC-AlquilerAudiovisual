@@ -14,6 +14,12 @@ namespace BLL
 
 		public int Guardar(Equipo equipo)
 		{
+			return Guardar(equipo, null);
+		}
+
+		// "original" es la unidad tal como la vio quien edita: si cambió en la base, no se pisa el trabajo de otra persona.
+		public int Guardar(Equipo equipo, Equipo original)
+		{
 			Autorizar("Equipo.Guardar");
 
 			if (equipo == null
@@ -48,6 +54,32 @@ namespace BLL
 				throw new ArgumentException("Seleccioná una póliza registrada o sin seguro.");
 			}
 
+			if (equipo.Id != 0 && original != null)
+			{
+				Equipo actual = mapper.Listar().Find(delegate(Equipo e) { return e.Id == equipo.Id; });
+
+				if (actual == null)
+				{
+					throw new InvalidOperationException("La unidad ya no existe. Actualizá el inventario.");
+				}
+
+				if (actual.Estado != original.Estado
+					|| actual.TarifaDiaria != original.TarifaDiaria
+					|| actual.ValorReposicion != original.ValorReposicion
+					|| actual.CodigoInventario != original.CodigoInventario
+					|| actual.Serie != original.Serie
+					|| actual.Categoria != original.Categoria
+					|| actual.Marca != original.Marca
+					|| actual.Modelo != original.Modelo
+					|| actual.Descripcion != original.Descripcion
+					|| actual.DiasReacondicionamiento != original.DiasReacondicionamiento)
+				{
+					throw new InvalidOperationException(
+						"La unidad " + actual.CodigoInventario + " cambió mientras la editabas (otra persona la modificó o cambió su estado). Actualizá el inventario y volvé a intentar."
+					);
+				}
+			}
+
 			if (equipo.Id == 0)
 			{
 				equipo.Id = mapper.Insertar(equipo);
@@ -64,6 +96,19 @@ namespace BLL
 		{
 			Autorizar("Equipo.Consultar");
 			return FiltrarSeguros(mapper.Listar());
+		}
+
+		// Lo que se ofrece al cliente: oculta también las unidades que otra solicitud pendiente ya tomó.
+		public List<Equipo> ListarLibres(DateTime desde, DateTime hasta)
+		{
+			Autorizar("Equipo.Consultar");
+
+			if (hasta <= desde || hasta > DateTime.MaxValue.AddDays(-366))
+			{
+				throw new ArgumentException("Ingresá un período válido: hasta posterior a desde.");
+			}
+
+			return FiltrarSeguros(mapper.ListarLibres(desde, hasta));
 		}
 
 		public List<Equipo> ListarDisponibles(DateTime desde, DateTime hasta)

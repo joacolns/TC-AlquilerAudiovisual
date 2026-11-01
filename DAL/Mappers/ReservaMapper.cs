@@ -48,6 +48,24 @@ namespace DAL
 			) == 1;
 		}
 
+		public bool Cancelar(int reservaId, int usuarioId)
+		{
+			return acceso.Escribir(
+				"sp_Reserva_Cancelar",
+				new List<SqlParameter>
+				{
+					new SqlParameter("@ReservaId", SqlDbType.Int)
+					{
+						Value = reservaId
+					},
+					new SqlParameter("@UsuarioId", SqlDbType.Int)
+					{
+						Value = usuarioId
+					}
+				}
+			) == 1;
+		}
+
 		public bool Rechazar(int reservaId)
 		{
 			return acceso.Escribir(
@@ -133,7 +151,7 @@ namespace DAL
 				{
 					Precision = 18,
 					Scale = 2,
-					Value = reserva.GarantiaRequerida
+					Value = 0m
 				},
 				new SqlParameter("@PorcentajeSena", SqlDbType.Decimal)
 				{
@@ -145,7 +163,7 @@ namespace DAL
 				{
 					Precision = 5,
 					Scale = 4,
-					Value = LeerPorcentaje("PorcentajeGarantia")
+					Value = 0m
 				},
 				equipos
 			};
@@ -260,9 +278,7 @@ namespace DAL
 						Hasta = Convert.ToDateTime(fila["Hasta"]),
 						Importe = Convert.ToDecimal(fila["Importe"]),
 						SenaRequerida = Convert.ToDecimal(fila["SenaRequerida"]),
-						GarantiaRequerida = Convert.ToDecimal(fila["GarantiaRequerida"]),
 						Sena = Convert.ToDecimal(fila["Sena"]),
-						Garantia = Convert.ToDecimal(fila["Garantia"]),
 						Estado = Convert.ToString(fila["Estado"]),
 						NumeroContrato = Convert.ToString(fila["NumeroContrato"]),
 						NumeroRemito = Convert.ToString(fila["NumeroRemito"]),

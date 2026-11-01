@@ -257,7 +257,7 @@ BEGIN
 		IF @Estado = N'Firme'
 		BEGIN
 			IF EXISTS(SELECT 1 FROM dbo.Reserva WHERE Id=@ReservaId AND (Sena<>SenaRequerida OR Garantia<>GarantiaRequerida))
-				THROW 50203,N'El cliente debe pagar la seña y la garantía antes de la entrega.',1;
+				THROW 50203,N'El cliente debe pagar la seña antes de la entrega.',1;
 			DECLARE @Bloqueo bigint;
 			SELECT @Bloqueo = SUM(CONVERT(bigint, e.Id)) FROM dbo.Equipo e WITH (UPDLOCK, HOLDLOCK)
 			JOIN dbo.ReservaEquipo re ON re.EquipoId = e.Id WHERE re.ReservaId = @ReservaId;

@@ -17,9 +17,20 @@ namespace BLL
 		private readonly ClienteMapper fichas = new ClienteMapper();
 		private readonly UsuarioMapper usuarios = new UsuarioMapper();
 
+		// El período se maneja al minuto: así el cálculo de días del programa y el de la base coinciden siempre.
+		private void NormalizarFechas(Reserva reserva)
+		{
+			if (reserva != null)
+			{
+				reserva.Desde = new DateTime(reserva.Desde.Ticks - reserva.Desde.Ticks % TimeSpan.TicksPerMinute);
+				reserva.Hasta = new DateTime(reserva.Hasta.Ticks - reserva.Hasta.Ticks % TimeSpan.TicksPerMinute);
+			}
+		}
+
 		public decimal Cotizar(Reserva reserva)
 		{
 			Autorizar("Reserva.Cotizar");
+			NormalizarFechas(reserva);
 
 			if (reserva == null
 				|| reserva.Hasta <= reserva.Desde
@@ -119,6 +130,7 @@ namespace BLL
 		public decimal CalcularImportes(Reserva reserva)
 		{
 			Autorizar("Reserva.Cotizar");
+			NormalizarFechas(reserva);
 
 			if (reserva == null
 				|| reserva.Hasta <= reserva.Desde
@@ -144,6 +156,7 @@ namespace BLL
 		public int Solicitar(Reserva reserva)
 		{
 			Autorizar("Reserva.Solicitar");
+			NormalizarFechas(reserva);
 
 			if (reserva == null || reserva.Id != 0)
 			{
@@ -151,7 +164,7 @@ namespace BLL
 			}
 
 			// La identidad procede de la sesión, nunca del cliente enviado por el formulario.
-			List<Cliente> propios = clientes.Listar();
+			List<Cliente> propios = clientes.ListarPropios();
 
 			if (propios.Count != 1)
 			{
@@ -165,14 +178,75 @@ namespace BLL
 			Reserva solicitud = director.Construir(reserva);
 			solicitud.Importe = reserva.Importe;
 			solicitud.SenaRequerida = reserva.SenaRequerida;
-			solicitud.GarantiaRequerida = reserva.GarantiaRequerida;
 			solicitud.Estado = "Pendiente";
 			solicitud.Id = mapper.Insertar(solicitud);
 			reserva.Id = solicitud.Id;
 			reserva.Estado = "Pendiente";
 			reserva.Sena = 0;
-			reserva.Garantia = 0;
 			return solicitud.Id;
+		}
+
+		private string NombreEstado(string estado)
+		{
+			switch (estado)
+			{
+				case "Pendiente":
+					return "pendiente de revisión";
+				case "Aceptada":
+					return "aceptada y pendiente de pago";
+				case "Firme":
+					return "pagada y pendiente de entrega";
+				case "Entregada":
+					return "entregada";
+				case "ConIncidencia":
+					return "con incidencias";
+				case "Cerrada":
+					return "cerrada";
+				case "Rechazada":
+					return "rechazada por stock";
+				case "Cancelada":
+					return "cancelada";
+				default:
+					return estado;
+			}
+		}
+
+		// Los datos de la pantalla pueden estar viejos: se informa el estado real y se pide actualizar.
+		private InvalidOperationException Desactualizado(Reserva reserva, string esperado)
+		{
+			if (reserva == null)
+			{
+				return new InvalidOperationException("La solicitud ya no existe. Actualizá la lista antes de continuar.");
+			}
+
+			return new InvalidOperationException(
+				"La solicitud " + reserva.Id + " cambió: ahora está " + NombreEstado(reserva.Estado)
+					+ " y esta acción requiere que esté " + esperado + ". Actualizá la lista antes de continuar."
+			);
+		}
+
+		public bool Cancelar(int reservaId)
+		{
+			Autorizar("Reserva.Cancelar");
+			Usuario usuario = SesionSingleton.Instancia.UsuarioActual;
+			Reserva reserva = mapper.Buscar(reservaId);
+
+			if (reserva != null && (reserva.Cliente == null || reserva.Cliente.UsuarioId != usuario.Id))
+			{
+				throw new UnauthorizedAccessException("Solo podés cancelar tus propios pedidos.");
+			}
+
+			if (reserva == null || (reserva.Estado != "Pendiente" && reserva.Estado != "Aceptada"))
+			{
+				throw Desactualizado(reserva, "pendiente de revisión o aceptada sin pagar");
+			}
+
+			if (!mapper.Cancelar(reservaId, usuario.Id))
+			{
+				throw new InvalidOperationException("El pedido cambió mientras lo cancelabas (stock o el pago se adelantaron). Actualizá la lista.");
+			}
+
+			return true;
 		}
 
 		public int Confirmar(Reserva reserva)
@@ -188,7 +262,7 @@ namespace BLL
 
 			if (solicitud == null || solicitud.Estado != "Pendiente")
 			{
-				throw new InvalidOperationException("La solicitud no existe o ya fue procesada.");
+				throw Desactualizado(solicitud, "pendiente de revisión");
 			}
 
 			if (!clientes.ValidarCliente(solicitud.ClienteId, solicitud.Desde, solicitud.Hasta))
@@ -217,13 +291,11 @@ namespace BLL
 			nueva.Estado = "Aceptada";
 			nueva.Importe = solicitud.Importe;
 			nueva.SenaRequerida = solicitud.SenaRequerida;
-			nueva.GarantiaRequerida = solicitud.GarantiaRequerida;
 			nueva.Sena = 0;
-			nueva.Garantia = 0;
 
 			if (!mapper.Confirmar(nueva))
 			{
-				throw new InvalidOperationException("La solicitud ya fue procesada.");
+				throw new InvalidOperationException("La solicitud cambió mientras la aceptabas (otra persona la procesó o el cliente la canceló). Actualizá la lista.");
 			}
 
 			reserva.Id = nueva.Id;
@@ -239,7 +311,7 @@ namespace BLL
 
 			if (reserva == null || reserva.Estado != "Aceptada")
 			{
-				throw new InvalidOperationException("Seleccioná una solicitud aceptada y pendiente de pago.");
+				throw Desactualizado(reserva, "aceptada y pendiente de pago");
 			}
 
 			if (reserva.Cliente.UsuarioId != usuario.Id)
@@ -259,7 +331,19 @@ namespace BLL
 				throw new ArgumentException("Seleccioná una solicitud pendiente.");
 			}
 
-			return mapper.Rechazar(reservaId);
+			Reserva actual = mapper.Buscar(reservaId);
+
+			if (actual == null || actual.Estado != "Pendiente")
+			{
+				throw Desactualizado(actual, "pendiente de revisión");
+			}
+
+			if (!mapper.Rechazar(reservaId))
+			{
+				throw new InvalidOperationException("La solicitud cambió mientras la rechazabas. Actualizá la lista.");
+			}
+
+			return true;
 		}
 
 		public bool RegistrarEntrega(int reservaId)
@@ -267,10 +351,12 @@ namespace BLL
 			Autorizar("Reserva.Entregar");
 			Reserva reserva = mapper.Buscar(reservaId);
 
-			if (reserva == null
-				|| reserva.Estado != "Firme"
-				|| reserva.Sena != reserva.SenaRequerida
-				|| reserva.Garantia != reserva.GarantiaRequerida)
+			if (reserva == null || reserva.Estado != "Firme")
+			{
+				throw Desactualizado(reserva, "pagada y pendiente de entrega");
+			}
+
+			if (reserva.Sena != reserva.SenaRequerida)
 			{
 				return false;
 			}
@@ -314,18 +400,15 @@ namespace BLL
 		private void AsignarImportes(Reserva reserva)
 		{
 			decimal tarifa = 0;
-			decimal reposicion = 0;
 
 			foreach (Equipo equipo in reserva.Equipos)
 			{
 				tarifa += equipo.TarifaDiaria;
-				reposicion += equipo.ValorReposicion;
 			}
 
 			decimal dias = decimal.Ceiling((reserva.Hasta - reserva.Desde).Ticks / (decimal)TimeSpan.TicksPerDay);
 			reserva.Importe = decimal.Round(tarifa * dias, 2, MidpointRounding.AwayFromZero);
 			reserva.SenaRequerida = decimal.Round(reserva.Importe * Porcentaje("PorcentajeSena"), 2, MidpointRounding.AwayFromZero);
-			reserva.GarantiaRequerida = decimal.Round(reposicion * Porcentaje("PorcentajeGarantia"), 2, MidpointRounding.AwayFromZero);
 		}
 
 		private decimal Porcentaje(string clave)
@@ -341,7 +424,7 @@ namespace BLL
 				|| valor < 0
 				|| valor > 1)
 			{
-				throw new InvalidOperationException("Revisá los porcentajes de seña y garantía en App.config.");
+				throw new InvalidOperationException("Revisá el porcentaje de seña en App.config.");
 			}
 
 			return valor;

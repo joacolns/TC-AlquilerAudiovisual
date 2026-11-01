@@ -39,11 +39,11 @@ GO
 CREATE OR ALTER PROCEDURE dbo.sp_Usuario_AsignarRol @UsuarioId int,@Rol nvarchar(25),@Resultado int OUTPUT AS
  BEGIN SET NOCOUNT ON;
  IF @Rol NOT IN(N'Administrador',N'Cliente',N'EncargadoStock',N'Tecnico') THROW 50001,N'Rol no válido.',1;
- IF @Rol<>N'Cliente' AND EXISTS(SELECT 1 FROM dbo.Cliente WHERE UsuarioId=@UsuarioId)
-   THROW 50002,N'La cuenta tiene una ficha de cliente; debe conservar el rol Cliente.',1;
+ IF @Rol NOT IN(N'Cliente',N'Administrador') AND EXISTS(SELECT 1 FROM dbo.Cliente WHERE UsuarioId=@UsuarioId)
+   THROW 50002,N'La cuenta tiene una ficha de cliente; debe conservar el rol Cliente o Administrador.',1;
  UPDATE dbo.Usuario SET Rol=@Rol WHERE Id=@UsuarioId;
  SET @Resultado=CASE WHEN @@ROWCOUNT=1 THEN 1 ELSE 0 END;
- IF @Rol<>N'Cliente' UPDATE dbo.Usuario SET TipoSeguro=N'SinSeguro',SeguroId=NULL WHERE Id=@UsuarioId;
+ IF @Rol NOT IN(N'Cliente',N'Administrador') UPDATE dbo.Usuario SET TipoSeguro=N'SinSeguro',SeguroId=NULL WHERE Id=@UsuarioId;
  END;
 GO
 CREATE OR ALTER PROCEDURE dbo.sp_Cliente_Insertar
@@ -51,8 +51,8 @@ CREATE OR ALTER PROCEDURE dbo.sp_Cliente_Insertar
  BEGIN SET NOCOUNT ON; SET XACT_ABORT ON;
  BEGIN TRY
  BEGIN TRANSACTION;
- IF NOT EXISTS(SELECT 1 FROM dbo.Usuario WHERE Id=@UsuarioId AND Rol=N'Cliente' AND Activo=1)
-   THROW 50003,N'Seleccioná una cuenta activa con rol Cliente.',1;
+ IF NOT EXISTS(SELECT 1 FROM dbo.Usuario WHERE Id=@UsuarioId AND Rol IN(N'Cliente',N'Administrador') AND Activo=1)
+   THROW 50003,N'Seleccioná una cuenta activa con rol Cliente o Administrador.',1;
  INSERT dbo.Cliente(UsuarioId,DniCuit,Nombre,Telefono,Email) VALUES(@UsuarioId,@DniCuit,@Nombre,@Telefono,@Email);
  SET @Resultado=CONVERT(int,SCOPE_IDENTITY());
  DECLARE @TipoSeguro nvarchar(25),@SeguroResultado int;
@@ -138,7 +138,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Reserva_Insertar
  SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
  BEGIN TRY BEGIN TRANSACTION;
  IF NOT EXISTS(SELECT 1 FROM dbo.Cliente c JOIN dbo.Usuario u ON u.Id=c.UsuarioId
-   WHERE c.Id=@ClienteId AND c.UsuarioId=@UsuarioId AND u.Activo=1 AND u.Rol=N'Cliente')
+   WHERE c.Id=@ClienteId AND c.UsuarioId=@UsuarioId AND u.Activo=1 AND u.Rol IN(N'Cliente',N'Administrador'))
    THROW 50024,N'La solicitud debe pertenecer a una cuenta de cliente activa.',1;
  IF @Hasta<=@Desde OR @Hasta>CONVERT(datetime2,'9998-01-01') OR NOT EXISTS(SELECT 1 FROM @Equipos)
    THROW 50025,N'Elegí equipos y un período válido.',1;
@@ -179,7 +179,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Reserva_Confirmar
    THROW 50011,N'Completá fechas y unidades de la reserva.',1;
  IF @PorcentajeSena NOT BETWEEN 0 AND 1 OR @PorcentajeGarantia NOT BETWEEN 0 AND 1 THROW 50012,N'Porcentajes no válidos.',1;
  IF NOT EXISTS(SELECT 1 FROM dbo.Cliente c WITH(HOLDLOCK) JOIN dbo.Usuario u WITH(HOLDLOCK) ON u.Id=c.UsuarioId
-   WHERE c.Id=@ClienteId AND u.Activo=1 AND u.Rol=N'Cliente')
+   WHERE c.Id=@ClienteId AND u.Activo=1 AND u.Rol IN(N'Cliente',N'Administrador'))
    THROW 50013,N'El cliente no está habilitado.',1;
  -- Every confirmation locks physical units before testing the date range.
  DECLARE @Bloqueo bigint;
@@ -199,7 +199,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Reserva_Confirmar
  DECLARE @Total decimal(18,2),@Reposicion decimal(18,2);
  SELECT @Total=ROUND(SUM(e.TarifaDiaria)*@Dias,2),@Reposicion=SUM(e.ValorReposicion) FROM dbo.Equipo e JOIN @Equipos x ON x.EquipoId=e.Id;
  IF @Importe<>@Total OR @SenaRequerida<>ROUND(@Total*@PorcentajeSena,2) OR @GarantiaRequerida<>ROUND(@Reposicion*@PorcentajeGarantia,2)
-   THROW 50018,N'Importe, seña o garantía no coinciden con la cotización actual.',1;
+   THROW 50018,N'Importe o seña no coinciden con la cotización actual.',1;
  UPDATE dbo.Reserva SET Importe=@Importe,SenaRequerida=@SenaRequerida,GarantiaRequerida=@GarantiaRequerida,Sena=0,Garantia=0,Estado=N'Aceptada' WHERE Id=@ReservaId;
  UPDATE re SET SeguroId=s.Id,CoberturaSeguro=ISNULL(s.Cobertura,0),TipoSeguro=s.Tipo,DetalleSeguro=s.Detalle,
  PolizaSeguro=s.Poliza,AseguradoraSeguro=s.Aseguradora,DesdeSeguro=s.Desde,HastaSeguro=s.Hasta,TarifaDiaria=e.TarifaDiaria,
@@ -220,7 +220,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Reserva_RegistrarEntrega @ReservaId int,@Result
  SELECT @Estado=Estado FROM dbo.Reserva WITH(UPDLOCK,HOLDLOCK) WHERE Id=@ReservaId;
  IF @Estado=N'Firme' BEGIN
  IF EXISTS(SELECT 1 FROM dbo.Reserva WHERE Id=@ReservaId AND (Sena<>SenaRequerida OR Garantia<>GarantiaRequerida))
-   THROW 50203,N'El cliente debe pagar la seña y la garantía antes de la entrega.',1;
+   THROW 50203,N'El cliente debe pagar la seña antes de la entrega.',1;
  DECLARE @Bloqueo bigint;
  SELECT @Bloqueo=SUM(CONVERT(bigint,e.Id)) FROM dbo.Equipo e WITH(UPDLOCK,HOLDLOCK) JOIN dbo.ReservaEquipo re ON re.EquipoId=e.Id WHERE re.ReservaId=@ReservaId;
  IF EXISTS(SELECT 1 FROM dbo.ReservaEquipo re JOIN dbo.Equipo e ON e.Id=re.EquipoId WHERE re.ReservaId=@ReservaId AND e.Estado<>N'Disponible')

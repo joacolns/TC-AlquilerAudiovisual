@@ -40,13 +40,13 @@ namespace DAL
 					{
 						Precision = 18,
 						Scale = 2,
-						Value = devolucion.GarantiaAplicada
+						Value = 0m
 					},
 					new SqlParameter("@GarantiaDevuelta", SqlDbType.Decimal)
 					{
 						Precision = 18,
 						Scale = 2,
-						Value = devolucion.GarantiaDevuelta
+						Value = 0m
 					},
 					new SqlParameter("@SaldoPendiente", SqlDbType.Decimal)
 					{
@@ -230,8 +230,6 @@ namespace DAL
 				ClientePresente = Convert.ToBoolean(fila["ClientePresente"]),
 				Finalizada = Convert.ToBoolean(fila["Finalizada"]),
 				Observaciones = Convert.ToString(fila["Observaciones"]),
-				GarantiaAplicada = Convert.ToDecimal(fila["GarantiaAplicada"]),
-				GarantiaDevuelta = Convert.ToDecimal(fila["GarantiaDevuelta"]),
 				SaldoPendiente = Convert.ToDecimal(fila["SaldoPendiente"])
 			};
 		}

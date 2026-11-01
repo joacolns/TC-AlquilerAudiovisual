@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Windows.Forms;
 using BE;
 using BLL;
@@ -14,7 +13,6 @@ namespace GUI
 		public UsuariosForm()
 		{
 			InitializeComponent();
-			AplicarEstilo();
 		}
 
 		public void GuardarUsuario()
@@ -25,6 +23,10 @@ namespace GUI
 					new Usuario
 					{
 						NombreUsuario = nombre.Text,
+						Nombre = nombreCompleto.Text,
+						Email = correo.Text,
+						Telefono = telefonoUsuario.Text,
+						DniCuit = dniUsuario.Text,
 						Rol = Convert.ToString(rol.SelectedItem),
 						Activo = activo.Checked,
 						TipoSeguro = Convert.ToString(tipoSeguroAlta.SelectedItem)
@@ -33,6 +35,10 @@ namespace GUI
 				);
 				clave.Clear();
 				nombre.Clear();
+				nombreCompleto.Clear();
+				correo.Clear();
+				telefonoUsuario.Clear();
+				dniUsuario.Clear();
 				Cargar();
 				MessageBox.Show(this, "Usuario creado: " + id);
 			}
@@ -46,19 +52,14 @@ namespace GUI
 		{
 			try
 			{
-				Usuario seleccionado = null;
-
-				if (grilla.CurrentRow != null)
-				{
-					seleccionado = grilla.CurrentRow.DataBoundItem as Usuario;
-				}
+				Usuario seleccionado = UsuarioSeleccionado();
 
 				if (seleccionado == null)
 				{
 					throw new ArgumentException("Seleccioná un usuario.");
 				}
 
-				if (!bll.AsignarRol(seleccionado.Id, Convert.ToString(rol.SelectedItem)))
+				if (!bll.AsignarRol(seleccionado.Id, Convert.ToString(rolAsignar.SelectedItem)))
 				{
 					throw new InvalidOperationException("El usuario no existe.");
 				}
@@ -83,16 +84,11 @@ namespace GUI
 		{
 			try
 			{
-				Usuario seleccionado = null;
+				Usuario seleccionado = UsuarioSeleccionado();
 
-				if (grilla.CurrentRow != null)
+				if (seleccionado == null || (seleccionado.Rol != "Cliente" && seleccionado.Rol != "Administrador"))
 				{
-					seleccionado = grilla.CurrentRow.DataBoundItem as Usuario;
-				}
-
-				if (seleccionado == null || seleccionado.Rol != "Cliente")
-				{
-					throw new ArgumentException("Seleccioná un usuario con rol Cliente.");
+					throw new ArgumentException("Seleccioná un usuario con rol Cliente o Administrador.");
 				}
 
 				if (!bll.ConfigurarSeguro(seleccionado.Id, Convert.ToString(tipoSeguroActual.SelectedItem)))
@@ -113,12 +109,7 @@ namespace GUI
 		{
 			try
 			{
-				Usuario seleccionado = null;
-
-				if (grilla.CurrentRow != null)
-				{
-					seleccionado = grilla.CurrentRow.DataBoundItem as Usuario;
-				}
+				Usuario seleccionado = UsuarioSeleccionado();
 
 				if (seleccionado == null)
 				{
@@ -145,73 +136,60 @@ namespace GUI
 			}
 		}
 
+		private Usuario UsuarioSeleccionado()
+		{
+			if (grilla.CurrentRow == null)
+			{
+				return null;
+			}
+
+			return grilla.CurrentRow.DataBoundItem as Usuario;
+		}
+
 		private void Cargar()
 		{
 			grilla.DataSource = bll.Listar();
-
-			if (grilla.Columns.Contains("Hash"))
-			{
-				grilla.Columns["Hash"].Visible = false;
-			}
-
-			if (grilla.Columns.Contains("Sal"))
-			{
-				grilla.Columns["Sal"].Visible = false;
-			}
-
-			grilla.Columns["SeguroId"].Visible = false;
-			grilla.Columns["Seguro"].Visible = false;
-			grilla.Columns["TipoSeguro"].HeaderText = "Seguro";
-		}
-
-		private void CambiarClaveClick(object sender, EventArgs e)
-		{
-			CambiarClave();
 		}
 
 		private void UsuarioSeleccionadoCambio(object sender, EventArgs e)
 		{
-			if (DesignMode
-				|| System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
-			{
-				return;
-			}
+			Usuario seleccionado = UsuarioSeleccionado();
+			bool hay = seleccionado != null;
+			bool esCliente = hay && (seleccionado.Rol == "Cliente" || seleccionado.Rol == "Administrador");
 
 			nuevaClave.Clear();
 			repetirClave.Clear();
-			claveUsuarioLabel.Text = "Seleccioná un usuario de la lista para cambiar su contraseña.";
-			seguroUsuarioLabel.Text = "Seleccioná un cliente de la lista para cambiar su seguro.";
-			tipoSeguroActual.SelectedIndex = 0;
-			tipoSeguroActual.Enabled = false;
-			guardarSeguroUsuarioBoton.Enabled = false;
+			rolAsignar.Enabled = hay;
+			rolBoton.Enabled = hay;
+			nuevaClave.Enabled = hay;
+			repetirClave.Enabled = hay;
+			cambiarClaveBoton.Enabled = hay;
+			tipoSeguroActual.Enabled = esCliente;
+			guardarSeguroUsuarioBoton.Enabled = esCliente;
 
-			if (grilla.CurrentRow != null)
+			if (!hay)
 			{
-				Usuario seleccionado = grilla.CurrentRow.DataBoundItem as Usuario;
-
-				if (seleccionado != null)
-				{
-					claveUsuarioLabel.Text = "Cambiar contraseña de: " + seleccionado.NombreUsuario;
-
-					if (seleccionado.Rol == "Cliente")
-					{
-						seguroUsuarioLabel.Text = "Seguro de: " + seleccionado.NombreUsuario;
-						tipoSeguroActual.SelectedItem = seleccionado.TipoSeguro;
-						tipoSeguroActual.Enabled = true;
-						guardarSeguroUsuarioBoton.Enabled = true;
-					}
-				}
+				claveUsuarioLabel.Text = "Seleccioná un usuario de la lista.";
+				return;
 			}
-		}
 
-		private void ConfigurarSeguroClick(object sender, EventArgs e)
-		{
-			ConfigurarSeguro();
+			claveUsuarioLabel.Text = "Usuario seleccionado: " + seleccionado.NombreUsuario;
+			rolAsignar.SelectedItem = seleccionado.Rol;
+
+			if (esCliente)
+			{
+				tipoSeguroActual.SelectedItem = seleccionado.TipoSeguro;
+			}
+			else
+			{
+				tipoSeguroActual.SelectedIndex = 0;
+			}
 		}
 
 		private void RolAltaCambio(object sender, EventArgs e)
 		{
-			tipoSeguroAlta.Enabled = Convert.ToString(rol.SelectedItem) == "Cliente";
+			string elegido = Convert.ToString(rol.SelectedItem);
+			tipoSeguroAlta.Enabled = elegido == "Cliente" || elegido == "Administrador";
 
 			if (!tipoSeguroAlta.Enabled)
 			{
@@ -219,35 +197,78 @@ namespace GUI
 			}
 		}
 
-		private void FormatearTipoSeguro(object sender, ListControlConvertEventArgs e)
+		private void FormatearRol(object sender, ListControlConvertEventArgs e)
 		{
-			if (Convert.ToString(e.ListItem) == "SinSeguro")
-			{
-				e.Value = "Sin seguro";
-			}
-			else if (Convert.ToString(e.ListItem) == "Basico")
-			{
-				e.Value = "Básico";
-			}
+			e.Value = NombreRol(Convert.ToString(e.ListItem));
 		}
 
-		private void FormatearSeguroGrilla(object sender, DataGridViewCellFormattingEventArgs e)
+		private void FormatearTipoSeguro(object sender, ListControlConvertEventArgs e)
 		{
-			if (grilla.Columns[e.ColumnIndex].DataPropertyName != "TipoSeguro")
+			e.Value = NombreSeguro(Convert.ToString(e.ListItem));
+		}
+
+		private void FormatearGrilla(object sender, DataGridViewCellFormattingEventArgs e)
+		{
+			if (e.RowIndex < 0)
 			{
 				return;
 			}
 
-			if (Convert.ToString(e.Value) == "SinSeguro")
+			string propiedad = grilla.Columns[e.ColumnIndex].DataPropertyName;
+
+			if (propiedad == "Rol")
 			{
-				e.Value = "Sin seguro";
+				e.Value = NombreRol(Convert.ToString(e.Value));
 				e.FormattingApplied = true;
 			}
-			else if (Convert.ToString(e.Value) == "Basico")
+			else if (propiedad == "TipoSeguro")
 			{
-				e.Value = "Básico";
+				e.Value = NombreSeguro(Convert.ToString(e.Value));
 				e.FormattingApplied = true;
 			}
+			else if (propiedad == "Activo")
+			{
+				if (Convert.ToBoolean(e.Value))
+				{
+					e.Value = "Sí";
+				}
+				else
+				{
+					e.Value = "No";
+				}
+
+				e.FormattingApplied = true;
+			}
+		}
+
+		private string NombreRol(string codigo)
+		{
+			if (codigo == "EncargadoStock")
+			{
+				return "Encargado de stock";
+			}
+
+			if (codigo == "Tecnico")
+			{
+				return "Técnico";
+			}
+
+			return codigo;
+		}
+
+		private string NombreSeguro(string tipo)
+		{
+			if (tipo == "SinSeguro")
+			{
+				return "Sin seguro";
+			}
+
+			if (tipo == "Basico")
+			{
+				return "Básico";
+			}
+
+			return tipo;
 		}
 
 		private void GuardarClick(object sender, EventArgs e)
@@ -260,91 +281,32 @@ namespace GUI
 			AsignarRol();
 		}
 
-		private void AplicarEstilo()
+		private void CambiarClaveClick(object sender, EventArgs e)
 		{
-			BackColor = Color.FromArgb(244, 247, 251);
-			ForeColor = Color.FromArgb(15, 23, 42);
-			Text = "Usuarios, roles y seguridad";
-			alta.BackColor = Color.White;
-			cambioClavePanel.BackColor = Color.White;
-			seguroUsuarioPanel.BackColor = Color.White;
-			altaLabel.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
-			EstilizarBotones(this);
-			EstiloBotonPrincipal(crearBoton);
-			EstiloBotonPrincipal(cambiarClaveBoton);
-			EstiloBotonPrincipal(guardarSeguroUsuarioBoton);
-			ConfigurarGrilla(grilla);
+			CambiarClave();
 		}
 
-		private void EstilizarBotones(Control contenedor)
+		private void ConfigurarSeguroClick(object sender, EventArgs e)
 		{
-			foreach (Control control in contenedor.Controls)
-			{
-				Button boton = control as Button;
-
-				if (boton != null)
-				{
-					boton.FlatStyle = FlatStyle.Flat;
-					boton.FlatAppearance.BorderSize = 1;
-					boton.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
-					boton.BackColor = Color.White;
-					boton.ForeColor = Color.FromArgb(51, 65, 85);
-					boton.Cursor = Cursors.Hand;
-					boton.MinimumSize = new Size(120, 36);
-				}
-
-				if (control.HasChildren)
-				{
-					EstilizarBotones(control);
-				}
-			}
+			ConfigurarSeguro();
 		}
 
-		private void EstiloBotonPrincipal(Button boton)
+		private void UsuariosForm_Load(object sender, EventArgs e)
 		{
-			boton.BackColor = Color.FromArgb(37, 99, 235);
-			boton.ForeColor = Color.White;
-			boton.FlatAppearance.BorderSize = 0;
-			boton.FlatAppearance.MouseOverBackColor = Color.FromArgb(29, 78, 216);
+			CargarPantalla();
 		}
 
-		private void ConfigurarGrilla(DataGridView grilla)
+		private void CargarPantalla()
 		{
-			grilla.BackgroundColor = Color.White;
-			grilla.BorderStyle = BorderStyle.None;
-			grilla.RowHeadersVisible = false;
-			grilla.EnableHeadersVisualStyles = false;
-			grilla.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(15, 23, 42);
-			grilla.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-			grilla.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			grilla.ColumnHeadersDefaultCellStyle.Padding = new Padding(4);
-			grilla.ColumnHeadersHeight = 38;
-			grilla.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-			grilla.DefaultCellStyle.BackColor = Color.White;
-			grilla.DefaultCellStyle.ForeColor = Color.FromArgb(30, 41, 59);
-			grilla.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
-			grilla.DefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 23, 42);
-			grilla.DefaultCellStyle.Padding = new Padding(3);
-			grilla.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
-			grilla.RowTemplate.Height = 32;
-		}
-
-		private void CargarClick(object sender, EventArgs e)
-		{
-			if (DesignMode
-				|| System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
-			{
-				return;
-			}
-
 			try
 			{
+				tipoSeguroAlta.SelectedIndex = 0;
+				rol.SelectedIndex = 0;
 				Cargar();
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(this, ex.Message);
-				Close();
+				MessageBox.Show(this, ex.Message, "No se pudo abrir la pantalla", MessageBoxButtons.OK, MessageBoxIcon.Error);
 			}
 		}
 	}

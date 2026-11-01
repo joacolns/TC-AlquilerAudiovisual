@@ -13,7 +13,7 @@ BEGIN
  UPDATE u SET SeguroId=s.Id,TipoSeguro=s.Tipo
  FROM dbo.Usuario u JOIN dbo.Cliente c ON c.UsuarioId=u.Id
  CROSS APPLY (SELECT TOP (1) Id,Tipo FROM dbo.Seguro WHERE ClienteId=c.Id ORDER BY Id DESC) s
- WHERE u.Rol=N'Cliente';
+ WHERE u.Rol IN(N'Cliente',N'Administrador');
  ALTER TABLE dbo.Usuario ADD CONSTRAINT FK_Usuario_Seguro FOREIGN KEY(SeguroId) REFERENCES dbo.Seguro(Id);
 END;
 IF NOT EXISTS(SELECT 1 FROM sys.check_constraints WHERE name=N'CK_Usuario_TipoSeguro')
@@ -40,8 +40,8 @@ BEGIN
   IF @Rol IS NULL THROW 50030,N'El usuario no existe.',1;
   IF @TipoSeguro IS NULL OR @TipoSeguro NOT IN(N'SinSeguro',N'Basico',N'Intermedio',N'Completo')
    THROW 50031,N'Elegí Sin seguro, Básico, Intermedio o Completo.',1;
-  IF @Rol<>N'Cliente' AND @TipoSeguro<>N'SinSeguro'
-   THROW 50032,N'El seguro de alquiler corresponde a cuentas Cliente.',1;
+  IF @Rol NOT IN(N'Cliente',N'Administrador') AND @TipoSeguro<>N'SinSeguro'
+   THROW 50032,N'El seguro de alquiler corresponde a cuentas Cliente o Administrador.',1;
   SELECT @ClienteId=Id FROM dbo.Cliente WHERE UsuarioId=@UsuarioId;
   IF @TipoSeguro=N'SinSeguro' OR @ClienteId IS NULL
    UPDATE dbo.Usuario SET TipoSeguro=@TipoSeguro,SeguroId=NULL WHERE Id=@UsuarioId;
@@ -80,6 +80,6 @@ GO
 CREATE OR ALTER PROCEDURE dbo.sp_Usuario_Seguro @UsuarioId int AS
 BEGIN
  SET NOCOUNT ON;
- SELECT * FROM dbo.vUsuario WHERE Id=@UsuarioId AND Rol=N'Cliente';
+ SELECT * FROM dbo.vUsuario WHERE Id=@UsuarioId AND Rol IN(N'Cliente',N'Administrador');
 END;
 GO

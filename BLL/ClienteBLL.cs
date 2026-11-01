@@ -150,6 +150,12 @@ namespace BLL
 			}
 		}
 
+		public List<Cliente> ListarPropios()
+		{
+			Autorizar("Cliente.Consultar");
+			return mapper.Listar(SesionSingleton.Instancia.UsuarioActual.Id);
+		}
+
 		public List<Seguro> ListarSeguros(int clienteId)
 		{
 			Autorizar("Cliente.Consultar");

@@ -146,5 +146,15 @@ namespace GUI
 			cerrando = true;
 			SesionSingleton.Instancia.Cerrar();
 		}
+
+		private void marca_Click(object sender, EventArgs e)
+		{
+
+		}
+
+		private void LoginForm_Load(object sender, EventArgs e)
+		{
+
+		}
 	}
 }

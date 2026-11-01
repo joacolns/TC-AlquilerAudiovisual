@@ -313,7 +313,7 @@ BEGIN
  UPDATE u SET SeguroId=s.Id,TipoSeguro=s.Tipo
  FROM dbo.Usuario u JOIN dbo.Cliente c ON c.UsuarioId=u.Id
  CROSS APPLY (SELECT TOP (1) Id,Tipo FROM dbo.Seguro WHERE ClienteId=c.Id ORDER BY Id DESC) s
- WHERE u.Rol=N'Cliente';
+ WHERE u.Rol IN(N'Cliente',N'Administrador');
  ALTER TABLE dbo.Usuario ADD CONSTRAINT FK_Usuario_Seguro FOREIGN KEY(SeguroId) REFERENCES dbo.Seguro(Id);
 END;
 IF NOT EXISTS(SELECT 1 FROM sys.check_constraints WHERE name=N'CK_Usuario_TipoSeguro')
@@ -340,8 +340,8 @@ BEGIN
   IF @Rol IS NULL THROW 50030,N'El usuario no existe.',1;
   IF @TipoSeguro IS NULL OR @TipoSeguro NOT IN(N'SinSeguro',N'Basico',N'Intermedio',N'Completo')
    THROW 50031,N'Elegí Sin seguro, Básico, Intermedio o Completo.',1;
-  IF @Rol<>N'Cliente' AND @TipoSeguro<>N'SinSeguro'
-   THROW 50032,N'El seguro de alquiler corresponde a cuentas Cliente.',1;
+  IF @Rol NOT IN(N'Cliente',N'Administrador') AND @TipoSeguro<>N'SinSeguro'
+   THROW 50032,N'El seguro de alquiler corresponde a cuentas Cliente o Administrador.',1;
   SELECT @ClienteId=Id FROM dbo.Cliente WHERE UsuarioId=@UsuarioId;
   IF @TipoSeguro=N'SinSeguro' OR @ClienteId IS NULL
    UPDATE dbo.Usuario SET TipoSeguro=@TipoSeguro,SeguroId=NULL WHERE Id=@UsuarioId;
@@ -380,7 +380,7 @@ GO
 CREATE OR ALTER PROCEDURE dbo.sp_Usuario_Seguro @UsuarioId int AS
 BEGIN
  SET NOCOUNT ON;
- SELECT * FROM dbo.vUsuario WHERE Id=@UsuarioId AND Rol=N'Cliente';
+ SELECT * FROM dbo.vUsuario WHERE Id=@UsuarioId AND Rol IN(N'Cliente',N'Administrador');
 END;
 GO
 
@@ -502,7 +502,7 @@ BEGIN
   IF @Estado IS NULL OR @Estado<>N'Aceptada'
    THROW 50201,N'Solo se puede pagar una solicitud aceptada y pendiente de pago.',1;
   IF NOT EXISTS(SELECT 1 FROM dbo.Cliente c JOIN dbo.Usuario u ON u.Id=c.UsuarioId
-   WHERE c.Id=@ClienteId AND u.Id=@UsuarioId AND u.Rol=N'Cliente' AND u.Activo=1)
+   WHERE c.Id=@ClienteId AND u.Id=@UsuarioId AND u.Rol IN(N'Cliente',N'Administrador') AND u.Activo=1)
    THROW 50202,N'Solo el cliente de la solicitud puede pagarla.',1;
   -- El importe procede de lo aceptado por stock; no se toma desde el formulario.
   UPDATE dbo.Reserva SET Sena=SenaRequerida,Garantia=GarantiaRequerida,Estado=N'Firme' WHERE Id=@ReservaId;
@@ -605,11 +605,11 @@ GO
 CREATE OR ALTER PROCEDURE dbo.sp_Usuario_AsignarRol @UsuarioId int,@Rol nvarchar(25),@Resultado int OUTPUT AS
  BEGIN SET NOCOUNT ON;
  IF @Rol NOT IN(N'Administrador',N'Cliente',N'EncargadoStock',N'Tecnico') THROW 50001,N'Rol no válido.',1;
- IF @Rol<>N'Cliente' AND EXISTS(SELECT 1 FROM dbo.Cliente WHERE UsuarioId=@UsuarioId)
-   THROW 50002,N'La cuenta tiene una ficha de cliente; debe conservar el rol Cliente.',1;
+ IF @Rol NOT IN(N'Cliente',N'Administrador') AND EXISTS(SELECT 1 FROM dbo.Cliente WHERE UsuarioId=@UsuarioId)
+   THROW 50002,N'La cuenta tiene una ficha de cliente; debe conservar el rol Cliente o Administrador.',1;
  UPDATE dbo.Usuario SET Rol=@Rol WHERE Id=@UsuarioId;
  SET @Resultado=CASE WHEN @@ROWCOUNT=1 THEN 1 ELSE 0 END;
- IF @Rol<>N'Cliente' UPDATE dbo.Usuario SET TipoSeguro=N'SinSeguro',SeguroId=NULL WHERE Id=@UsuarioId;
+ IF @Rol NOT IN(N'Cliente',N'Administrador') UPDATE dbo.Usuario SET TipoSeguro=N'SinSeguro',SeguroId=NULL WHERE Id=@UsuarioId;
  END;
 GO
 CREATE OR ALTER PROCEDURE dbo.sp_Cliente_Insertar
@@ -617,8 +617,8 @@ CREATE OR ALTER PROCEDURE dbo.sp_Cliente_Insertar
  BEGIN SET NOCOUNT ON; SET XACT_ABORT ON;
  BEGIN TRY
  BEGIN TRANSACTION;
- IF NOT EXISTS(SELECT 1 FROM dbo.Usuario WHERE Id=@UsuarioId AND Rol=N'Cliente' AND Activo=1)
-   THROW 50003,N'Seleccioná una cuenta activa con rol Cliente.',1;
+ IF NOT EXISTS(SELECT 1 FROM dbo.Usuario WHERE Id=@UsuarioId AND Rol IN(N'Cliente',N'Administrador') AND Activo=1)
+   THROW 50003,N'Seleccioná una cuenta activa con rol Cliente o Administrador.',1;
  INSERT dbo.Cliente(UsuarioId,DniCuit,Nombre,Telefono,Email) VALUES(@UsuarioId,@DniCuit,@Nombre,@Telefono,@Email);
  SET @Resultado=CONVERT(int,SCOPE_IDENTITY());
  DECLARE @TipoSeguro nvarchar(25),@SeguroResultado int;
@@ -704,7 +704,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Reserva_Insertar
  SET TRANSACTION ISOLATION LEVEL SERIALIZABLE;
  BEGIN TRY BEGIN TRANSACTION;
  IF NOT EXISTS(SELECT 1 FROM dbo.Cliente c JOIN dbo.Usuario u ON u.Id=c.UsuarioId
-   WHERE c.Id=@ClienteId AND c.UsuarioId=@UsuarioId AND u.Activo=1 AND u.Rol=N'Cliente')
+   WHERE c.Id=@ClienteId AND c.UsuarioId=@UsuarioId AND u.Activo=1 AND u.Rol IN(N'Cliente',N'Administrador'))
    THROW 50024,N'La solicitud debe pertenecer a una cuenta de cliente activa.',1;
  IF @Hasta<=@Desde OR @Hasta>CONVERT(datetime2,'9998-01-01') OR NOT EXISTS(SELECT 1 FROM @Equipos)
    THROW 50025,N'Elegí equipos y un período válido.',1;
@@ -745,7 +745,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Reserva_Confirmar
    THROW 50011,N'Completá fechas y unidades de la reserva.',1;
  IF @PorcentajeSena NOT BETWEEN 0 AND 1 OR @PorcentajeGarantia NOT BETWEEN 0 AND 1 THROW 50012,N'Porcentajes no válidos.',1;
  IF NOT EXISTS(SELECT 1 FROM dbo.Cliente c WITH(HOLDLOCK) JOIN dbo.Usuario u WITH(HOLDLOCK) ON u.Id=c.UsuarioId
-   WHERE c.Id=@ClienteId AND u.Activo=1 AND u.Rol=N'Cliente')
+   WHERE c.Id=@ClienteId AND u.Activo=1 AND u.Rol IN(N'Cliente',N'Administrador'))
    THROW 50013,N'El cliente no está habilitado.',1;
  -- Every confirmation locks physical units before testing the date range.
  DECLARE @Bloqueo bigint;
@@ -765,7 +765,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Reserva_Confirmar
  DECLARE @Total decimal(18,2),@Reposicion decimal(18,2);
  SELECT @Total=ROUND(SUM(e.TarifaDiaria)*@Dias,2),@Reposicion=SUM(e.ValorReposicion) FROM dbo.Equipo e JOIN @Equipos x ON x.EquipoId=e.Id;
  IF @Importe<>@Total OR @SenaRequerida<>ROUND(@Total*@PorcentajeSena,2) OR @GarantiaRequerida<>ROUND(@Reposicion*@PorcentajeGarantia,2)
-   THROW 50018,N'Importe, seña o garantía no coinciden con la cotización actual.',1;
+   THROW 50018,N'Importe o seña no coinciden con la cotización actual.',1;
  UPDATE dbo.Reserva SET Importe=@Importe,SenaRequerida=@SenaRequerida,GarantiaRequerida=@GarantiaRequerida,Sena=0,Garantia=0,Estado=N'Aceptada' WHERE Id=@ReservaId;
  UPDATE re SET SeguroId=s.Id,CoberturaSeguro=ISNULL(s.Cobertura,0),TipoSeguro=s.Tipo,DetalleSeguro=s.Detalle,
  PolizaSeguro=s.Poliza,AseguradoraSeguro=s.Aseguradora,DesdeSeguro=s.Desde,HastaSeguro=s.Hasta,TarifaDiaria=e.TarifaDiaria,
@@ -786,7 +786,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Reserva_RegistrarEntrega @ReservaId int,@Result
  SELECT @Estado=Estado FROM dbo.Reserva WITH(UPDLOCK,HOLDLOCK) WHERE Id=@ReservaId;
  IF @Estado=N'Firme' BEGIN
  IF EXISTS(SELECT 1 FROM dbo.Reserva WHERE Id=@ReservaId AND (Sena<>SenaRequerida OR Garantia<>GarantiaRequerida))
-   THROW 50203,N'El cliente debe pagar la seña y la garantía antes de la entrega.',1;
+   THROW 50203,N'El cliente debe pagar la seña antes de la entrega.',1;
  DECLARE @Bloqueo bigint;
  SELECT @Bloqueo=SUM(CONVERT(bigint,e.Id)) FROM dbo.Equipo e WITH(UPDLOCK,HOLDLOCK) JOIN dbo.ReservaEquipo re ON re.EquipoId=e.Id WHERE re.ReservaId=@ReservaId;
  IF EXISTS(SELECT 1 FROM dbo.ReservaEquipo re JOIN dbo.Equipo e ON e.Id=re.EquipoId WHERE re.ReservaId=@ReservaId AND e.Estado<>N'Disponible')
@@ -1061,7 +1061,7 @@ BEGIN
 		IF @Estado = N'Firme'
 		BEGIN
 			IF EXISTS(SELECT 1 FROM dbo.Reserva WHERE Id=@ReservaId AND (Sena<>SenaRequerida OR Garantia<>GarantiaRequerida))
-				THROW 50203,N'El cliente debe pagar la seña y la garantía antes de la entrega.',1;
+				THROW 50203,N'El cliente debe pagar la seña antes de la entrega.',1;
 			DECLARE @Bloqueo bigint;
 			SELECT @Bloqueo = SUM(CONVERT(bigint, e.Id)) FROM dbo.Equipo e WITH (UPDLOCK, HOLDLOCK)
 			JOIN dbo.ReservaEquipo re ON re.EquipoId = e.Id WHERE re.ReservaId = @ReservaId;
@@ -1154,3 +1154,293 @@ UPDATE dbo.Usuario SET SeguroId = 1 WHERE Id = 3;
 COMMIT TRANSACTION;
 GO
 PRINT N'Restauracion de TC-AlquilerAudiovisual completada.';
+GO
+USE [TC-AlquilerAudiovisual];
+GO
+-- Todo usuario (incluido el administrador) tiene nombre, correo, teléfono y DNI/CUIT obligatorios.
+IF COL_LENGTH(N'dbo.Usuario',N'Nombre') IS NULL
+ ALTER TABLE dbo.Usuario ADD Nombre nvarchar(100) NULL,DniCuit nvarchar(13) NULL,Telefono nvarchar(30) NULL,Email nvarchar(150) NULL;
+GO
+-- Los usuarios existentes sin datos reciben valores de ejemplo para poder exigir la restricción.
+UPDATE u SET
+ Nombre=ISNULL(NULLIF(LTRIM(RTRIM(u.Nombre)),N''),c.Nombre),
+ DniCuit=ISNULL(NULLIF(LTRIM(RTRIM(u.DniCuit)),N''),c.DniCuit),
+ Telefono=ISNULL(NULLIF(LTRIM(RTRIM(u.Telefono)),N''),c.Telefono),
+ Email=ISNULL(NULLIF(LTRIM(RTRIM(u.Email)),N''),c.Email)
+FROM dbo.Usuario u LEFT JOIN dbo.Cliente c ON c.UsuarioId=u.Id;
+UPDATE dbo.Usuario SET
+ Nombre=ISNULL(NULLIF(LTRIM(RTRIM(Nombre)),N''),NombreUsuario),
+ DniCuit=ISNULL(NULLIF(LTRIM(RTRIM(DniCuit)),N''),CONVERT(nvarchar(13),20000000+Id)),
+ Telefono=ISNULL(NULLIF(LTRIM(RTRIM(Telefono)),N''),N'1100000000'),
+ Email=ISNULL(NULLIF(LTRIM(RTRIM(Email)),N''),NombreUsuario+N'@foco.com');
+GO
+IF EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID(N'dbo.Usuario') AND name=N'Nombre' AND is_nullable=1)
+BEGIN
+ ALTER TABLE dbo.Usuario ALTER COLUMN Nombre nvarchar(100) NOT NULL;
+ ALTER TABLE dbo.Usuario ALTER COLUMN DniCuit nvarchar(13) NOT NULL;
+ ALTER TABLE dbo.Usuario ALTER COLUMN Telefono nvarchar(30) NOT NULL;
+ ALTER TABLE dbo.Usuario ALTER COLUMN Email nvarchar(150) NOT NULL;
+END;
+GO
+IF NOT EXISTS(SELECT 1 FROM sys.check_constraints WHERE name=N'CK_Usuario_DatosPersonales')
+ ALTER TABLE dbo.Usuario ADD CONSTRAINT CK_Usuario_DatosPersonales CHECK(
+  LEN(LTRIM(RTRIM(Nombre)))>0 AND LEN(LTRIM(RTRIM(DniCuit)))>0 AND LEN(LTRIM(RTRIM(Telefono)))>0 AND LEN(LTRIM(RTRIM(Email)))>0);
+GO
+CREATE OR ALTER VIEW dbo.vUsuario AS
+ SELECT u.Id,u.NombreUsuario,u.Rol,u.Activo,u.TipoSeguro,u.SeguroId,u.Nombre,u.DniCuit,u.Telefono,u.Email,
+ s.ClienteId SeguroClienteId,s.Tipo SeguroTipo,s.Detalle SeguroDetalle,s.Poliza SeguroPoliza,
+ s.Aseguradora SeguroAseguradora,s.Desde SeguroDesde,s.Hasta SeguroHasta,s.Cobertura SeguroCobertura,
+ c.Nombre SeguroNombre,c.DniCuit SeguroDniCuit,c.Telefono SeguroTelefono,c.Email SeguroEmail,
+ dbo.HistorialCliente(c.Id) SeguroAntecedentes
+ FROM dbo.Usuario u LEFT JOIN dbo.Cliente c ON c.UsuarioId=u.Id
+ LEFT JOIN dbo.Seguro s ON s.Id=u.SeguroId AND s.ClienteId=c.Id AND u.TipoSeguro<>N'SinSeguro';
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_Usuario_Insertar
+ @NombreUsuario nvarchar(50),@Hash varbinary(32),@Sal varbinary(16),@Rol nvarchar(25),@Activo bit,@Resultado int OUTPUT,@TipoSeguro nvarchar(25)=N'SinSeguro',
+ @Nombre nvarchar(100)=NULL,@DniCuit nvarchar(13)=NULL,@Telefono nvarchar(30)=NULL,@Email nvarchar(150)=NULL AS
+ BEGIN SET NOCOUNT ON; SET XACT_ABORT ON;
+ BEGIN TRY
+ BEGIN TRANSACTION;
+ IF NULLIF(LTRIM(RTRIM(@Nombre)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@DniCuit)),N'') IS NULL
+  OR NULLIF(LTRIM(RTRIM(@Telefono)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@Email)),N'') IS NULL
+  THROW 50040,N'Nombre, correo, teléfono y DNI/CUIT son obligatorios.',1;
+ INSERT dbo.Usuario(NombreUsuario,Hash,Sal,Rol,Activo,TipoSeguro,Nombre,DniCuit,Telefono,Email)
+  VALUES(@NombreUsuario,@Hash,@Sal,@Rol,@Activo,@TipoSeguro,@Nombre,@DniCuit,@Telefono,@Email);
+ SET @Resultado=CONVERT(int,SCOPE_IDENTITY());
+ DECLARE @SeguroResultado int;
+ EXEC dbo.sp_Usuario_ConfigurarSeguro @Resultado,@TipoSeguro,@SeguroResultado OUTPUT;
+ COMMIT;
+ END TRY BEGIN CATCH IF @@TRANCOUNT>0 ROLLBACK; THROW; END CATCH; END;
+GO
+GO
+USE [TC-AlquilerAudiovisual];
+GO
+-- Alta automática de la ficha de cliente para cuentas Cliente y Administrador.
+INSERT dbo.Cliente(UsuarioId,DniCuit,Nombre,Telefono,Email)
+ SELECT u.Id,u.DniCuit,u.Nombre,u.Telefono,u.Email FROM dbo.Usuario u
+ WHERE u.Rol IN(N'Cliente',N'Administrador') AND NOT EXISTS(SELECT 1 FROM dbo.Cliente c WHERE c.UsuarioId=u.Id);
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_Usuario_AsignarRol @UsuarioId int,@Rol nvarchar(25),@Resultado int OUTPUT AS
+ BEGIN SET NOCOUNT ON;
+ IF @Rol NOT IN(N'Administrador',N'Cliente',N'EncargadoStock',N'Tecnico') THROW 50001,N'Rol no válido.',1;
+ IF @Rol NOT IN(N'Cliente',N'Administrador') AND EXISTS(SELECT 1 FROM dbo.Cliente WHERE UsuarioId=@UsuarioId)
+   THROW 50002,N'La cuenta tiene una ficha de cliente; debe conservar el rol Cliente o Administrador.',1;
+ UPDATE dbo.Usuario SET Rol=@Rol WHERE Id=@UsuarioId;
+ SET @Resultado=CASE WHEN @@ROWCOUNT=1 THEN 1 ELSE 0 END;
+ IF @Rol NOT IN(N'Cliente',N'Administrador') UPDATE dbo.Usuario SET TipoSeguro=N'SinSeguro',SeguroId=NULL WHERE Id=@UsuarioId;
+ -- Las cuentas Cliente y Administrador siempre tienen ficha de cliente, completada con sus datos personales.
+ IF @Rol IN(N'Cliente',N'Administrador') AND NOT EXISTS(SELECT 1 FROM dbo.Cliente WHERE UsuarioId=@UsuarioId)
+  INSERT dbo.Cliente(UsuarioId,DniCuit,Nombre,Telefono,Email) SELECT Id,DniCuit,Nombre,Telefono,Email FROM dbo.Usuario WHERE Id=@UsuarioId;
+ END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_Usuario_Insertar
+ @NombreUsuario nvarchar(50),@Hash varbinary(32),@Sal varbinary(16),@Rol nvarchar(25),@Activo bit,@Resultado int OUTPUT,@TipoSeguro nvarchar(25)=N'SinSeguro',
+ @Nombre nvarchar(100)=NULL,@DniCuit nvarchar(13)=NULL,@Telefono nvarchar(30)=NULL,@Email nvarchar(150)=NULL AS
+ BEGIN SET NOCOUNT ON; SET XACT_ABORT ON;
+ BEGIN TRY
+ BEGIN TRANSACTION;
+ IF NULLIF(LTRIM(RTRIM(@Nombre)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@DniCuit)),N'') IS NULL
+  OR NULLIF(LTRIM(RTRIM(@Telefono)),N'') IS NULL OR NULLIF(LTRIM(RTRIM(@Email)),N'') IS NULL
+  THROW 50040,N'Nombre, correo, teléfono y DNI/CUIT son obligatorios.',1;
+ INSERT dbo.Usuario(NombreUsuario,Hash,Sal,Rol,Activo,TipoSeguro,Nombre,DniCuit,Telefono,Email)
+  VALUES(@NombreUsuario,@Hash,@Sal,@Rol,@Activo,@TipoSeguro,@Nombre,@DniCuit,@Telefono,@Email);
+ SET @Resultado=CONVERT(int,SCOPE_IDENTITY());
+ -- Las cuentas Cliente y Administrador nacen con su ficha de cliente, tomada de los datos personales.
+ IF @Rol IN(N'Cliente',N'Administrador')
+  INSERT dbo.Cliente(UsuarioId,DniCuit,Nombre,Telefono,Email) VALUES(@Resultado,@DniCuit,@Nombre,@Telefono,@Email);
+ DECLARE @SeguroResultado int;
+ EXEC dbo.sp_Usuario_ConfigurarSeguro @Resultado,@TipoSeguro,@SeguroResultado OUTPUT;
+ COMMIT;
+ END TRY BEGIN CATCH IF @@TRANCOUNT>0 ROLLBACK; THROW; END CATCH; END;
+GO
+GO
+USE [TC-AlquilerAudiovisual];
+GO
+-- Asesoramiento técnico (N03): perfil de cada equipo y más inventario para armar propuestas.
+IF OBJECT_ID(N'dbo.EquipoPerfil',N'U') IS NULL
+ CREATE TABLE dbo.EquipoPerfil(EquipoId int NOT NULL PRIMARY KEY REFERENCES dbo.Equipo(Id),
+  Gama tinyint NOT NULL CHECK(Gama BETWEEN 1 AND 3),Etiquetas nvarchar(300) NOT NULL,
+  Ventaja nvarchar(300) NOT NULL,Limitacion nvarchar(300) NOT NULL);
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_Equipo_DisponiblesAsesor @Desde datetime2,@Hasta datetime2 AS
+ BEGIN SET NOCOUNT ON;
+ SELECT e.*,p.Gama,p.Etiquetas,p.Ventaja,p.Limitacion FROM dbo.vEquipo e
+ JOIN dbo.EquiposDisponibles(@Desde,@Hasta) d ON d.Id=e.Id JOIN dbo.EquipoPerfil p ON p.EquipoId=e.Id
+ ORDER BY e.Categoria,e.CodigoInventario; END;
+GO
+-- Equipos de ejemplo existentes
+INSERT dbo.EquipoPerfil(EquipoId,Gama,Etiquetas,Ventaja,Limitacion)
+ SELECT e.Id,v.Gama,v.Etiquetas,v.Ventaja,v.Limitacion FROM dbo.Equipo e JOIN (VALUES
+ (N'DEMO-001',1,N'montura:kit;4k;peso:0.8;kit-lente',N'Cámara 4K con lente incluido: lista para usar.',N'Óptica y sensor básicos.'),
+ (N'DEMO-002',1,N'luz:key;potencia:60;daylight',N'Panel LED simple para entrevistas.',N'Potencia limitada.'),
+ (N'DEMO-003',1,N'audio:lavalier;cubre:1;inalambrico',N'Micrófono básico de uso general.',N'Calidad de audio básica.')
+ ) v(Codigo,Gama,Etiquetas,Ventaja,Limitacion) ON v.Codigo=e.CodigoInventario
+ WHERE NOT EXISTS(SELECT 1 FROM dbo.EquipoPerfil p WHERE p.EquipoId=e.Id);
+GO
+DECLARE @Nuevos TABLE(Codigo nvarchar(60),Serie nvarchar(160),Categoria nvarchar(100),Marca nvarchar(100),Modelo nvarchar(160),Tarifa decimal(18,2),Reposicion decimal(18,2),Gama tinyint,Etiquetas nvarchar(300),Ventaja nvarchar(300),Limitacion nvarchar(300));
+INSERT @Nuevos VALUES
+(N'CAM-001',N'SN-CAM-001',N'Cámara',N'Sony',N'Alpha a6700',18000,1500000,1,N'montura:E;4k;peso:0.5;liviana',N'Liviana y con enfoque automático confiable: ideal para moverse y para estabilizadores chicos.',N'Sensor APS-C: rinde menos con poca luz.'),
+(N'CAM-002',N'SN-CAM-002',N'Cámara',N'Sony',N'Alpha a7 IV',28000,2800000,2,N'montura:E;4k;fullframe;baja-luz;peso:0.66',N'Full frame versátil con muy buen rendimiento con poca luz.',N'Sin ventilación activa: puede recalentarse en tomas largas.'),
+(N'CAM-003',N'SN-CAM-003',N'Cámara',N'Sony',N'Alpha a7S III',48000,4800000,3,N'montura:E;4k;fullframe;baja-luz;baja-luz-extrema;peso:0.66',N'Rendimiento excepcional en penumbra y grabación sin límite de tiempo.',N'12 MP: menos resolución para recortes en posproducción.'),
+(N'CAM-004',N'SN-CAM-004',N'Cámara',N'Sony',N'FX3 Cinema Line',45000,5200000,3,N'montura:E;4k;fullframe;baja-luz;cine;peso:0.72',N'Cámara de cine compacta, ventilada y con excelente sensibilidad.',N'Cuesta más y suele requerir accesorios de rigging.'),
+(N'CAM-005',N'SN-CAM-005',N'Cámara',N'Canon',N'EOS R6 Mark II',30000,3000000,2,N'montura:RF;4k;fullframe;baja-luz;peso:0.67',N'Colores de piel naturales y estabilización interna efectiva.',N'Sin ventilación activa: tomas largas con riesgo de recalentamiento.'),
+(N'CAM-006',N'SN-CAM-006',N'Cámara',N'Canon',N'EOS C70',55000,6500000,3,N'montura:RF;4k;baja-luz;cine;nd-interno;peso:1.2',N'ND interno y doble ganancia: rinde igual de bien en exterior y con poca luz.',N'Más pesada y más cara; exige soportes robustos.'),
+(N'CAM-007',N'SN-CAM-007',N'Cámara',N'Blackmagic',N'Pocket Cinema 6K Pro',32000,3500000,2,N'montura:EF;6k;cine;nd-interno;peso:0.9',N'Imagen de cine en RAW a costo medio y ND interno.',N'Batería de poca duración y autofocus limitado.'),
+(N'LEN-001',N'SN-LEN-001',N'Lente',N'Sony',N'FE 24-70mm f/2.8 GM II',14000,2400000,3,N'montura:E;zoom;f2.8;peso:0.7',N'Zoom luminoso y versátil: cubre casi todo el set con un solo lente.',N'Pesado para tomas largas en mano.'),
+(N'LEN-002',N'SN-LEN-002',N'Lente',N'Sony',N'FE 50mm f/1.8',5000,350000,1,N'montura:E;fijo;f1.8;peso:0.2',N'Muy luminoso, económico y liviano; fondo desenfocado.',N'Focal fija: obliga a moverse para encuadrar.'),
+(N'LEN-003',N'SN-LEN-003',N'Lente',N'Sony',N'FE 16-35mm f/2.8 GM',13000,2600000,3,N'montura:E;zoom;angular;f2.8;peso:0.68',N'Gran angular ideal para interiores chicos y locaciones.',N'Distorsiona rostros si se usa muy cerca.'),
+(N'LEN-004',N'SN-LEN-004',N'Lente',N'Samyang',N'VDSLR 35mm T1.5 Cine',8000,700000,2,N'montura:E;fijo;cine;t1.5;peso:0.7',N'Look de cine con aro de foco dentado, apto para follow focus.',N'Foco manual: requiere asistente o práctica.'),
+(N'LEN-005',N'SN-LEN-005',N'Lente',N'Canon',N'RF 24-70mm f/2.8L',15000,2800000,3,N'montura:RF;zoom;f2.8;peso:0.9',N'Zoom profesional con muy buena nitidez y estabilización.',N'Pesado y de costo alto.'),
+(N'LEN-006',N'SN-LEN-006',N'Lente',N'Canon',N'RF 50mm f/1.8',4500,300000,1,N'montura:RF;fijo;f1.8;peso:0.16',N'Económico y liviano con gran luminosidad.',N'Focal fija, sin estabilización propia.'),
+(N'LEN-007',N'SN-LEN-007',N'Lente',N'Sigma',N'18-35mm f/1.8 Art',9000,1000000,2,N'montura:EF;zoom;f1.8;cine;peso:0.8',N'Zoom con f/1.8 constante y look cinematográfico.',N'Pesado y sin autofocus ágil.'),
+(N'LEN-008',N'SN-LEN-008',N'Lente',N'Canon',N'EF 24-70mm f/2.8L II',10000,1500000,2,N'montura:EF;zoom;f2.8;peso:0.8',N'Zoom clásico de trabajo, confiable y versátil.',N'Sin estabilización de imagen.'),
+(N'LUZ-001',N'SN-LUZ-001',N'Iluminación',N'Godox',N'SL60W',5500,200000,1,N'luz:key;potencia:60;daylight',N'Luz continua económica, ideal para entrevistas.',N'Potencia limitada: no compite con la luz solar.'),
+(N'LUZ-002',N'SN-LUZ-002',N'Iluminación',N'Godox',N'SL60W',5500,200000,1,N'luz:key;potencia:60;daylight',N'Luz continua económica, ideal para entrevistas.',N'Potencia limitada: no compite con la luz solar.'),
+(N'LUZ-003',N'SN-LUZ-003',N'Iluminación',N'Nanlite',N'Forza 60B',8000,500000,2,N'luz:key;potencia:60;bicolor;compacta',N'Bicolor, compacta y silenciosa: ajusta la temperatura de color.',N'Potencia moderada para espacios grandes.'),
+(N'LUZ-004',N'SN-LUZ-004',N'Iluminación',N'Aputure',N'Amaran 200x S',9000,450000,2,N'luz:key;potencia:200;bicolor',N'Potencia media con bicolor: sirve de luz principal en interiores.',N'Necesita difusor para luz suave.'),
+(N'LUZ-005',N'SN-LUZ-005',N'Iluminación',N'Aputure',N'Amaran 200x S',9000,450000,2,N'luz:key;potencia:200;bicolor',N'Potencia media con bicolor: sirve de luz principal en interiores.',N'Necesita difusor para luz suave.'),
+(N'LUZ-006',N'SN-LUZ-006',N'Iluminación',N'Aputure',N'LS 300d II',16000,1200000,3,N'luz:key;potencia:300;daylight;alta-potencia;exterior',N'Alta potencia: equilibra ventanas y rinde en exteriores.',N'Pesada, requiere alimentación robusta.'),
+(N'LUZ-007',N'SN-LUZ-007',N'Iluminación',N'Aputure',N'Nova P300c',18000,1800000,3,N'luz:panel;potencia:300;rgb;suave',N'Panel RGB grande de luz suave, ideal para publicidad y videoclip.',N'Es voluminoso y caro.'),
+(N'LUZ-008',N'SN-LUZ-008',N'Iluminación',N'Nanlite',N'PavoTube II 15C',4500,160000,1,N'luz:efecto;rgb;compacta',N'Tubo RGB para fondos y toques de color.',N'No sirve como luz principal.'),
+(N'LUZ-009',N'SN-LUZ-009',N'Iluminación',N'Nanlite',N'PavoTube II 15C',4500,160000,1,N'luz:efecto;rgb;compacta',N'Tubo RGB para fondos y toques de color.',N'No sirve como luz principal.'),
+(N'LUZ-010',N'SN-LUZ-010',N'Iluminación',N'Aputure',N'Light Dome II',4000,250000,2,N'luz:difusor;suave',N'Softbox parabólico: luz suave y favorecedora para rostros.',N'Agrega tiempo de armado.'),
+(N'LUZ-011',N'SN-LUZ-011',N'Iluminación',N'Neewer',N'Reflector 5 en 1 110cm',1800,40000,1,N'luz:reflector;exterior;rebote',N'Rebota la luz del sol sin consumir energía.',N'Depende del sol y de un asistente.'),
+(N'LUZ-012',N'SN-LUZ-012',N'Iluminación',N'Neewer',N'Reflector 5 en 1 110cm',1800,40000,1,N'luz:reflector;exterior;rebote',N'Rebota la luz del sol sin consumir energía.',N'Depende del sol y de un asistente.'),
+(N'EST-001',N'SN-EST-001',N'Estabilizador',N'Zhiyun',N'Crane M3',7000,280000,1,N'gimbal;carga:1.2;compacta',N'Compacto y fácil de llevar para cámaras livianas.',N'Soporta poco peso: solo cámaras chicas con lente liviano.'),
+(N'EST-002',N'SN-EST-002',N'Estabilizador',N'DJI',N'RS 3',12000,650000,2,N'gimbal;carga:3',N'Cubre la mayoría de las mirrorless con lentes medios.',N'Con cámaras de cine pesadas queda al límite.'),
+(N'EST-003',N'SN-EST-003',N'Estabilizador',N'DJI',N'RS 3 Pro',20000,1100000,3,N'gimbal;carga:4.5',N'Soporta cámaras de cine y accesorios.',N'Más pesado y más caro.'),
+(N'EST-004',N'SN-EST-004',N'Estabilizador',N'Rhino',N'Slider motorizado 80cm',9000,500000,2,N'slider;movimiento-lento',N'Movimientos suaves de cámara para planos de producto o entrevista.',N'Solo movimientos lineales cortos.'),
+(N'SOP-001',N'SN-SOP-001',N'Soporte',N'Manfrotto',N'MVK504 cabeza fluida',6000,300000,1,N'tripode;carga:4;fluido',N'Trípode fluido económico para cámaras livianas.',N'Soporta poco peso.'),
+(N'SOP-002',N'SN-SOP-002',N'Soporte',N'Manfrotto',N'MVK504 cabeza fluida',6000,300000,1,N'tripode;carga:4;fluido',N'Trípode fluido económico para cámaras livianas.',N'Soporta poco peso.'),
+(N'SOP-003',N'SN-SOP-003',N'Soporte',N'Sachtler',N'Ace XL',10000,600000,2,N'tripode;carga:8;fluido',N'Cabeza fluida firme para cámaras de cine y lentes largos.',N'Más pesado de transportar.'),
+(N'MON-001',N'SN-MON-001',N'Monitor',N'SmallHD',N'Focus 5',5000,250000,1,N'monitor;5pulg',N'Monitoreo preciso en set con ayudas de enfoque.',N'Pantalla chica y poco brillo al sol.'),
+(N'MON-002',N'SN-MON-002',N'Monitor',N'Atomos',N'Ninja V 5',8000,450000,2,N'monitor;grabador;5pulg',N'Monitorea y graba ProRes/RAW externo.',N'Agrega cables y consumo.'),
+(N'MON-003',N'SN-MON-003',N'Monitor',N'SmallHD',N'Cine 7',14000,1300000,3,N'monitor;7pulg;lut;exterior',N'Gran brillo para exterior, LUTs y ayudas de cine.',N'Pesado y de costo alto.'),
+(N'AUD-001',N'SN-AUD-001',N'Audio',N'Rode',N'Wireless GO II',6000,350000,1,N'audio:lavalier;cubre:2;inalambrico',N'Dos micrófonos inalámbricos en un solo kit, muy simple de usar.',N'Alcance y robustez inferiores a un sistema profesional.'),
+(N'AUD-002',N'SN-AUD-002',N'Audio',N'Rode',N'Wireless GO II',6000,350000,1,N'audio:lavalier;cubre:2;inalambrico',N'Dos micrófonos inalámbricos en un solo kit, muy simple de usar.',N'Alcance y robustez inferiores a un sistema profesional.'),
+(N'AUD-003',N'SN-AUD-003',N'Audio',N'Sennheiser',N'EW 112P G4',9000,700000,2,N'audio:lavalier;cubre:1;inalambrico;profesional',N'Transmisión estable y calidad profesional de broadcast.',N'Cubre una sola persona por kit.'),
+(N'AUD-004',N'SN-AUD-004',N'Audio',N'Sennheiser',N'EW 112P G4',9000,700000,2,N'audio:lavalier;cubre:1;inalambrico;profesional',N'Transmisión estable y calidad profesional de broadcast.',N'Cubre una sola persona por kit.'),
+(N'AUD-005',N'SN-AUD-005',N'Audio',N'Sennheiser',N'EW 112P G4',9000,700000,2,N'audio:lavalier;cubre:1;inalambrico;profesional',N'Transmisión estable y calidad profesional de broadcast.',N'Cubre una sola persona por kit.'),
+(N'AUD-006',N'SN-AUD-006',N'Audio',N'Rode',N'NTG4+',4500,250000,1,N'audio:boom;cubre:3;direccional',N'Shotgun liviano con buen rechazo lateral.',N'Necesita pértiga y operador.'),
+(N'AUD-007',N'SN-AUD-007',N'Audio',N'Sennheiser',N'MKH 416',10000,1000000,3,N'audio:boom;cubre:3;direccional;exterior',N'Referencia de la industria para diálogo en exteriores.',N'Costoso y requiere pértiga y grabador.'),
+(N'AUD-008',N'SN-AUD-008',N'Audio',N'Zoom',N'F3 32-bit float',7000,500000,2,N'audio:grabador;float',N'Grabación 32-bit float: no distorsiona ni se queda corto de nivel.',N'Requiere sincronizar con la imagen.'),
+(N'AUD-009',N'SN-AUD-009',N'Audio',N'K-Tek',N'Pértiga de carbono',2500,120000,2,N'audio:pertiga',N'Pértiga liviana para operar el micrófono sin entrar en cuadro.',N'Requiere un operador dedicado.'),
+(N'ENE-001',N'SN-ENE-001',N'Energía',N'Core SWX',N'Kit 2 baterías V-mount 98Wh',5000,300000,2,N'energia;jornada-larga',N'Respaldo de energía para cámara, monitor y luces durante jornadas largas.',N'Suma peso al rig.'),
+(N'ENE-002',N'SN-ENE-002',N'Energía',N'Core SWX',N'Kit 2 baterías V-mount 98Wh',5000,300000,2,N'energia;jornada-larga',N'Respaldo de energía para cámara, monitor y luces durante jornadas largas.',N'Suma peso al rig.');
+INSERT dbo.Equipo(CodigoInventario,Serie,Categoria,Marca,Modelo,Descripcion,Estado,TarifaDiaria,ValorReposicion,DiasReacondicionamiento)
+ SELECT n.Codigo,n.Serie,n.Categoria,n.Marca,n.Modelo,n.Marca+N' '+n.Modelo,N'Disponible',n.Tarifa,n.Reposicion,1 FROM @Nuevos n
+ WHERE NOT EXISTS(SELECT 1 FROM dbo.Equipo e WHERE e.CodigoInventario=n.Codigo);
+INSERT dbo.EquipoPerfil(EquipoId,Gama,Etiquetas,Ventaja,Limitacion)
+ SELECT e.Id,n.Gama,n.Etiquetas,n.Ventaja,n.Limitacion FROM @Nuevos n JOIN dbo.Equipo e ON e.CodigoInventario=n.Codigo
+ WHERE NOT EXISTS(SELECT 1 FROM dbo.EquipoPerfil p WHERE p.EquipoId=e.Id);
+GO
+GO
+USE [TC-AlquilerAudiovisual];
+GO
+-- Propuestas del asesor de rodaje guardadas por cada usuario (brief + variante elegida) para retomarlas después.
+IF OBJECT_ID(N'dbo.PropuestaGuardada',N'U') IS NULL
+ CREATE TABLE dbo.PropuestaGuardada(
+  Id int IDENTITY PRIMARY KEY,UsuarioId int NOT NULL REFERENCES dbo.Usuario(Id),
+  Nombre nvarchar(100) NOT NULL CHECK(LEN(LTRIM(RTRIM(Nombre)))>0),Creada datetime2 NOT NULL DEFAULT SYSDATETIME(),
+  Variante nvarchar(20) NOT NULL CHECK(Variante IN(N'Recomendada',N'Economica')),Total decimal(18,2) NOT NULL,
+  TipoPieza nvarchar(50) NOT NULL,Presupuesto decimal(18,2) NOT NULL,Desde datetime2 NOT NULL,Hasta datetime2 NOT NULL,
+  Personas int NOT NULL,Camaras int NOT NULL,Locacion nvarchar(20) NOT NULL,Luz nvarchar(20) NOT NULL,HorasJornada int NOT NULL,
+  CamaraEnMovimiento bit NOT NULL,SonidoDirecto bit NOT NULL,Monitoreo bit NOT NULL,LookCinematografico bit NOT NULL);
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_Propuesta_Guardar
+ @UsuarioId int,@Nombre nvarchar(100),@Variante nvarchar(20),@Total decimal(18,2),@TipoPieza nvarchar(50),@Presupuesto decimal(18,2),
+ @Desde datetime2,@Hasta datetime2,@Personas int,@Camaras int,@Locacion nvarchar(20),@Luz nvarchar(20),@HorasJornada int,
+ @CamaraEnMovimiento bit,@SonidoDirecto bit,@Monitoreo bit,@LookCinematografico bit,@Resultado int OUTPUT AS
+ BEGIN SET NOCOUNT ON;
+ INSERT dbo.PropuestaGuardada(UsuarioId,Nombre,Variante,Total,TipoPieza,Presupuesto,Desde,Hasta,Personas,Camaras,Locacion,Luz,HorasJornada,
+  CamaraEnMovimiento,SonidoDirecto,Monitoreo,LookCinematografico)
+ VALUES(@UsuarioId,LTRIM(RTRIM(@Nombre)),@Variante,@Total,@TipoPieza,@Presupuesto,@Desde,@Hasta,@Personas,@Camaras,@Locacion,@Luz,@HorasJornada,
+  @CamaraEnMovimiento,@SonidoDirecto,@Monitoreo,@LookCinematografico);
+ SET @Resultado=CONVERT(int,SCOPE_IDENTITY()); END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_Propuesta_Listar @UsuarioId int AS
+ BEGIN SET NOCOUNT ON; SELECT * FROM dbo.PropuestaGuardada WHERE UsuarioId=@UsuarioId ORDER BY Creada DESC,Id DESC; END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_Propuesta_Eliminar @Id int,@UsuarioId int,@Resultado int OUTPUT AS
+ BEGIN SET NOCOUNT ON; DELETE dbo.PropuestaGuardada WHERE Id=@Id AND UsuarioId=@UsuarioId; SET @Resultado=@@ROWCOUNT; END;
+GO
+GO
+USE [TC-AlquilerAudiovisual];
+GO
+-- El sistema ya no maneja garantía: solo seña y el seguro predefinido del cliente.
+-- Las columnas de garantía se conservan en 0 por compatibilidad; los cargos de una devolución quedan como saldo pendiente.
+UPDATE dbo.Reserva SET GarantiaRequerida=0,Garantia=0 WHERE GarantiaRequerida<>0 OR Garantia<>0;
+UPDATE dbo.Devolucion SET GarantiaAplicada=0,GarantiaDevuelta=0 WHERE GarantiaAplicada<>0 OR GarantiaDevuelta<>0;
+GO
+DECLARE @nombre sysname,@def nvarchar(max);
+DECLARE c CURSOR LOCAL FAST_FORWARD FOR
+ SELECT OBJECT_NAME(object_id),definition FROM sys.sql_modules
+ WHERE object_id IN(OBJECT_ID(N'dbo.sp_Reserva_RegistrarEntrega'),OBJECT_ID(N'dbo.sp_Reserva_Confirmar'))
+ AND (definition LIKE N'%la seña y la garantía antes%' OR definition LIKE N'%seña o garantía no coinciden%');
+OPEN c; FETCH NEXT FROM c INTO @nombre,@def;
+WHILE @@FETCH_STATUS=0
+BEGIN
+ SET @def=REPLACE(@def,N'la seña y la garantía antes',N'la seña antes');
+ SET @def=REPLACE(@def,N'seña o garantía no coinciden',N'o seña no coinciden');
+ SET @def=N'ALTER '+SUBSTRING(@def,CHARINDEX(N'PROCEDURE',@def),LEN(@def));
+ EXEC(@def);
+ FETCH NEXT FROM c INTO @nombre,@def;
+END;
+CLOSE c; DEALLOCATE c;
+GO
+GO
+USE [TC-AlquilerAudiovisual];
+GO
+-- Un equipo con una solicitud pendiente en esas fechas ya "fue tomado": no se ofrece en el catálogo ni se recomienda.
+-- EquiposDisponibles (solo compromisos firmes) se conserva para que stock pueda aceptar una solicitud pendiente.
+CREATE OR ALTER FUNCTION dbo.EquiposLibres(@Desde datetime2,@Hasta datetime2)
+RETURNS TABLE AS RETURN
+(
+ SELECT d.Id FROM dbo.EquiposDisponibles(@Desde,@Hasta) d JOIN dbo.Equipo e ON e.Id=d.Id
+ WHERE NOT EXISTS(
+  SELECT 1 FROM dbo.ReservaEquipo re JOIN dbo.Reserva r ON r.Id=re.ReservaId
+  WHERE re.EquipoId=e.Id AND r.Estado=N'Pendiente'
+   AND @Desde<DATEADD(DAY,re.DiasReacondicionamiento,r.Hasta)
+   AND r.Desde<DATEADD(DAY,e.DiasReacondicionamiento,@Hasta))
+);
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_Equipo_Libres @Desde datetime2,@Hasta datetime2 AS
+ BEGIN SET NOCOUNT ON; SELECT e.* FROM dbo.vEquipo e JOIN dbo.EquiposLibres(@Desde,@Hasta) d ON d.Id=e.Id ORDER BY e.CodigoInventario; END;
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_Equipo_DisponiblesAsesor @Desde datetime2,@Hasta datetime2 AS
+ BEGIN SET NOCOUNT ON;
+ -- Las unidades cargadas sin perfil técnico igual se consideran (gama económica, sin etiquetas).
+ SELECT e.*,ISNULL(p.Gama,1) Gama,ISNULL(p.Etiquetas,N'') Etiquetas,
+  ISNULL(p.Ventaja,N'Unidad del inventario sin perfil técnico cargado.') Ventaja,
+  ISNULL(p.Limitacion,N'Sin datos técnicos para comparar.') Limitacion FROM dbo.vEquipo e
+ JOIN dbo.EquiposLibres(@Desde,@Hasta) d ON d.Id=e.Id LEFT JOIN dbo.EquipoPerfil p ON p.EquipoId=e.Id
+ ORDER BY e.Categoria,e.CodigoInventario; END;
+GO
+-- Una solicitud nueva no puede tomar una unidad que ya tiene otra solicitud pendiente en esas fechas.
+DECLARE @def nvarchar(max)=OBJECT_DEFINITION(OBJECT_ID(N'dbo.sp_Reserva_Insertar'));
+IF @def LIKE N'%dbo.EquiposDisponibles(@Desde,@Hasta) d ON d.Id=x.EquipoId%'
+BEGIN
+ SET @def=REPLACE(@def,N'dbo.EquiposDisponibles(@Desde,@Hasta) d ON d.Id=x.EquipoId',N'dbo.EquiposLibres(@Desde,@Hasta) d ON d.Id=x.EquipoId');
+ SET @def=N'ALTER '+SUBSTRING(@def,CHARINDEX(N'PROCEDURE',@def),LEN(@def));
+ EXEC(@def);
+END;
+GO
+GO
+USE [TC-AlquilerAudiovisual];
+GO
+-- El cliente puede cancelar su pedido mientras esté pendiente de revisión o aceptado sin pagar.
+IF EXISTS(SELECT 1 FROM sys.check_constraints WHERE name=N'CK_Reserva_EstadoSolicitud' AND parent_object_id=OBJECT_ID(N'dbo.Reserva'))
+ ALTER TABLE dbo.Reserva DROP CONSTRAINT CK_Reserva_EstadoSolicitud;
+ALTER TABLE dbo.Reserva WITH CHECK ADD CONSTRAINT CK_Reserva_EstadoSolicitud
+ CHECK(Estado IN(N'Pendiente',N'Rechazada',N'Cancelada',N'Aceptada',N'Firme',N'Entregada',N'ConIncidencia',N'Cerrada'));
+GO
+CREATE OR ALTER PROCEDURE dbo.sp_Reserva_Cancelar @ReservaId int,@UsuarioId int,@Resultado int OUTPUT AS
+BEGIN
+ SET NOCOUNT ON;
+ -- La condición de estado va en el UPDATE: si otra persona la procesó antes, no se cancela nada.
+ UPDATE r SET Estado=N'Cancelada'
+ FROM dbo.Reserva r JOIN dbo.Cliente c ON c.Id=r.ClienteId
+ WHERE r.Id=@ReservaId AND c.UsuarioId=@UsuarioId AND r.Estado IN(N'Pendiente',N'Aceptada');
+ SET @Resultado=@@ROWCOUNT;
+END;
+GO

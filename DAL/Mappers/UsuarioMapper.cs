@@ -35,6 +35,22 @@ namespace DAL
 				new SqlParameter("@TipoSeguro", SqlDbType.NVarChar, 25)
 				{
 					Value = usuario.TipoSeguro
+				},
+				new SqlParameter("@Nombre", SqlDbType.NVarChar, 100)
+				{
+					Value = usuario.Nombre
+				},
+				new SqlParameter("@DniCuit", SqlDbType.NVarChar, 13)
+				{
+					Value = usuario.DniCuit
+				},
+				new SqlParameter("@Telefono", SqlDbType.NVarChar, 30)
+				{
+					Value = usuario.Telefono
+				},
+				new SqlParameter("@Email", SqlDbType.NVarChar, 150)
+				{
+					Value = usuario.Email
 				}
 			};
 			return acceso.Escribir("sp_Usuario_Insertar", parametros);
@@ -164,7 +180,11 @@ namespace DAL
 				NombreUsuario = Convert.ToString(fila["NombreUsuario"]),
 				Rol = Convert.ToString(fila["Rol"]),
 				Activo = Convert.ToBoolean(fila["Activo"]),
-				TipoSeguro = Convert.ToString(fila["TipoSeguro"])
+				TipoSeguro = Convert.ToString(fila["TipoSeguro"]),
+				Nombre = Convert.ToString(fila["Nombre"]),
+				DniCuit = Convert.ToString(fila["DniCuit"]),
+				Telefono = Convert.ToString(fila["Telefono"]),
+				Email = Convert.ToString(fila["Email"])
 			};
 			if (fila["SeguroId"] != DBNull.Value)
 			{

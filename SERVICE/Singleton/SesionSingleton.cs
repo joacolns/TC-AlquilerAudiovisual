@@ -35,6 +35,10 @@ namespace SERVICE
 				NombreUsuario = usuario.NombreUsuario,
 				Rol = usuario.Rol,
 				Activo = usuario.Activo,
+				Nombre = usuario.Nombre,
+				DniCuit = usuario.DniCuit,
+				Telefono = usuario.Telefono,
+				Email = usuario.Email,
 				TipoSeguro = usuario.TipoSeguro,
 				SeguroId = usuario.SeguroId,
 				Seguro = usuario.Seguro

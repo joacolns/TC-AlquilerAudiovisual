@@ -49,10 +49,12 @@ namespace BLL
 					"Reserva.Solicitar",
 					"Reserva.Confirmar",
 					"Reserva.Pagar",
+					"Reserva.Cancelar",
 					"Reserva.Entregar",
 					"Devolucion.Registrar",
 					"Incidencia.Registrar",
-					"Incidencia.AltaTecnica"
+					"Incidencia.AltaTecnica",
+					"Asesoramiento.Consultar"
 				};
 			}
 			else if (usuario.Rol == "EncargadoStock")
@@ -79,7 +81,9 @@ namespace BLL
 					"Reserva.Cotizar",
 					"Reserva.Solicitar",
 					"Reserva.Pagar",
-					"Reserva.Consultar"
+					"Reserva.Cancelar",
+					"Reserva.Consultar",
+					"Asesoramiento.Consultar"
 				};
 			}
 			else
@@ -121,12 +125,45 @@ namespace BLL
 			}
 
 			ValidarRol(usuario.Rol);
+			ValidarDatosPersonales(usuario);
 			usuario.NombreUsuario = usuario.NombreUsuario.Trim();
+
+			foreach (Usuario existente in mapper.Listar())
+			{
+				if (string.Equals(existente.NombreUsuario, usuario.NombreUsuario, StringComparison.OrdinalIgnoreCase))
+				{
+					throw new ArgumentException("Ya existe un usuario llamado " + existente.NombreUsuario + ". Elegí otro nombre de usuario.");
+				}
+
+				if (existente.DniCuit == usuario.DniCuit)
+				{
+					throw new ArgumentException("El DNI/CUIT " + usuario.DniCuit + " ya pertenece al usuario " + existente.NombreUsuario + ".");
+				}
+			}
 			ValidarSeguro(usuario.Rol, usuario.TipoSeguro);
 			usuario.Sal = seguridad.CrearSal();
 			usuario.Hash = seguridad.Hashear(clave, usuario.Sal);
 			usuario.Id = mapper.Insertar(usuario);
 			return usuario.Id;
+		}
+
+		public Usuario PerfilActual()
+		{
+			Usuario sesion = SesionSingleton.Instancia.UsuarioActual;
+
+			if (sesion == null)
+			{
+				return null;
+			}
+
+			Usuario actual = mapper.Buscar(sesion.NombreUsuario);
+
+			if (actual == null)
+			{
+				return sesion;
+			}
+
+			return actual;
 		}
 
 		public bool ConfigurarSeguro(int usuarioId, string tipo)
@@ -196,10 +233,44 @@ namespace BLL
 				throw new ArgumentException("Elegí Sin seguro, Básico, Intermedio o Completo.");
 			}
 
-			if (rol != "Cliente" && tipo != "SinSeguro")
+			if (rol != "Cliente" && rol != "Administrador" && tipo != "SinSeguro")
 			{
-				throw new ArgumentException("El seguro de alquiler corresponde a cuentas con rol Cliente.");
+				throw new ArgumentException("El seguro de alquiler corresponde a cuentas con rol Cliente o Administrador.");
 			}
+		}
+
+		private void ValidarDatosPersonales(Usuario usuario)
+		{
+			if (string.IsNullOrWhiteSpace(usuario.Nombre)
+				|| usuario.Nombre.Trim().Length > 100
+				|| string.IsNullOrWhiteSpace(usuario.Telefono)
+				|| usuario.Telefono.Trim().Length > 30
+				|| string.IsNullOrWhiteSpace(usuario.Email)
+				|| usuario.Email.Trim().Length > 150
+				|| !usuario.Email.Contains("@")
+				|| string.IsNullOrWhiteSpace(usuario.DniCuit))
+			{
+				throw new ArgumentException("Nombre, correo (con @), teléfono y DNI/CUIT son obligatorios para todo usuario.");
+			}
+
+			usuario.DniCuit = usuario.DniCuit.Trim().Replace("-", "").Replace(".", "");
+
+			if (usuario.DniCuit.Length < 7 || usuario.DniCuit.Length > 11)
+			{
+				throw new ArgumentException("Ingresá un DNI o CUIT válido.");
+			}
+
+			foreach (char digito in usuario.DniCuit)
+			{
+				if (!char.IsDigit(digito))
+				{
+					throw new ArgumentException("El DNI/CUIT contiene solo números.");
+				}
+			}
+
+			usuario.Nombre = usuario.Nombre.Trim();
+			usuario.Telefono = usuario.Telefono.Trim();
+			usuario.Email = usuario.Email.Trim();
 		}
 
 		private void ValidarRol(string rol)

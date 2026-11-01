@@ -48,6 +48,7 @@
     <Compile Include="Mappers\DevolucionMapper.cs" />
     <Compile Include="Mappers\EquipoMapper.cs" />
     <Compile Include="Mappers\Mapper.cs" />
+    <Compile Include="Mappers\PropuestaMapper.cs" />
     <Compile Include="Mappers\ReservaMapper.cs" />
     <Compile Include="Mappers\UsuarioMapper.cs" />
   </ItemGroup>

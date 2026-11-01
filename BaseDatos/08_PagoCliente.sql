@@ -29,7 +29,7 @@ BEGIN
   IF @Estado IS NULL OR @Estado<>N'Aceptada'
    THROW 50201,N'Solo se puede pagar una solicitud aceptada y pendiente de pago.',1;
   IF NOT EXISTS(SELECT 1 FROM dbo.Cliente c JOIN dbo.Usuario u ON u.Id=c.UsuarioId
-   WHERE c.Id=@ClienteId AND u.Id=@UsuarioId AND u.Rol=N'Cliente' AND u.Activo=1)
+   WHERE c.Id=@ClienteId AND u.Id=@UsuarioId AND u.Rol IN(N'Cliente',N'Administrador') AND u.Activo=1)
    THROW 50202,N'Solo el cliente de la solicitud puede pagarla.',1;
   -- El importe procede de lo aceptado por stock; no se toma desde el formulario.
   UPDATE dbo.Reserva SET Sena=SenaRequerida,Garantia=GarantiaRequerida,Estado=N'Firme' WHERE Id=@ReservaId;

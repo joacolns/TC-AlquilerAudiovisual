@@ -12,8 +12,6 @@ namespace BE
 		public bool ClientePresente { get; set; }
 		public bool Finalizada { get; set; }
 		public string Observaciones { get; set; }
-		public decimal GarantiaAplicada { get; set; }
-		public decimal GarantiaDevuelta { get; set; }
 		public decimal SaldoPendiente { get; set; }
 	}
 }

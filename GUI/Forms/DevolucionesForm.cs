@@ -15,19 +15,11 @@ namespace GUI
 		private readonly ReservaBLL reservas = new ReservaBLL();
 		private readonly Seguridad seguridad = new Seguridad();
 		private bool cargando;
-		private Label fechaAyuda;
 
 		public DevolucionesForm()
 		{
 			InitializeComponent();
-			fechaAyuda = new Label();
-			fechaAyuda.AutoSize = false;
-			fechaAyuda.Size = new Size(235, 42);
-			fechaAyuda.ForeColor = Color.FromArgb(100, 116, 139);
-			fechaAyuda.Font = new Font("Segoe UI", 8.5F);
-			fechaCampo.Controls.Add(fechaAyuda);
 			fecha.ValueChanged += FechaDevolucionCambio;
-			AplicarEstilo();
 		}
 
 		public void RegistrarDevolucion()
@@ -63,7 +55,7 @@ namespace GUI
 				{
 					MessageBox.Show(
 						this,
-						"Devolución " + id + " cerrada. Garantía a devolver: ARS " + devolucion.GarantiaDevuelta.ToString("N2")
+						"Devolución " + id + " cerrada. Sin cargos pendientes."
 					);
 				}
 				else
@@ -72,7 +64,7 @@ namespace GUI
 						this,
 						"Devolución "
 							+ id
-							+ " registrada. Completá los hallazgos y finalizá la inspección antes de devolver la garantía."
+							+ " registrada. Completá los hallazgos y finalizá la inspección para liquidar los cargos."
 					);
 				}
 
@@ -98,7 +90,7 @@ namespace GUI
 				int id = bll.RegistrarIncidencia(LeerIncidencia());
 				MessageBox.Show(
 					this,
-					"Incidencia " + id + " registrada. La garantía sigue pendiente hasta finalizar la inspección."
+					"Incidencia " + id + " registrada. Los cargos se liquidan al finalizar la inspección."
 				);
 				descripcion.Clear();
 				Cargar(IdSeleccionado());
@@ -274,8 +266,6 @@ namespace GUI
 			texto.AppendLine(
 				"Hasta: "
 					+ seleccionada.Hasta.ToString("dd/MM/yyyy HH:mm")
-					+ " · Garantía ARS "
-					+ seleccionada.Garantia.ToString("N2")
 			);
 			texto.AppendLine("Cotejá físicamente todas estas unidades. Estado registrado al entregar: Disponible.");
 
@@ -408,15 +398,11 @@ namespace GUI
 			}
 			else
 			{
-				estado = "PROVISORIO · No devolver garantía hasta completar todos los hallazgos y finalizar. ";
+				estado = "PROVISORIO · Los cargos se fijan al finalizar la inspección. ";
 			}
 
 			liquidacion.Text = estado
-				+ "Aplicada ARS "
-				+ seleccionada.GarantiaAplicada.ToString("N2")
-				+ " · A devolver ARS "
-				+ seleccionada.GarantiaDevuelta.ToString("N2")
-				+ " · Deuda ARS "
+				+ "Cargos a pagar ARS "
 				+ seleccionada.SaldoPendiente.ToString("N2")
 				+ " · Fecha de devolución "
 				+ seleccionada.Fecha.ToString("dd/MM/yyyy HH:mm");
@@ -461,15 +447,17 @@ namespace GUI
 			return DesignMode || System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime;
 		}
 
-		private void PrepararPantalla(object sender, EventArgs e)
+		private void DevolucionesForm_Load(object sender, EventArgs e)
 		{
-			if (EnDiseno())
-			{
-				return;
-			}
+			CargarPantalla();
+		}
 
+		private void CargarPantalla()
+		{
 			fecha.Value = DateTime.Now;
+			tipo.SelectedIndex = 0;
 
+			// Cada rol ve solo las etapas que le corresponden; el administrador las ve todas.
 			if (!seguridad.TienePermiso("Devolucion.Registrar"))
 			{
 				tabs.TabPages.Remove(devolucionTab);
@@ -480,15 +468,12 @@ namespace GUI
 			{
 				tabs.TabPages.Remove(tecnicaTab);
 			}
+
+			CargarClick(this, EventArgs.Empty);
 		}
 
 		private void CargarClick(object sender, EventArgs e)
 		{
-			if (EnDiseno())
-			{
-				return;
-			}
-
 			try
 			{
 				Cargar(IdSeleccionado());
@@ -610,11 +595,43 @@ namespace GUI
 			}
 		}
 
+		private string NombreTipo(string tipoIncidencia)
+		{
+			if (tipoIncidencia == "DañoReparable")
+			{
+				return "Daño reparable";
+			}
+
+			if (tipoIncidencia == "DañoTotal")
+			{
+				return "Daño total";
+			}
+
+			return tipoIncidencia;
+		}
+
+		private void FormatearTipo(object sender, ListControlConvertEventArgs e)
+		{
+			e.Value = NombreTipo(Convert.ToString(e.ListItem));
+		}
+
 		private void FormatearUnidad(object sender, DataGridViewCellFormattingEventArgs e)
 		{
 			DataGridView grilla = sender as DataGridView;
 
-			if (e.RowIndex < 0 || grilla.Columns[e.ColumnIndex].DataPropertyName != "EquipoId")
+			if (e.RowIndex < 0)
+			{
+				return;
+			}
+
+			if (grilla.Columns[e.ColumnIndex].DataPropertyName == "Tipo")
+			{
+				e.Value = NombreTipo(Convert.ToString(e.Value));
+				e.FormattingApplied = true;
+				return;
+			}
+
+			if (grilla.Columns[e.ColumnIndex].DataPropertyName != "EquipoId")
 			{
 				return;
 			}
@@ -634,91 +651,6 @@ namespace GUI
 			{
 				MostrarTecnica();
 			}
-		}
-
-		private void AplicarEstilo()
-		{
-			BackColor = Color.FromArgb(244, 247, 251);
-			ForeColor = Color.FromArgb(15, 23, 42);
-			Text = "Devoluciones e incidencias";
-			cabecera.BackColor = Color.White;
-			cabecera.Height = 150;
-			fechaCampo.Height = 100;
-			cierreDevolucion.BackColor = Color.White;
-			hallazgos.BackColor = Color.White;
-			cierreInspeccion.BackColor = Color.White;
-			altaTecnica.BackColor = Color.White;
-			remito.BackColor = Color.White;
-			remito.Font = new Font("Segoe UI", 10F);
-			detalleTecnico.BackColor = Color.White;
-			detalleTecnico.Font = new Font("Segoe UI", 10F);
-
-			foreach (TabPage pagina in tabs.TabPages)
-			{
-				pagina.BackColor = Color.FromArgb(244, 247, 251);
-				pagina.Padding = new Padding(12);
-			}
-
-			EstilizarBotones(this);
-			EstiloBotonPrincipal(registrarBoton);
-			EstiloBotonPrincipal(incidenciaBoton);
-			EstiloBotonPrincipal(finalizarBoton);
-			EstiloBotonPrincipal(altaBoton);
-			ConfigurarGrilla(incidencias);
-			ConfigurarGrilla(tecnicas);
-		}
-
-		private void EstilizarBotones(Control contenedor)
-		{
-			foreach (Control control in contenedor.Controls)
-			{
-				Button boton = control as Button;
-
-				if (boton != null)
-				{
-					boton.FlatStyle = FlatStyle.Flat;
-					boton.FlatAppearance.BorderSize = 1;
-					boton.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
-					boton.BackColor = Color.White;
-					boton.ForeColor = Color.FromArgb(51, 65, 85);
-					boton.Cursor = Cursors.Hand;
-					boton.MinimumSize = new Size(120, 36);
-				}
-
-				if (control.HasChildren)
-				{
-					EstilizarBotones(control);
-				}
-			}
-		}
-
-		private void EstiloBotonPrincipal(Button boton)
-		{
-			boton.BackColor = Color.FromArgb(37, 99, 235);
-			boton.ForeColor = Color.White;
-			boton.FlatAppearance.BorderSize = 0;
-			boton.FlatAppearance.MouseOverBackColor = Color.FromArgb(29, 78, 216);
-		}
-
-		private void ConfigurarGrilla(DataGridView grilla)
-		{
-			grilla.BackgroundColor = Color.White;
-			grilla.BorderStyle = BorderStyle.None;
-			grilla.RowHeadersVisible = false;
-			grilla.EnableHeadersVisualStyles = false;
-			grilla.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(15, 23, 42);
-			grilla.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
-			grilla.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
-			grilla.ColumnHeadersDefaultCellStyle.Padding = new Padding(4);
-			grilla.ColumnHeadersHeight = 38;
-			grilla.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
-			grilla.DefaultCellStyle.BackColor = Color.White;
-			grilla.DefaultCellStyle.ForeColor = Color.FromArgb(30, 41, 59);
-			grilla.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
-			grilla.DefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 23, 42);
-			grilla.DefaultCellStyle.Padding = new Padding(3);
-			grilla.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
-			grilla.RowTemplate.Height = 32;
 		}
 
 		private void RegistrarClick(object sender, EventArgs e)

@@ -30,7 +30,7 @@ namespace BLL
 
 			if (reserva == null || reserva.Estado != "Entregada")
 			{
-				throw new InvalidOperationException("Seleccioná una reserva entregada que todavía no tenga devolución.");
+				throw new InvalidOperationException("La reserva ya no está entregada o ya tiene una devolución registrada. Actualizá la pantalla.");
 			}
 
 			if (devolucion.Fecha < reserva.Desde || devolucion.Fecha > DateTime.Now.AddMinutes(5))
@@ -44,8 +44,6 @@ namespace BLL
 			}
 
 			devolucion.Reserva = reserva;
-			devolucion.GarantiaAplicada = 0;
-			devolucion.GarantiaDevuelta = 0;
 			devolucion.SaldoPendiente = 0;
 			devolucion.Finalizada = false;
 
@@ -56,7 +54,6 @@ namespace BLL
 					throw new ArgumentException("La devolución tiene atraso. Registrala con incidencias.");
 				}
 
-				devolucion.GarantiaDevuelta = reserva.Garantia;
 				devolucion.Finalizada = true;
 			}
 			else if (!devolucion.ClientePresente)
@@ -223,15 +220,12 @@ namespace BLL
 				foreach (Incidencia incidencia in lista)
 				{
 					// El técnico recibe la unidad y el período, sin pólizas ni datos del cliente.
-					incidencia.Devolucion.GarantiaAplicada = 0;
-					incidencia.Devolucion.GarantiaDevuelta = 0;
 					incidencia.Devolucion.SaldoPendiente = 0;
 					Reserva reserva = incidencia.Devolucion.Reserva;
 					reserva.Cliente = null;
 					reserva.ClienteId = 0;
 					reserva.Importe = 0;
 					reserva.Sena = 0;
-					reserva.Garantia = 0;
 
 					foreach (Equipo equipo in reserva.Equipos)
 					{

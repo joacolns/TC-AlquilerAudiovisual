@@ -14,5 +14,9 @@
 		public decimal TarifaDiaria { get; set; }
 		public decimal ValorReposicion { get; set; }
 		public int DiasReacondicionamiento { get; set; }
+		public int Gama { get; set; }
+		public string Etiquetas { get; set; }
+		public string Ventaja { get; set; }
+		public string Limitacion { get; set; }
 	}
 }

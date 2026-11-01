@@ -13,9 +13,7 @@ namespace BE
 		public DateTime Hasta { get; set; }
 		public decimal Importe { get; set; }
 		public decimal SenaRequerida { get; set; }
-		public decimal GarantiaRequerida { get; set; }
 		public decimal Sena { get; set; }
-		public decimal Garantia { get; set; }
 		public string Estado { get; set; }
 		public string NumeroContrato { get; set; }
 		public string NumeroRemito { get; set; }
