@@ -1,4 +1,4 @@
--- Base completa de TC-AlquilerAudiovisual: esquema, procedimientos y datos actuales.
+﻿-- Base completa de TC-AlquilerAudiovisual: esquema, procedimientos y datos actuales.
 -- Para restaurar sobre una base existente, cambie @RecrearBaseExistente a 1.
 -- La restauracion elimina permanentemente la base existente con el mismo nombre.
 USE [master];
@@ -118,7 +118,6 @@ RETURNS TABLE AS RETURN (
    AND r.Desde<DATEADD(DAY,e.DiasReacondicionamiento,@Hasta))
 );
 GO
-
 -- ===== Fuente: 02_Solicitudes.sql =====
 -- Compatible migration: existing firm reservations and their snapshots are preserved.
 SET ANSI_NULLS ON;
@@ -152,7 +151,6 @@ END;
 IF EXISTS(SELECT 1 FROM sys.columns WHERE object_id=OBJECT_ID(N'dbo.ReservaEquipo') AND name=N'SeguroId' AND is_nullable=0)
  ALTER TABLE dbo.ReservaEquipo ALTER COLUMN SeguroId int NULL;
 GO
-
 -- ===== Fuente: 04_Devoluciones.sql =====
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
@@ -247,7 +245,6 @@ GO
 UPDATE dbo.Incidencia SET CargoBase = Cargo
 WHERE CargoBase = 0 AND DescuentoSeguro = 0 AND Cargo > 0;
 GO
-
 -- ===== Fuente: 05_Seguros.sql =====
 USE [TC-AlquilerAudiovisual];
 GO
@@ -296,7 +293,6 @@ CREATE OR ALTER VIEW dbo.vReserva AS
  JOIN dbo.ReservaEquipo re ON re.ReservaId=r.Id JOIN dbo.Equipo e ON e.Id=re.EquipoId
  LEFT JOIN dbo.Cliente sc ON sc.Id=r.ClienteId AND re.SeguroId IS NOT NULL LEFT JOIN dbo.Usuario su ON su.Id=sc.UsuarioId;
 GO
-
 -- ===== Fuente: 06_SeguroUsuario.sql =====
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
@@ -383,7 +379,6 @@ BEGIN
  SELECT * FROM dbo.vUsuario WHERE Id=@UsuarioId AND Rol IN(N'Cliente',N'Administrador');
 END;
 GO
-
 -- ===== Fuente: 07_AntecedentesRechazo.sql =====
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
@@ -469,7 +464,6 @@ BEGIN
  SET @Resultado=@@ROWCOUNT;
 END;
 GO
-
 -- ===== Fuente: 08_PagoCliente.sql =====
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
@@ -515,7 +509,6 @@ BEGIN
  END CATCH;
 END;
 GO
-
 -- ===== Fuente: 09_EliminarAntecedentes.sql =====
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
@@ -562,7 +555,6 @@ BEGIN
  END CATCH;
 END;
 GO
-
 -- ===== Fuente: 03_StoredProcedures/N01.sql =====
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
@@ -800,7 +792,6 @@ CREATE OR ALTER PROCEDURE dbo.sp_Reserva_RegistrarEntrega @ReservaId int,@Result
  SET @Resultado=1; END;
  COMMIT; END TRY BEGIN CATCH IF @@TRANCOUNT>0 ROLLBACK; THROW; END CATCH; END;
 GO
-
 -- ===== Fuente: 03_StoredProcedures/N02.sql =====
 SET ANSI_NULLS ON;
 SET QUOTED_IDENTIFIER ON;
@@ -1094,67 +1085,7 @@ BEGIN
 	END CATCH;
 END;
 GO
-
--- ===== Datos actuales de la base de origen =====
-USE [TC-AlquilerAudiovisual];
-GO
-SET XACT_ABORT ON;
-BEGIN TRANSACTION;
-SET IDENTITY_INSERT dbo.[Usuario] ON;
-INSERT dbo.[Usuario] ([Id], [NombreUsuario], [Hash], [Sal], [Rol], [Activo], [TipoSeguro], [SeguroId]) VALUES (1, N'admin', 0x2FB1312A547579D48EC07E7E36ACC4EEAA2704492C2DD42E19A87A0755601705, 0x4BCB875F06F7A0F29F8D09C37904DE2F, N'Administrador', 1, N'SinSeguro', NULL);
-INSERT dbo.[Usuario] ([Id], [NombreUsuario], [Hash], [Sal], [Rol], [Activo], [TipoSeguro], [SeguroId]) VALUES (2, N'stock', 0x41B70F3FC424A8F017CA912E2D8202B77B4B7AA2891B17C069C117C6AA717339, 0x488AB350F8F4124897EC765C48B21059, N'EncargadoStock', 1, N'SinSeguro', NULL);
-INSERT dbo.[Usuario] ([Id], [NombreUsuario], [Hash], [Sal], [Rol], [Activo], [TipoSeguro], [SeguroId]) VALUES (3, N'cliente', 0x38F28E03E9D070EB2D7FA39E67FAF98B12C706D1FBFBD09BC1111824DB325390, 0x7A9A07B1C1F5915358111ADAA9D068EF, N'Cliente', 1, N'Basico', NULL);
-INSERT dbo.[Usuario] ([Id], [NombreUsuario], [Hash], [Sal], [Rol], [Activo], [TipoSeguro], [SeguroId]) VALUES (4, N'tecnico', 0xA597850CEFD6730C1C62951E633FBB5C658BE7E9D158E7E49CE764CC4A7683D8, 0x5FA0FAC414DF48C7216C5E9BDC160157, N'Tecnico', 1, N'SinSeguro', NULL);
-SET IDENTITY_INSERT dbo.[Usuario] OFF;
-
-SET IDENTITY_INSERT dbo.[Cliente] ON;
-INSERT dbo.[Cliente] ([Id], [UsuarioId], [DniCuit], [Nombre], [Telefono], [Email], [AntecedenteNegativo]) VALUES (1, 3, N'30123456', N'Cliente de ejemplo', N'1100000000', N'cliente@example.com', 0);
-SET IDENTITY_INSERT dbo.[Cliente] OFF;
-
-SET IDENTITY_INSERT dbo.[Seguro] ON;
-INSERT dbo.[Seguro] ([Id], [ClienteId], [Poliza], [Aseguradora], [Desde], [Hasta], [Cobertura], [Tipo], [Detalle]) VALUES (1, 1, N'DEMO-N01', N'Aseguradora de ejemplo', CONVERT(datetime2, '2026-10-04T00:00:00.0000000', 126), CONVERT(datetime2, '2028-10-05T00:00:00.0000000', 126), 500000.00, N'Basico', N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.');
-SET IDENTITY_INSERT dbo.[Seguro] OFF;
-
-SET IDENTITY_INSERT dbo.[Equipo] ON;
-INSERT dbo.[Equipo] ([Id], [SeguroId], [CodigoInventario], [Serie], [Categoria], [Marca], [Modelo], [Descripcion], [Estado], [TarifaDiaria], [ValorReposicion], [DiasReacondicionamiento]) VALUES (1, 1, N'DEMO-001', N'SERIE-DEMO-1', N'Cámara', N'Ejemplo', N'Cámara 4K', N'Camara', N'Disponible', 15000.00, 500000.00, 1);
-INSERT dbo.[Equipo] ([Id], [SeguroId], [CodigoInventario], [Serie], [Categoria], [Marca], [Modelo], [Descripcion], [Estado], [TarifaDiaria], [ValorReposicion], [DiasReacondicionamiento]) VALUES (2, 1, N'DEMO-002', N'SERIE-DEMO-2', N'Iluminación', N'Ejemplo', N'Panel LED', N'Panel LED', N'Disponible', 5000.00, 150000.00, 1);
-INSERT dbo.[Equipo] ([Id], [SeguroId], [CodigoInventario], [Serie], [Categoria], [Marca], [Modelo], [Descripcion], [Estado], [TarifaDiaria], [ValorReposicion], [DiasReacondicionamiento]) VALUES (3, 1, N'DEMO-003', N'SERIE-DEMO-3', N'Audio', N'Ejemplo', N'Micrófono', N'Unidad para la entrega académica N01', N'Disponible', 3000.00, 80000.00, 1);
-SET IDENTITY_INSERT dbo.[Equipo] OFF;
-
-SET IDENTITY_INSERT dbo.[Reserva] ON;
-INSERT dbo.[Reserva] ([Id], [ClienteId], [Desde], [Hasta], [Importe], [Sena], [Garantia], [Estado], [NumeroContrato], [NumeroRemito], [ContratoFirmado], [SenaRequerida], [GarantiaRequerida]) VALUES (1, 1, CONVERT(datetime2, '2026-10-05T00:00:00.0000000', 126), CONVERT(datetime2, '2026-10-07T00:00:00.0000000', 126), 30000.00, 9000.00, 100000.00, N'Cerrada', N'C-1', N'R-1', 1, 9000.00, 100000.00);
-INSERT dbo.[Reserva] ([Id], [ClienteId], [Desde], [Hasta], [Importe], [Sena], [Garantia], [Estado], [NumeroContrato], [NumeroRemito], [ContratoFirmado], [SenaRequerida], [GarantiaRequerida]) VALUES (2, 1, CONVERT(datetime2, '2026-10-05T00:00:00.0000000', 126), CONVERT(datetime2, '2026-10-07T00:00:00.0000000', 126), 30000.00, 9000.00, 100000.00, N'Cerrada', N'C-2', N'R-2', 1, 9000.00, 100000.00);
-INSERT dbo.[Reserva] ([Id], [ClienteId], [Desde], [Hasta], [Importe], [Sena], [Garantia], [Estado], [NumeroContrato], [NumeroRemito], [ContratoFirmado], [SenaRequerida], [GarantiaRequerida]) VALUES (3, 1, CONVERT(datetime2, '2026-10-05T00:00:00.0000000', 126), CONVERT(datetime2, '2026-10-06T00:00:00.0000000', 126), 8000.00, 2400.00, 46000.00, N'Cerrada', N'C-3', N'R-3', 1, 2400.00, 46000.00);
-INSERT dbo.[Reserva] ([Id], [ClienteId], [Desde], [Hasta], [Importe], [Sena], [Garantia], [Estado], [NumeroContrato], [NumeroRemito], [ContratoFirmado], [SenaRequerida], [GarantiaRequerida]) VALUES (4, 1, CONVERT(datetime2, '2026-10-05T00:00:00.0000000', 126), CONVERT(datetime2, '2026-10-06T00:00:00.0000000', 126), 5000.00, 0.00, 0.00, N'Rechazada', NULL, NULL, 0, 0.00, 0.00);
-INSERT dbo.[Reserva] ([Id], [ClienteId], [Desde], [Hasta], [Importe], [Sena], [Garantia], [Estado], [NumeroContrato], [NumeroRemito], [ContratoFirmado], [SenaRequerida], [GarantiaRequerida]) VALUES (5, 1, CONVERT(datetime2, '2026-10-05T00:00:00.0000000', 126), CONVERT(datetime2, '2026-10-06T00:00:00.0000000', 126), 5000.00, 1500.00, 30000.00, N'Cerrada', N'C-5', N'R-5', 1, 1500.00, 30000.00);
-SET IDENTITY_INSERT dbo.[Reserva] OFF;
-
-INSERT dbo.[ReservaEquipo] ([ReservaId], [EquipoId], [SeguroId], [CoberturaSeguro], [TarifaDiaria], [ValorReposicion], [DiasReacondicionamiento], [EstadoEntrega], [TipoSeguro], [DetalleSeguro], [PolizaSeguro], [AseguradoraSeguro], [DesdeSeguro], [HastaSeguro]) VALUES (1, 1, 1, 500000.00, 15000.00, 500000.00, 1, N'Disponible', N'Basico', N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.', N'DEMO-N01', N'Aseguradora de ejemplo', CONVERT(datetime2, '2026-10-04T00:00:00.0000000', 126), CONVERT(datetime2, '2028-10-05T00:00:00.0000000', 126));
-INSERT dbo.[ReservaEquipo] ([ReservaId], [EquipoId], [SeguroId], [CoberturaSeguro], [TarifaDiaria], [ValorReposicion], [DiasReacondicionamiento], [EstadoEntrega], [TipoSeguro], [DetalleSeguro], [PolizaSeguro], [AseguradoraSeguro], [DesdeSeguro], [HastaSeguro]) VALUES (2, 1, 1, 500000.00, 15000.00, 500000.00, 1, N'Disponible', N'Basico', N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.', N'DEMO-N01', N'Aseguradora de ejemplo', CONVERT(datetime2, '2026-10-04T00:00:00.0000000', 126), CONVERT(datetime2, '2028-10-05T00:00:00.0000000', 126));
-INSERT dbo.[ReservaEquipo] ([ReservaId], [EquipoId], [SeguroId], [CoberturaSeguro], [TarifaDiaria], [ValorReposicion], [DiasReacondicionamiento], [EstadoEntrega], [TipoSeguro], [DetalleSeguro], [PolizaSeguro], [AseguradoraSeguro], [DesdeSeguro], [HastaSeguro]) VALUES (3, 2, 1, 500000.00, 5000.00, 150000.00, 1, N'Disponible', N'Basico', N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.', N'DEMO-N01', N'Aseguradora de ejemplo', CONVERT(datetime2, '2026-10-04T00:00:00.0000000', 126), CONVERT(datetime2, '2028-10-05T00:00:00.0000000', 126));
-INSERT dbo.[ReservaEquipo] ([ReservaId], [EquipoId], [SeguroId], [CoberturaSeguro], [TarifaDiaria], [ValorReposicion], [DiasReacondicionamiento], [EstadoEntrega], [TipoSeguro], [DetalleSeguro], [PolizaSeguro], [AseguradoraSeguro], [DesdeSeguro], [HastaSeguro]) VALUES (3, 3, 1, 500000.00, 3000.00, 80000.00, 1, N'Disponible', N'Basico', N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.', N'DEMO-N01', N'Aseguradora de ejemplo', CONVERT(datetime2, '2026-10-04T00:00:00.0000000', 126), CONVERT(datetime2, '2028-10-05T00:00:00.0000000', 126));
-INSERT dbo.[ReservaEquipo] ([ReservaId], [EquipoId], [SeguroId], [CoberturaSeguro], [TarifaDiaria], [ValorReposicion], [DiasReacondicionamiento], [EstadoEntrega], [TipoSeguro], [DetalleSeguro], [PolizaSeguro], [AseguradoraSeguro], [DesdeSeguro], [HastaSeguro]) VALUES (4, 2, 1, 500000.00, 5000.00, 150000.00, 1, NULL, N'Basico', N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.', N'DEMO-N01', N'Aseguradora de ejemplo', CONVERT(datetime2, '2026-10-04T00:00:00.0000000', 126), CONVERT(datetime2, '2028-10-05T00:00:00.0000000', 126));
-INSERT dbo.[ReservaEquipo] ([ReservaId], [EquipoId], [SeguroId], [CoberturaSeguro], [TarifaDiaria], [ValorReposicion], [DiasReacondicionamiento], [EstadoEntrega], [TipoSeguro], [DetalleSeguro], [PolizaSeguro], [AseguradoraSeguro], [DesdeSeguro], [HastaSeguro]) VALUES (5, 2, 1, 500000.00, 5000.00, 150000.00, 1, N'Disponible', N'Basico', N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.', N'DEMO-N01', N'Aseguradora de ejemplo', CONVERT(datetime2, '2026-10-04T00:00:00.0000000', 126), CONVERT(datetime2, '2028-10-05T00:00:00.0000000', 126));
-
-SET IDENTITY_INSERT dbo.[Devolucion] ON;
-INSERT dbo.[Devolucion] ([Id], [ReservaId], [Fecha], [Conforme], [ClientePresente], [Finalizada], [Observaciones], [GarantiaAplicada], [GarantiaDevuelta], [SaldoPendiente]) VALUES (1, 1, CONVERT(datetime2, '2026-10-05T07:56:34.7400809', 126), 0, 1, 1, N'', 75000.00, 25000.00, 0.00);
-INSERT dbo.[Devolucion] ([Id], [ReservaId], [Fecha], [Conforme], [ClientePresente], [Finalizada], [Observaciones], [GarantiaAplicada], [GarantiaDevuelta], [SaldoPendiente]) VALUES (2, 2, CONVERT(datetime2, '2026-10-05T12:04:55.7949350', 126), 0, 1, 1, N'', 75000.00, 25000.00, 0.00);
-INSERT dbo.[Devolucion] ([Id], [ReservaId], [Fecha], [Conforme], [ClientePresente], [Finalizada], [Observaciones], [GarantiaAplicada], [GarantiaDevuelta], [SaldoPendiente]) VALUES (3, 3, CONVERT(datetime2, '2026-10-05T12:56:29.6861485', 126), 0, 1, 1, N'', 12000.00, 34000.00, 0.00);
-INSERT dbo.[Devolucion] ([Id], [ReservaId], [Fecha], [Conforme], [ClientePresente], [Finalizada], [Observaciones], [GarantiaAplicada], [GarantiaDevuelta], [SaldoPendiente]) VALUES (4, 5, CONVERT(datetime2, '2026-10-05T13:22:21.4394014', 126), 1, 1, 1, N'', 0.00, 30000.00, 0.00);
-SET IDENTITY_INSERT dbo.[Devolucion] OFF;
-
-SET IDENTITY_INSERT dbo.[Incidencia] ON;
-INSERT dbo.[Incidencia] ([Id], [DevolucionId], [EquipoId], [Tipo], [Descripcion], [Cargo], [Estado], [FechaAltaTecnica], [CargoBase], [DescuentoSeguro], [MostrarEnAntecedentes]) VALUES (1, 1, 1, N'DañoReparable', N'Se rompio el lente', 75000.00, N'Cerrada', CONVERT(datetime2, '2026-10-05T08:04:33.2313887', 126), 100000.00, 25000.00, 0);
-INSERT dbo.[Incidencia] ([Id], [DevolucionId], [EquipoId], [Tipo], [Descripcion], [Cargo], [Estado], [FechaAltaTecnica], [CargoBase], [DescuentoSeguro], [MostrarEnAntecedentes]) VALUES (2, 2, 1, N'DañoReparable', N'rotura', 75000.00, N'Cerrada', CONVERT(datetime2, '2026-10-05T12:06:46.3175957', 126), 100000.00, 25000.00, 0);
-INSERT dbo.[Incidencia] ([Id], [DevolucionId], [EquipoId], [Tipo], [Descripcion], [Cargo], [Estado], [FechaAltaTecnica], [CargoBase], [DescuentoSeguro], [MostrarEnAntecedentes]) VALUES (3, 3, 3, N'DañoReparable', N'se rompio el diafragma', 12000.00, N'Cerrada', CONVERT(datetime2, '2026-10-05T12:57:34.3633139', 126), 16000.00, 4000.00, 0);
-SET IDENTITY_INSERT dbo.[Incidencia] OFF;
-
--- Restaurar SeguroId despues de insertar clientes y polizas.
-UPDATE dbo.Usuario SET SeguroId = 1 WHERE Id = 3;
-COMMIT TRANSACTION;
-GO
-PRINT N'Restauracion de TC-AlquilerAudiovisual completada.';
-GO
+-- ===== Fuente: 09_DatosPersonales.sql =====
 USE [TC-AlquilerAudiovisual];
 GO
 -- Todo usuario (incluido el administrador) tiene nombre, correo, teléfono y DNI/CUIT obligatorios.
@@ -1212,7 +1143,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Usuario_Insertar
  COMMIT;
  END TRY BEGIN CATCH IF @@TRANCOUNT>0 ROLLBACK; THROW; END CATCH; END;
 GO
-GO
+-- ===== Fuente: 10_FichaAutomatica.sql =====
 USE [TC-AlquilerAudiovisual];
 GO
 -- Alta automática de la ficha de cliente para cuentas Cliente y Administrador.
@@ -1253,7 +1184,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Usuario_Insertar
  COMMIT;
  END TRY BEGIN CATCH IF @@TRANCOUNT>0 ROLLBACK; THROW; END CATCH; END;
 GO
-GO
+-- ===== Fuente: 11_Asesoramiento.sql =====
 USE [TC-AlquilerAudiovisual];
 GO
 -- Asesoramiento técnico (N03): perfil de cada equipo y más inventario para armar propuestas.
@@ -1268,73 +1199,7 @@ CREATE OR ALTER PROCEDURE dbo.sp_Equipo_DisponiblesAsesor @Desde datetime2,@Hast
  JOIN dbo.EquiposDisponibles(@Desde,@Hasta) d ON d.Id=e.Id JOIN dbo.EquipoPerfil p ON p.EquipoId=e.Id
  ORDER BY e.Categoria,e.CodigoInventario; END;
 GO
--- Equipos de ejemplo existentes
-INSERT dbo.EquipoPerfil(EquipoId,Gama,Etiquetas,Ventaja,Limitacion)
- SELECT e.Id,v.Gama,v.Etiquetas,v.Ventaja,v.Limitacion FROM dbo.Equipo e JOIN (VALUES
- (N'DEMO-001',1,N'montura:kit;4k;peso:0.8;kit-lente',N'Cámara 4K con lente incluido: lista para usar.',N'Óptica y sensor básicos.'),
- (N'DEMO-002',1,N'luz:key;potencia:60;daylight',N'Panel LED simple para entrevistas.',N'Potencia limitada.'),
- (N'DEMO-003',1,N'audio:lavalier;cubre:1;inalambrico',N'Micrófono básico de uso general.',N'Calidad de audio básica.')
- ) v(Codigo,Gama,Etiquetas,Ventaja,Limitacion) ON v.Codigo=e.CodigoInventario
- WHERE NOT EXISTS(SELECT 1 FROM dbo.EquipoPerfil p WHERE p.EquipoId=e.Id);
-GO
-DECLARE @Nuevos TABLE(Codigo nvarchar(60),Serie nvarchar(160),Categoria nvarchar(100),Marca nvarchar(100),Modelo nvarchar(160),Tarifa decimal(18,2),Reposicion decimal(18,2),Gama tinyint,Etiquetas nvarchar(300),Ventaja nvarchar(300),Limitacion nvarchar(300));
-INSERT @Nuevos VALUES
-(N'CAM-001',N'SN-CAM-001',N'Cámara',N'Sony',N'Alpha a6700',18000,1500000,1,N'montura:E;4k;peso:0.5;liviana',N'Liviana y con enfoque automático confiable: ideal para moverse y para estabilizadores chicos.',N'Sensor APS-C: rinde menos con poca luz.'),
-(N'CAM-002',N'SN-CAM-002',N'Cámara',N'Sony',N'Alpha a7 IV',28000,2800000,2,N'montura:E;4k;fullframe;baja-luz;peso:0.66',N'Full frame versátil con muy buen rendimiento con poca luz.',N'Sin ventilación activa: puede recalentarse en tomas largas.'),
-(N'CAM-003',N'SN-CAM-003',N'Cámara',N'Sony',N'Alpha a7S III',48000,4800000,3,N'montura:E;4k;fullframe;baja-luz;baja-luz-extrema;peso:0.66',N'Rendimiento excepcional en penumbra y grabación sin límite de tiempo.',N'12 MP: menos resolución para recortes en posproducción.'),
-(N'CAM-004',N'SN-CAM-004',N'Cámara',N'Sony',N'FX3 Cinema Line',45000,5200000,3,N'montura:E;4k;fullframe;baja-luz;cine;peso:0.72',N'Cámara de cine compacta, ventilada y con excelente sensibilidad.',N'Cuesta más y suele requerir accesorios de rigging.'),
-(N'CAM-005',N'SN-CAM-005',N'Cámara',N'Canon',N'EOS R6 Mark II',30000,3000000,2,N'montura:RF;4k;fullframe;baja-luz;peso:0.67',N'Colores de piel naturales y estabilización interna efectiva.',N'Sin ventilación activa: tomas largas con riesgo de recalentamiento.'),
-(N'CAM-006',N'SN-CAM-006',N'Cámara',N'Canon',N'EOS C70',55000,6500000,3,N'montura:RF;4k;baja-luz;cine;nd-interno;peso:1.2',N'ND interno y doble ganancia: rinde igual de bien en exterior y con poca luz.',N'Más pesada y más cara; exige soportes robustos.'),
-(N'CAM-007',N'SN-CAM-007',N'Cámara',N'Blackmagic',N'Pocket Cinema 6K Pro',32000,3500000,2,N'montura:EF;6k;cine;nd-interno;peso:0.9',N'Imagen de cine en RAW a costo medio y ND interno.',N'Batería de poca duración y autofocus limitado.'),
-(N'LEN-001',N'SN-LEN-001',N'Lente',N'Sony',N'FE 24-70mm f/2.8 GM II',14000,2400000,3,N'montura:E;zoom;f2.8;peso:0.7',N'Zoom luminoso y versátil: cubre casi todo el set con un solo lente.',N'Pesado para tomas largas en mano.'),
-(N'LEN-002',N'SN-LEN-002',N'Lente',N'Sony',N'FE 50mm f/1.8',5000,350000,1,N'montura:E;fijo;f1.8;peso:0.2',N'Muy luminoso, económico y liviano; fondo desenfocado.',N'Focal fija: obliga a moverse para encuadrar.'),
-(N'LEN-003',N'SN-LEN-003',N'Lente',N'Sony',N'FE 16-35mm f/2.8 GM',13000,2600000,3,N'montura:E;zoom;angular;f2.8;peso:0.68',N'Gran angular ideal para interiores chicos y locaciones.',N'Distorsiona rostros si se usa muy cerca.'),
-(N'LEN-004',N'SN-LEN-004',N'Lente',N'Samyang',N'VDSLR 35mm T1.5 Cine',8000,700000,2,N'montura:E;fijo;cine;t1.5;peso:0.7',N'Look de cine con aro de foco dentado, apto para follow focus.',N'Foco manual: requiere asistente o práctica.'),
-(N'LEN-005',N'SN-LEN-005',N'Lente',N'Canon',N'RF 24-70mm f/2.8L',15000,2800000,3,N'montura:RF;zoom;f2.8;peso:0.9',N'Zoom profesional con muy buena nitidez y estabilización.',N'Pesado y de costo alto.'),
-(N'LEN-006',N'SN-LEN-006',N'Lente',N'Canon',N'RF 50mm f/1.8',4500,300000,1,N'montura:RF;fijo;f1.8;peso:0.16',N'Económico y liviano con gran luminosidad.',N'Focal fija, sin estabilización propia.'),
-(N'LEN-007',N'SN-LEN-007',N'Lente',N'Sigma',N'18-35mm f/1.8 Art',9000,1000000,2,N'montura:EF;zoom;f1.8;cine;peso:0.8',N'Zoom con f/1.8 constante y look cinematográfico.',N'Pesado y sin autofocus ágil.'),
-(N'LEN-008',N'SN-LEN-008',N'Lente',N'Canon',N'EF 24-70mm f/2.8L II',10000,1500000,2,N'montura:EF;zoom;f2.8;peso:0.8',N'Zoom clásico de trabajo, confiable y versátil.',N'Sin estabilización de imagen.'),
-(N'LUZ-001',N'SN-LUZ-001',N'Iluminación',N'Godox',N'SL60W',5500,200000,1,N'luz:key;potencia:60;daylight',N'Luz continua económica, ideal para entrevistas.',N'Potencia limitada: no compite con la luz solar.'),
-(N'LUZ-002',N'SN-LUZ-002',N'Iluminación',N'Godox',N'SL60W',5500,200000,1,N'luz:key;potencia:60;daylight',N'Luz continua económica, ideal para entrevistas.',N'Potencia limitada: no compite con la luz solar.'),
-(N'LUZ-003',N'SN-LUZ-003',N'Iluminación',N'Nanlite',N'Forza 60B',8000,500000,2,N'luz:key;potencia:60;bicolor;compacta',N'Bicolor, compacta y silenciosa: ajusta la temperatura de color.',N'Potencia moderada para espacios grandes.'),
-(N'LUZ-004',N'SN-LUZ-004',N'Iluminación',N'Aputure',N'Amaran 200x S',9000,450000,2,N'luz:key;potencia:200;bicolor',N'Potencia media con bicolor: sirve de luz principal en interiores.',N'Necesita difusor para luz suave.'),
-(N'LUZ-005',N'SN-LUZ-005',N'Iluminación',N'Aputure',N'Amaran 200x S',9000,450000,2,N'luz:key;potencia:200;bicolor',N'Potencia media con bicolor: sirve de luz principal en interiores.',N'Necesita difusor para luz suave.'),
-(N'LUZ-006',N'SN-LUZ-006',N'Iluminación',N'Aputure',N'LS 300d II',16000,1200000,3,N'luz:key;potencia:300;daylight;alta-potencia;exterior',N'Alta potencia: equilibra ventanas y rinde en exteriores.',N'Pesada, requiere alimentación robusta.'),
-(N'LUZ-007',N'SN-LUZ-007',N'Iluminación',N'Aputure',N'Nova P300c',18000,1800000,3,N'luz:panel;potencia:300;rgb;suave',N'Panel RGB grande de luz suave, ideal para publicidad y videoclip.',N'Es voluminoso y caro.'),
-(N'LUZ-008',N'SN-LUZ-008',N'Iluminación',N'Nanlite',N'PavoTube II 15C',4500,160000,1,N'luz:efecto;rgb;compacta',N'Tubo RGB para fondos y toques de color.',N'No sirve como luz principal.'),
-(N'LUZ-009',N'SN-LUZ-009',N'Iluminación',N'Nanlite',N'PavoTube II 15C',4500,160000,1,N'luz:efecto;rgb;compacta',N'Tubo RGB para fondos y toques de color.',N'No sirve como luz principal.'),
-(N'LUZ-010',N'SN-LUZ-010',N'Iluminación',N'Aputure',N'Light Dome II',4000,250000,2,N'luz:difusor;suave',N'Softbox parabólico: luz suave y favorecedora para rostros.',N'Agrega tiempo de armado.'),
-(N'LUZ-011',N'SN-LUZ-011',N'Iluminación',N'Neewer',N'Reflector 5 en 1 110cm',1800,40000,1,N'luz:reflector;exterior;rebote',N'Rebota la luz del sol sin consumir energía.',N'Depende del sol y de un asistente.'),
-(N'LUZ-012',N'SN-LUZ-012',N'Iluminación',N'Neewer',N'Reflector 5 en 1 110cm',1800,40000,1,N'luz:reflector;exterior;rebote',N'Rebota la luz del sol sin consumir energía.',N'Depende del sol y de un asistente.'),
-(N'EST-001',N'SN-EST-001',N'Estabilizador',N'Zhiyun',N'Crane M3',7000,280000,1,N'gimbal;carga:1.2;compacta',N'Compacto y fácil de llevar para cámaras livianas.',N'Soporta poco peso: solo cámaras chicas con lente liviano.'),
-(N'EST-002',N'SN-EST-002',N'Estabilizador',N'DJI',N'RS 3',12000,650000,2,N'gimbal;carga:3',N'Cubre la mayoría de las mirrorless con lentes medios.',N'Con cámaras de cine pesadas queda al límite.'),
-(N'EST-003',N'SN-EST-003',N'Estabilizador',N'DJI',N'RS 3 Pro',20000,1100000,3,N'gimbal;carga:4.5',N'Soporta cámaras de cine y accesorios.',N'Más pesado y más caro.'),
-(N'EST-004',N'SN-EST-004',N'Estabilizador',N'Rhino',N'Slider motorizado 80cm',9000,500000,2,N'slider;movimiento-lento',N'Movimientos suaves de cámara para planos de producto o entrevista.',N'Solo movimientos lineales cortos.'),
-(N'SOP-001',N'SN-SOP-001',N'Soporte',N'Manfrotto',N'MVK504 cabeza fluida',6000,300000,1,N'tripode;carga:4;fluido',N'Trípode fluido económico para cámaras livianas.',N'Soporta poco peso.'),
-(N'SOP-002',N'SN-SOP-002',N'Soporte',N'Manfrotto',N'MVK504 cabeza fluida',6000,300000,1,N'tripode;carga:4;fluido',N'Trípode fluido económico para cámaras livianas.',N'Soporta poco peso.'),
-(N'SOP-003',N'SN-SOP-003',N'Soporte',N'Sachtler',N'Ace XL',10000,600000,2,N'tripode;carga:8;fluido',N'Cabeza fluida firme para cámaras de cine y lentes largos.',N'Más pesado de transportar.'),
-(N'MON-001',N'SN-MON-001',N'Monitor',N'SmallHD',N'Focus 5',5000,250000,1,N'monitor;5pulg',N'Monitoreo preciso en set con ayudas de enfoque.',N'Pantalla chica y poco brillo al sol.'),
-(N'MON-002',N'SN-MON-002',N'Monitor',N'Atomos',N'Ninja V 5',8000,450000,2,N'monitor;grabador;5pulg',N'Monitorea y graba ProRes/RAW externo.',N'Agrega cables y consumo.'),
-(N'MON-003',N'SN-MON-003',N'Monitor',N'SmallHD',N'Cine 7',14000,1300000,3,N'monitor;7pulg;lut;exterior',N'Gran brillo para exterior, LUTs y ayudas de cine.',N'Pesado y de costo alto.'),
-(N'AUD-001',N'SN-AUD-001',N'Audio',N'Rode',N'Wireless GO II',6000,350000,1,N'audio:lavalier;cubre:2;inalambrico',N'Dos micrófonos inalámbricos en un solo kit, muy simple de usar.',N'Alcance y robustez inferiores a un sistema profesional.'),
-(N'AUD-002',N'SN-AUD-002',N'Audio',N'Rode',N'Wireless GO II',6000,350000,1,N'audio:lavalier;cubre:2;inalambrico',N'Dos micrófonos inalámbricos en un solo kit, muy simple de usar.',N'Alcance y robustez inferiores a un sistema profesional.'),
-(N'AUD-003',N'SN-AUD-003',N'Audio',N'Sennheiser',N'EW 112P G4',9000,700000,2,N'audio:lavalier;cubre:1;inalambrico;profesional',N'Transmisión estable y calidad profesional de broadcast.',N'Cubre una sola persona por kit.'),
-(N'AUD-004',N'SN-AUD-004',N'Audio',N'Sennheiser',N'EW 112P G4',9000,700000,2,N'audio:lavalier;cubre:1;inalambrico;profesional',N'Transmisión estable y calidad profesional de broadcast.',N'Cubre una sola persona por kit.'),
-(N'AUD-005',N'SN-AUD-005',N'Audio',N'Sennheiser',N'EW 112P G4',9000,700000,2,N'audio:lavalier;cubre:1;inalambrico;profesional',N'Transmisión estable y calidad profesional de broadcast.',N'Cubre una sola persona por kit.'),
-(N'AUD-006',N'SN-AUD-006',N'Audio',N'Rode',N'NTG4+',4500,250000,1,N'audio:boom;cubre:3;direccional',N'Shotgun liviano con buen rechazo lateral.',N'Necesita pértiga y operador.'),
-(N'AUD-007',N'SN-AUD-007',N'Audio',N'Sennheiser',N'MKH 416',10000,1000000,3,N'audio:boom;cubre:3;direccional;exterior',N'Referencia de la industria para diálogo en exteriores.',N'Costoso y requiere pértiga y grabador.'),
-(N'AUD-008',N'SN-AUD-008',N'Audio',N'Zoom',N'F3 32-bit float',7000,500000,2,N'audio:grabador;float',N'Grabación 32-bit float: no distorsiona ni se queda corto de nivel.',N'Requiere sincronizar con la imagen.'),
-(N'AUD-009',N'SN-AUD-009',N'Audio',N'K-Tek',N'Pértiga de carbono',2500,120000,2,N'audio:pertiga',N'Pértiga liviana para operar el micrófono sin entrar en cuadro.',N'Requiere un operador dedicado.'),
-(N'ENE-001',N'SN-ENE-001',N'Energía',N'Core SWX',N'Kit 2 baterías V-mount 98Wh',5000,300000,2,N'energia;jornada-larga',N'Respaldo de energía para cámara, monitor y luces durante jornadas largas.',N'Suma peso al rig.'),
-(N'ENE-002',N'SN-ENE-002',N'Energía',N'Core SWX',N'Kit 2 baterías V-mount 98Wh',5000,300000,2,N'energia;jornada-larga',N'Respaldo de energía para cámara, monitor y luces durante jornadas largas.',N'Suma peso al rig.');
-INSERT dbo.Equipo(CodigoInventario,Serie,Categoria,Marca,Modelo,Descripcion,Estado,TarifaDiaria,ValorReposicion,DiasReacondicionamiento)
- SELECT n.Codigo,n.Serie,n.Categoria,n.Marca,n.Modelo,n.Marca+N' '+n.Modelo,N'Disponible',n.Tarifa,n.Reposicion,1 FROM @Nuevos n
- WHERE NOT EXISTS(SELECT 1 FROM dbo.Equipo e WHERE e.CodigoInventario=n.Codigo);
-INSERT dbo.EquipoPerfil(EquipoId,Gama,Etiquetas,Ventaja,Limitacion)
- SELECT e.Id,n.Gama,n.Etiquetas,n.Ventaja,n.Limitacion FROM @Nuevos n JOIN dbo.Equipo e ON e.CodigoInventario=n.Codigo
- WHERE NOT EXISTS(SELECT 1 FROM dbo.EquipoPerfil p WHERE p.EquipoId=e.Id);
-GO
-GO
+-- ===== Fuente: 12_PropuestasGuardadas.sql =====
 USE [TC-AlquilerAudiovisual];
 GO
 -- Propuestas del asesor de rodaje guardadas por cada usuario (brief + variante elegida) para retomarlas después.
@@ -1364,7 +1229,7 @@ GO
 CREATE OR ALTER PROCEDURE dbo.sp_Propuesta_Eliminar @Id int,@UsuarioId int,@Resultado int OUTPUT AS
  BEGIN SET NOCOUNT ON; DELETE dbo.PropuestaGuardada WHERE Id=@Id AND UsuarioId=@UsuarioId; SET @Resultado=@@ROWCOUNT; END;
 GO
-GO
+-- ===== Fuente: 13_SinGarantia.sql =====
 USE [TC-AlquilerAudiovisual];
 GO
 -- El sistema ya no maneja garantía: solo seña y el seguro predefinido del cliente.
@@ -1381,14 +1246,14 @@ OPEN c; FETCH NEXT FROM c INTO @nombre,@def;
 WHILE @@FETCH_STATUS=0
 BEGIN
  SET @def=REPLACE(@def,N'la seña y la garantía antes',N'la seña antes');
- SET @def=REPLACE(@def,N'seña o garantía no coinciden',N'o seña no coinciden');
+ SET @def=REPLACE(@def,N'Importe, seña o garantía no coinciden',N'Importe o seña no coinciden');
  SET @def=N'ALTER '+SUBSTRING(@def,CHARINDEX(N'PROCEDURE',@def),LEN(@def));
  EXEC(@def);
  FETCH NEXT FROM c INTO @nombre,@def;
 END;
 CLOSE c; DEALLOCATE c;
 GO
-GO
+-- ===== Fuente: 14_EquiposLibres.sql =====
 USE [TC-AlquilerAudiovisual];
 GO
 -- Un equipo con una solicitud pendiente en esas fechas ya "fue tomado": no se ofrece en el catálogo ni se recomienda.
@@ -1425,7 +1290,7 @@ BEGIN
  EXEC(@def);
 END;
 GO
-GO
+-- ===== Fuente: 15_Cancelacion.sql =====
 USE [TC-AlquilerAudiovisual];
 GO
 -- El cliente puede cancelar su pedido mientras esté pendiente de revisión o aceptado sin pagar.
@@ -1443,4 +1308,160 @@ BEGIN
  WHERE r.Id=@ReservaId AND c.UsuarioId=@UsuarioId AND r.Estado IN(N'Pendiente',N'Aceptada');
  SET @Resultado=@@ROWCOUNT;
 END;
+GO
+USE [TC-AlquilerAudiovisual];
+GO
+SET QUOTED_IDENTIFIER ON;
+SET ANSI_NULLS ON;
+GO
+-- ===== Datos actuales =====
+SET NOCOUNT ON;
+-- dbo.Usuario (4 filas)
+SET IDENTITY_INSERT dbo.[Usuario] ON;
+INSERT dbo.[Usuario] ([Id],[NombreUsuario],[Hash],[Sal],[Rol],[Activo],[TipoSeguro],[SeguroId],[Nombre],[DniCuit],[Telefono],[Email]) VALUES (1,N'admin',0xF0493C516849A667512771A051E949E042E20025DD577287B71C938F4E5A0521,0x5B755B3F00770928AD6D03C22FDF070A,N'Administrador',1,N'Basico',NULL,N'admin',N'20000001',N'1100000000',N'admin@foco.com');
+INSERT dbo.[Usuario] ([Id],[NombreUsuario],[Hash],[Sal],[Rol],[Activo],[TipoSeguro],[SeguroId],[Nombre],[DniCuit],[Telefono],[Email]) VALUES (2,N'stock',0xB97961485EFC244879136C11E9DC35981DA05A044ABB681FE03884F62CAC481D,0xD7CDB1D4C8FD4C5546E85EA75D33E52F,N'EncargadoStock',1,N'SinSeguro',NULL,N'stock',N'20000002',N'1100000000',N'stock@foco.com');
+INSERT dbo.[Usuario] ([Id],[NombreUsuario],[Hash],[Sal],[Rol],[Activo],[TipoSeguro],[SeguroId],[Nombre],[DniCuit],[Telefono],[Email]) VALUES (3,N'cliente',0xD700D7BC119716E30001B63AEDA403E261220CEF4DD0B8AA32544728EEF1E390,0xF34D9C61069F2C4663AF4739E1465403,N'Cliente',1,N'Basico',NULL,N'cliente',N'20000003',N'1100000000',N'cliente@foco.com');
+INSERT dbo.[Usuario] ([Id],[NombreUsuario],[Hash],[Sal],[Rol],[Activo],[TipoSeguro],[SeguroId],[Nombre],[DniCuit],[Telefono],[Email]) VALUES (4,N'tecnico',0xB330F18E614EA7E5124F5D114FBF48EA88E31C74AC20F7EF23B911D469F757B5,0x2053A80D05254300A82C0AFE91F7B050,N'Tecnico',1,N'SinSeguro',NULL,N'tecnico',N'20000004',N'1100000000',N'tecnico@foco.com');
+SET IDENTITY_INSERT dbo.[Usuario] OFF;
+-- dbo.Cliente (2 filas)
+SET IDENTITY_INSERT dbo.[Cliente] ON;
+INSERT dbo.[Cliente] ([Id],[UsuarioId],[DniCuit],[Nombre],[Telefono],[Email],[AntecedenteNegativo]) VALUES (1,1,N'20000001',N'admin',N'1100000000',N'admin@foco.com',0);
+INSERT dbo.[Cliente] ([Id],[UsuarioId],[DniCuit],[Nombre],[Telefono],[Email],[AntecedenteNegativo]) VALUES (2,3,N'20000003',N'cliente',N'1100000000',N'cliente@foco.com',0);
+SET IDENTITY_INSERT dbo.[Cliente] OFF;
+-- dbo.Seguro (2 filas)
+SET IDENTITY_INSERT dbo.[Seguro] ON;
+INSERT dbo.[Seguro] ([Id],[ClienteId],[Poliza],[Aseguradora],[Desde],[Hasta],[Cobertura],[Tipo],[Detalle]) VALUES (3,1,N'USUARIO-1',N'Seguro académico',CONVERT(datetime2,'2026-11-01T00:00:00.0000000',126),CONVERT(datetime2,'2028-11-01T00:00:00.0000000',126),500000.00,N'Basico',N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.');
+INSERT dbo.[Seguro] ([Id],[ClienteId],[Poliza],[Aseguradora],[Desde],[Hasta],[Cobertura],[Tipo],[Detalle]) VALUES (5,2,N'USUARIO-3',N'Seguro académico',CONVERT(datetime2,'2026-11-01T00:00:00.0000000',126),CONVERT(datetime2,'2028-11-01T00:00:00.0000000',126),500000.00,N'Basico',N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.');
+SET IDENTITY_INSERT dbo.[Seguro] OFF;
+UPDATE dbo.[Usuario] SET [SeguroId]=3 WHERE [Id]=1;
+UPDATE dbo.[Usuario] SET [SeguroId]=5 WHERE [Id]=3;
+-- dbo.Equipo (51 filas)
+SET IDENTITY_INSERT dbo.[Equipo] ON;
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (1,NULL,N'DEMO-001',N'SERIE-DEMO-1',N'Cámara',N'Ejemplo',N'Cámara 4K',N'Camara',N'Disponible',15000.00,500000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (2,NULL,N'DEMO-002',N'SERIE-DEMO-2',N'Iluminación',N'Ejemplo',N'Panel LED',N'Panel LED',N'Disponible',5000.00,150000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (3,NULL,N'DEMO-003',N'SERIE-DEMO-3',N'Audio',N'Ejemplo',N'Micrófono',N'Unidad para la entrega académica N01',N'Disponible',3000.00,80000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (4,NULL,N'CAM-001',N'SN-CAM-001',N'Cámara',N'Sony',N'Alpha a6700',N'Sony Alpha a6700',N'Disponible',18000.00,1500000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (5,NULL,N'CAM-002',N'SN-CAM-002',N'Cámara',N'Sony',N'Alpha a7 IV',N'Sony Alpha a7 IV',N'Disponible',28000.00,2800000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (6,NULL,N'CAM-003',N'SN-CAM-003',N'Cámara',N'Sony',N'Alpha a7S III',N'Sony Alpha a7S III',N'Disponible',48000.00,4800000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (7,NULL,N'CAM-004',N'SN-CAM-004',N'Cámara',N'Sony',N'FX3 Cinema Line',N'Sony FX3 Cinema Line',N'Disponible',45000.00,5200000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (8,NULL,N'CAM-005',N'SN-CAM-005',N'Cámara',N'Canon',N'EOS R6 Mark II',N'Canon EOS R6 Mark II',N'Disponible',30000.00,3000000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (9,NULL,N'CAM-006',N'SN-CAM-006',N'Cámara',N'Canon',N'EOS C70',N'Canon EOS C70',N'Disponible',55000.00,6500000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (10,NULL,N'CAM-007',N'SN-CAM-007',N'Cámara',N'Blackmagic',N'Pocket Cinema 6K Pro',N'Blackmagic Pocket Cinema 6K Pro',N'Disponible',32000.00,3500000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (11,NULL,N'LEN-001',N'SN-LEN-001',N'Lente',N'Sony',N'FE 24-70mm f/2.8 GM II',N'Sony FE 24-70mm f/2.8 GM II',N'Disponible',14000.00,2400000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (12,NULL,N'LEN-002',N'SN-LEN-002',N'Lente',N'Sony',N'FE 50mm f/1.8',N'Sony FE 50mm f/1.8',N'Disponible',5000.00,350000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (13,NULL,N'LEN-003',N'SN-LEN-003',N'Lente',N'Sony',N'FE 16-35mm f/2.8 GM',N'Sony FE 16-35mm f/2.8 GM',N'Disponible',13000.00,2600000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (14,NULL,N'LEN-004',N'SN-LEN-004',N'Lente',N'Samyang',N'VDSLR 35mm T1.5 Cine',N'Samyang VDSLR 35mm T1.5 Cine',N'Disponible',8000.00,700000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (15,NULL,N'LEN-005',N'SN-LEN-005',N'Lente',N'Canon',N'RF 24-70mm f/2.8L',N'Canon RF 24-70mm f/2.8L',N'Disponible',15000.00,2800000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (16,NULL,N'LEN-006',N'SN-LEN-006',N'Lente',N'Canon',N'RF 50mm f/1.8',N'Canon RF 50mm f/1.8',N'Disponible',4500.00,300000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (17,NULL,N'LEN-007',N'SN-LEN-007',N'Lente',N'Sigma',N'18-35mm f/1.8 Art',N'Sigma 18-35mm f/1.8 Art',N'Disponible',9000.00,1000000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (18,NULL,N'LEN-008',N'SN-LEN-008',N'Lente',N'Canon',N'EF 24-70mm f/2.8L II',N'Canon EF 24-70mm f/2.8L II',N'Disponible',10000.00,1500000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (19,NULL,N'LUZ-001',N'SN-LUZ-001',N'Iluminación',N'Godox',N'SL60W',N'Godox SL60W',N'Disponible',5500.00,200000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (20,NULL,N'LUZ-002',N'SN-LUZ-002',N'Iluminación',N'Godox',N'SL60W',N'Godox SL60W',N'Disponible',5500.00,200000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (21,NULL,N'LUZ-003',N'SN-LUZ-003',N'Iluminación',N'Nanlite',N'Forza 60B',N'Nanlite Forza 60B',N'Disponible',8000.00,500000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (22,NULL,N'LUZ-004',N'SN-LUZ-004',N'Iluminación',N'Aputure',N'Amaran 200x S',N'Aputure Amaran 200x S',N'Disponible',9000.00,450000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (23,NULL,N'LUZ-005',N'SN-LUZ-005',N'Iluminación',N'Aputure',N'Amaran 200x S',N'Aputure Amaran 200x S',N'Disponible',9000.00,450000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (24,NULL,N'LUZ-006',N'SN-LUZ-006',N'Iluminación',N'Aputure',N'LS 300d II',N'Aputure LS 300d II',N'Disponible',16000.00,1200000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (25,NULL,N'LUZ-007',N'SN-LUZ-007',N'Iluminación',N'Aputure',N'Nova P300c',N'Aputure Nova P300c',N'Disponible',18000.00,1800000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (26,NULL,N'LUZ-008',N'SN-LUZ-008',N'Iluminación',N'Nanlite',N'PavoTube II 15C',N'Nanlite PavoTube II 15C',N'Disponible',4500.00,160000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (27,NULL,N'LUZ-009',N'SN-LUZ-009',N'Iluminación',N'Nanlite',N'PavoTube II 15C',N'Nanlite PavoTube II 15C',N'Disponible',4500.00,160000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (28,NULL,N'LUZ-010',N'SN-LUZ-010',N'Iluminación',N'Aputure',N'Light Dome II',N'Aputure Light Dome II',N'Disponible',4000.00,250000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (29,NULL,N'LUZ-011',N'SN-LUZ-011',N'Iluminación',N'Neewer',N'Reflector 5 en 1 110cm',N'Neewer Reflector 5 en 1 110cm',N'Disponible',1800.00,40000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (30,NULL,N'LUZ-012',N'SN-LUZ-012',N'Iluminación',N'Neewer',N'Reflector 5 en 1 110cm',N'Neewer Reflector 5 en 1 110cm',N'Disponible',1800.00,40000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (31,NULL,N'EST-001',N'SN-EST-001',N'Estabilizador',N'Zhiyun',N'Crane M3',N'Zhiyun Crane M3',N'Disponible',7000.00,280000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (32,NULL,N'EST-002',N'SN-EST-002',N'Estabilizador',N'DJI',N'RS 3',N'DJI RS 3',N'Disponible',12000.00,650000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (33,NULL,N'EST-003',N'SN-EST-003',N'Estabilizador',N'DJI',N'RS 3 Pro',N'DJI RS 3 Pro',N'Disponible',20000.00,1100000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (34,NULL,N'EST-004',N'SN-EST-004',N'Estabilizador',N'Rhino',N'Slider motorizado 80cm',N'Rhino Slider motorizado 80cm',N'Disponible',9000.00,500000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (35,NULL,N'SOP-001',N'SN-SOP-001',N'Soporte',N'Manfrotto',N'MVK504 cabeza fluida',N'Manfrotto MVK504 cabeza fluida',N'Disponible',6000.00,300000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (36,NULL,N'SOP-002',N'SN-SOP-002',N'Soporte',N'Manfrotto',N'MVK504 cabeza fluida',N'Manfrotto MVK504 cabeza fluida',N'Disponible',6000.00,300000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (37,NULL,N'SOP-003',N'SN-SOP-003',N'Soporte',N'Sachtler',N'Ace XL',N'Sachtler Ace XL',N'Disponible',10000.00,600000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (38,NULL,N'MON-001',N'SN-MON-001',N'Monitor',N'SmallHD',N'Focus 5',N'SmallHD Focus 5',N'Disponible',5000.00,250000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (39,NULL,N'MON-002',N'SN-MON-002',N'Monitor',N'Atomos',N'Ninja V 5',N'Atomos Ninja V 5',N'Disponible',8000.00,450000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (40,NULL,N'MON-003',N'SN-MON-003',N'Monitor',N'SmallHD',N'Cine 7',N'SmallHD Cine 7',N'Disponible',14000.00,1300000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (41,NULL,N'AUD-001',N'SN-AUD-001',N'Audio',N'Rode',N'Wireless GO II',N'Rode Wireless GO II',N'Disponible',6000.00,350000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (42,NULL,N'AUD-002',N'SN-AUD-002',N'Audio',N'Rode',N'Wireless GO II',N'Rode Wireless GO II',N'Disponible',6000.00,350000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (43,NULL,N'AUD-003',N'SN-AUD-003',N'Audio',N'Sennheiser',N'EW 112P G4',N'Sennheiser EW 112P G4',N'Disponible',9000.00,700000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (44,NULL,N'AUD-004',N'SN-AUD-004',N'Audio',N'Sennheiser',N'EW 112P G4',N'Sennheiser EW 112P G4',N'Disponible',9000.00,700000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (45,NULL,N'AUD-005',N'SN-AUD-005',N'Audio',N'Sennheiser',N'EW 112P G4',N'Sennheiser EW 112P G4',N'Disponible',9000.00,700000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (46,NULL,N'AUD-006',N'SN-AUD-006',N'Audio',N'Rode',N'NTG4+',N'Rode NTG4+',N'Disponible',4500.00,250000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (47,NULL,N'AUD-007',N'SN-AUD-007',N'Audio',N'Sennheiser',N'MKH 416',N'Sennheiser MKH 416',N'Disponible',10000.00,1000000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (48,NULL,N'AUD-008',N'SN-AUD-008',N'Audio',N'Zoom',N'F3 32-bit float',N'Zoom F3 32-bit float',N'Disponible',7000.00,500000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (49,NULL,N'AUD-009',N'SN-AUD-009',N'Audio',N'K-Tek',N'Pértiga de carbono',N'K-Tek Pértiga de carbono',N'Disponible',2500.00,120000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (50,NULL,N'ENE-001',N'SN-ENE-001',N'Energía',N'Core SWX',N'Kit 2 baterías V-mount 98Wh',N'Core SWX Kit 2 baterías V-mount 98Wh',N'Disponible',5000.00,300000.00,1);
+INSERT dbo.[Equipo] ([Id],[SeguroId],[CodigoInventario],[Serie],[Categoria],[Marca],[Modelo],[Descripcion],[Estado],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento]) VALUES (51,NULL,N'ENE-002',N'SN-ENE-002',N'Energía',N'Core SWX',N'Kit 2 baterías V-mount 98Wh',N'Core SWX Kit 2 baterías V-mount 98Wh',N'Disponible',5000.00,300000.00,1);
+SET IDENTITY_INSERT dbo.[Equipo] OFF;
+-- dbo.EquipoPerfil (51 filas)
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (1,1,N'montura:kit;4k;peso:0.8;kit-lente',N'Cámara 4K con lente incluido: lista para usar.',N'Óptica y sensor básicos.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (2,1,N'luz:key;potencia:60;daylight',N'Panel LED simple para entrevistas.',N'Potencia limitada.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (3,1,N'audio:lavalier;cubre:1;inalambrico',N'Micrófono básico de uso general.',N'Calidad de audio básica.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (4,1,N'montura:E;4k;peso:0.5;liviana',N'Liviana y con enfoque automático confiable: ideal para moverse y para estabilizadores chicos.',N'Sensor APS-C: rinde menos con poca luz.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (5,2,N'montura:E;4k;fullframe;baja-luz;peso:0.66',N'Full frame versátil con muy buen rendimiento con poca luz.',N'Sin ventilación activa: puede recalentarse en tomas largas.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (6,3,N'montura:E;4k;fullframe;baja-luz;baja-luz-extrema;peso:0.66',N'Rendimiento excepcional en penumbra y grabación sin límite de tiempo.',N'12 MP: menos resolución para recortes en posproducción.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (7,3,N'montura:E;4k;fullframe;baja-luz;cine;peso:0.72',N'Cámara de cine compacta, ventilada y con excelente sensibilidad.',N'Cuesta más y suele requerir accesorios de rigging.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (8,2,N'montura:RF;4k;fullframe;baja-luz;peso:0.67',N'Colores de piel naturales y estabilización interna efectiva.',N'Sin ventilación activa: tomas largas con riesgo de recalentamiento.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (9,3,N'montura:RF;4k;baja-luz;cine;nd-interno;peso:1.2',N'ND interno y doble ganancia: rinde igual de bien en exterior y con poca luz.',N'Más pesada y más cara; exige soportes robustos.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (10,2,N'montura:EF;6k;cine;nd-interno;peso:0.9',N'Imagen de cine en RAW a costo medio y ND interno.',N'Batería de poca duración y autofocus limitado.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (11,3,N'montura:E;zoom;f2.8;peso:0.7',N'Zoom luminoso y versátil: cubre casi todo el set con un solo lente.',N'Pesado para tomas largas en mano.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (12,1,N'montura:E;fijo;f1.8;peso:0.2',N'Muy luminoso, económico y liviano; fondo desenfocado.',N'Focal fija: obliga a moverse para encuadrar.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (13,3,N'montura:E;zoom;angular;f2.8;peso:0.68',N'Gran angular ideal para interiores chicos y locaciones.',N'Distorsiona rostros si se usa muy cerca.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (14,2,N'montura:E;fijo;cine;t1.5;peso:0.7',N'Look de cine con aro de foco dentado, apto para follow focus.',N'Foco manual: requiere asistente o práctica.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (15,3,N'montura:RF;zoom;f2.8;peso:0.9',N'Zoom profesional con muy buena nitidez y estabilización.',N'Pesado y de costo alto.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (16,1,N'montura:RF;fijo;f1.8;peso:0.16',N'Económico y liviano con gran luminosidad.',N'Focal fija, sin estabilización propia.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (17,2,N'montura:EF;zoom;f1.8;cine;peso:0.8',N'Zoom con f/1.8 constante y look cinematográfico.',N'Pesado y sin autofocus ágil.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (18,2,N'montura:EF;zoom;f2.8;peso:0.8',N'Zoom clásico de trabajo, confiable y versátil.',N'Sin estabilización de imagen.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (19,1,N'luz:key;potencia:60;daylight',N'Luz continua económica, ideal para entrevistas.',N'Potencia limitada: no compite con la luz solar.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (20,1,N'luz:key;potencia:60;daylight',N'Luz continua económica, ideal para entrevistas.',N'Potencia limitada: no compite con la luz solar.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (21,2,N'luz:key;potencia:60;bicolor;compacta',N'Bicolor, compacta y silenciosa: ajusta la temperatura de color.',N'Potencia moderada para espacios grandes.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (22,2,N'luz:key;potencia:200;bicolor',N'Potencia media con bicolor: sirve de luz principal en interiores.',N'Necesita difusor para luz suave.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (23,2,N'luz:key;potencia:200;bicolor',N'Potencia media con bicolor: sirve de luz principal en interiores.',N'Necesita difusor para luz suave.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (24,3,N'luz:key;potencia:300;daylight;alta-potencia;exterior',N'Alta potencia: equilibra ventanas y rinde en exteriores.',N'Pesada, requiere alimentación robusta.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (25,3,N'luz:panel;potencia:300;rgb;suave',N'Panel RGB grande de luz suave, ideal para publicidad y videoclip.',N'Es voluminoso y caro.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (26,1,N'luz:efecto;rgb;compacta',N'Tubo RGB para fondos y toques de color.',N'No sirve como luz principal.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (27,1,N'luz:efecto;rgb;compacta',N'Tubo RGB para fondos y toques de color.',N'No sirve como luz principal.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (28,2,N'luz:difusor;suave',N'Softbox parabólico: luz suave y favorecedora para rostros.',N'Agrega tiempo de armado.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (29,1,N'luz:reflector;exterior;rebote',N'Rebota la luz del sol sin consumir energía.',N'Depende del sol y de un asistente.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (30,1,N'luz:reflector;exterior;rebote',N'Rebota la luz del sol sin consumir energía.',N'Depende del sol y de un asistente.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (31,1,N'gimbal;carga:1.2;compacta',N'Compacto y fácil de llevar para cámaras livianas.',N'Soporta poco peso: solo cámaras chicas con lente liviano.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (32,2,N'gimbal;carga:3',N'Cubre la mayoría de las mirrorless con lentes medios.',N'Con cámaras de cine pesadas queda al límite.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (33,3,N'gimbal;carga:4.5',N'Soporta cámaras de cine y accesorios.',N'Más pesado y más caro.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (34,2,N'slider;movimiento-lento',N'Movimientos suaves de cámara para planos de producto o entrevista.',N'Solo movimientos lineales cortos.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (35,1,N'tripode;carga:4;fluido',N'Trípode fluido económico para cámaras livianas.',N'Soporta poco peso.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (36,1,N'tripode;carga:4;fluido',N'Trípode fluido económico para cámaras livianas.',N'Soporta poco peso.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (37,2,N'tripode;carga:8;fluido',N'Cabeza fluida firme para cámaras de cine y lentes largos.',N'Más pesado de transportar.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (38,1,N'monitor;5pulg',N'Monitoreo preciso en set con ayudas de enfoque.',N'Pantalla chica y poco brillo al sol.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (39,2,N'monitor;grabador;5pulg',N'Monitorea y graba ProRes/RAW externo.',N'Agrega cables y consumo.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (40,3,N'monitor;7pulg;lut;exterior',N'Gran brillo para exterior, LUTs y ayudas de cine.',N'Pesado y de costo alto.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (41,1,N'audio:lavalier;cubre:2;inalambrico',N'Dos micrófonos inalámbricos en un solo kit, muy simple de usar.',N'Alcance y robustez inferiores a un sistema profesional.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (42,1,N'audio:lavalier;cubre:2;inalambrico',N'Dos micrófonos inalámbricos en un solo kit, muy simple de usar.',N'Alcance y robustez inferiores a un sistema profesional.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (43,2,N'audio:lavalier;cubre:1;inalambrico;profesional',N'Transmisión estable y calidad profesional de broadcast.',N'Cubre una sola persona por kit.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (44,2,N'audio:lavalier;cubre:1;inalambrico;profesional',N'Transmisión estable y calidad profesional de broadcast.',N'Cubre una sola persona por kit.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (45,2,N'audio:lavalier;cubre:1;inalambrico;profesional',N'Transmisión estable y calidad profesional de broadcast.',N'Cubre una sola persona por kit.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (46,1,N'audio:boom;cubre:3;direccional',N'Shotgun liviano con buen rechazo lateral.',N'Necesita pértiga y operador.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (47,3,N'audio:boom;cubre:3;direccional;exterior',N'Referencia de la industria para diálogo en exteriores.',N'Costoso y requiere pértiga y grabador.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (48,2,N'audio:grabador;float',N'Grabación 32-bit float: no distorsiona ni se queda corto de nivel.',N'Requiere sincronizar con la imagen.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (49,2,N'audio:pertiga',N'Pértiga liviana para operar el micrófono sin entrar en cuadro.',N'Requiere un operador dedicado.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (50,2,N'energia;jornada-larga',N'Respaldo de energía para cámara, monitor y luces durante jornadas largas.',N'Suma peso al rig.');
+INSERT dbo.[EquipoPerfil] ([EquipoId],[Gama],[Etiquetas],[Ventaja],[Limitacion]) VALUES (51,2,N'energia;jornada-larga',N'Respaldo de energía para cámara, monitor y luces durante jornadas largas.',N'Suma peso al rig.');
+-- dbo.Reserva (2 filas)
+SET IDENTITY_INSERT dbo.[Reserva] ON;
+INSERT dbo.[Reserva] ([Id],[ClienteId],[Desde],[Hasta],[Importe],[Sena],[Garantia],[Estado],[NumeroContrato],[NumeroRemito],[ContratoFirmado],[SenaRequerida],[GarantiaRequerida]) VALUES (8,1,CONVERT(datetime2,'2026-11-01T08:09:06.6323702',126),CONVERT(datetime2,'2026-11-03T08:09:06.0000000',126),30000.00,9000.00,0.00,N'Cerrada',N'C-8',N'R-8',1,9000.00,0.00);
+INSERT dbo.[Reserva] ([Id],[ClienteId],[Desde],[Hasta],[Importe],[Sena],[Garantia],[Estado],[NumeroContrato],[NumeroRemito],[ContratoFirmado],[SenaRequerida],[GarantiaRequerida]) VALUES (10,2,CONVERT(datetime2,'2026-11-01T18:21:24.5011239',126),CONVERT(datetime2,'2026-11-03T18:21:24.0000000',126),36000.00,10800.00,0.00,N'Cerrada',N'C-10',N'R-10',1,10800.00,0.00);
+SET IDENTITY_INSERT dbo.[Reserva] OFF;
+-- dbo.ReservaEquipo (2 filas)
+INSERT dbo.[ReservaEquipo] ([ReservaId],[EquipoId],[SeguroId],[CoberturaSeguro],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento],[EstadoEntrega],[TipoSeguro],[DetalleSeguro],[PolizaSeguro],[AseguradoraSeguro],[DesdeSeguro],[HastaSeguro]) VALUES (8,1,3,500000.00,15000.00,500000.00,1,N'Disponible',N'Basico',N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.',N'USUARIO-1',N'Seguro académico',CONVERT(datetime2,'2026-11-01T00:00:00.0000000',126),CONVERT(datetime2,'2028-11-01T00:00:00.0000000',126));
+INSERT dbo.[ReservaEquipo] ([ReservaId],[EquipoId],[SeguroId],[CoberturaSeguro],[TarifaDiaria],[ValorReposicion],[DiasReacondicionamiento],[EstadoEntrega],[TipoSeguro],[DetalleSeguro],[PolizaSeguro],[AseguradoraSeguro],[DesdeSeguro],[HastaSeguro]) VALUES (10,4,5,500000.00,18000.00,1500000.00,1,N'Disponible',N'Basico',N'Cubre el 25% del daño reparable hasta el tope por unidad. No cubre atraso, faltante ni daño total.',N'USUARIO-3',N'Seguro académico',CONVERT(datetime2,'2026-11-01T00:00:00.0000000',126),CONVERT(datetime2,'2028-11-01T00:00:00.0000000',126));
+-- dbo.Devolucion (2 filas)
+SET IDENTITY_INSERT dbo.[Devolucion] ON;
+INSERT dbo.[Devolucion] ([Id],[ReservaId],[Fecha],[Conforme],[ClientePresente],[Finalizada],[Observaciones],[GarantiaAplicada],[GarantiaDevuelta],[SaldoPendiente]) VALUES (5,8,CONVERT(datetime2,'2026-11-01T08:09:56.3998529',126),1,1,1,N'',0.00,0.00,0.00);
+INSERT dbo.[Devolucion] ([Id],[ReservaId],[Fecha],[Conforme],[ClientePresente],[Finalizada],[Observaciones],[GarantiaAplicada],[GarantiaDevuelta],[SaldoPendiente]) VALUES (7,10,CONVERT(datetime2,'2026-11-01T18:30:07.6966898',126),0,1,1,N'',0.00,0.00,1200000.00);
+SET IDENTITY_INSERT dbo.[Devolucion] OFF;
+-- dbo.Incidencia (1 filas)
+SET IDENTITY_INSERT dbo.[Incidencia] ON;
+INSERT dbo.[Incidencia] ([Id],[DevolucionId],[EquipoId],[Tipo],[Descripcion],[Cargo],[Estado],[FechaAltaTecnica],[CargoBase],[DescuentoSeguro],[MostrarEnAntecedentes]) VALUES (5,7,4,N'DañoTotal',N'se rompió todo',1200000.00,N'Cerrada',CONVERT(datetime2,'2026-11-01T18:32:10.9150742',126),1200000.00,0.00,1);
+SET IDENTITY_INSERT dbo.[Incidencia] OFF;
+-- dbo.PropuestaGuardada (1 filas)
+SET IDENTITY_INSERT dbo.[PropuestaGuardada] ON;
+INSERT dbo.[PropuestaGuardada] ([Id],[UsuarioId],[Nombre],[Creada],[Variante],[Total],[TipoPieza],[Presupuesto],[Desde],[Hasta],[Personas],[Camaras],[Locacion],[Luz],[HorasJornada],[CamaraEnMovimiento],[SonidoDirecto],[Monitoreo],[LookCinematografico]) VALUES (2,1,N'Propuesta1',CONVERT(datetime2,'2026-11-01T17:50:51.7427658',126),N'Recomendada',98000.00,N'Streaming / podcast',100000.00,CONVERT(datetime2,'2026-11-02T09:00:00.0000000',126),CONVERT(datetime2,'2026-11-03T09:00:00.0000000',126),2,1,N'Interior',N'Media',8,0,1,0,0);
+SET IDENTITY_INSERT dbo.[PropuestaGuardada] OFF;
+GO
+PRINT N'Restauracion de TC-AlquilerAudiovisual completada.';
 GO

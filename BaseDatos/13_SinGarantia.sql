@@ -14,7 +14,7 @@ OPEN c; FETCH NEXT FROM c INTO @nombre,@def;
 WHILE @@FETCH_STATUS=0
 BEGIN
  SET @def=REPLACE(@def,N'la seña y la garantía antes',N'la seña antes');
- SET @def=REPLACE(@def,N'seña o garantía no coinciden',N'o seña no coinciden');
+ SET @def=REPLACE(@def,N'Importe, seña o garantía no coinciden',N'Importe o seña no coinciden');
  SET @def=N'ALTER '+SUBSTRING(@def,CHARINDEX(N'PROCEDURE',@def),LEN(@def));
  EXEC(@def);
  FETCH NEXT FROM c INTO @nombre,@def;
