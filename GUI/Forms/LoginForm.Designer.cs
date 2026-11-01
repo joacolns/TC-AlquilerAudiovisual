@@ -17,245 +17,228 @@
 #region Código generado por el Diseñador de Windows Forms
 		private void InitializeComponent()
 		{
-			this.vistas = new System.Windows.Forms.TabControl();
-			this.accesoTab = new System.Windows.Forms.TabPage();
-			this.acceso = new System.Windows.Forms.FlowLayoutPanel();
-			this.usuarioLabel = new System.Windows.Forms.Label();
-			this.nombre = new System.Windows.Forms.TextBox();
-			this.claveLabel = new System.Windows.Forms.Label();
-			this.clave = new System.Windows.Forms.TextBox();
+			this.presentacion = new System.Windows.Forms.Panel();
+			this.presentacionDetalle = new System.Windows.Forms.Label();
+			this.presentacionTitulo = new System.Windows.Forms.Label();
+			this.marcaDetalle = new System.Windows.Forms.Label();
+			this.marca = new System.Windows.Forms.Label();
+			this.accesoPanel = new System.Windows.Forms.Panel();
+			this.mostrarClave = new System.Windows.Forms.CheckBox();
 			this.ingresarBoton = new System.Windows.Forms.Button();
-			this.menuTab = new System.Windows.Forms.TabPage();
-			this.menu = new System.Windows.Forms.FlowLayoutPanel();
-			this.estado = new System.Windows.Forms.Label();
-			this.equiposBoton = new System.Windows.Forms.Button();
-			this.reservasBoton = new System.Windows.Forms.Button();
-			this.devolucionesBoton = new System.Windows.Forms.Button();
-			this.clientesBoton = new System.Windows.Forms.Button();
-			this.usuariosBoton = new System.Windows.Forms.Button();
-			this.cerrarBoton = new System.Windows.Forms.Button();
-			this.vistas.SuspendLayout();
-			this.accesoTab.SuspendLayout();
-			this.acceso.SuspendLayout();
-			this.menuTab.SuspendLayout();
-			this.menu.SuspendLayout();
+			this.clave = new System.Windows.Forms.TextBox();
+			this.claveLabel = new System.Windows.Forms.Label();
+			this.nombre = new System.Windows.Forms.TextBox();
+			this.usuarioLabel = new System.Windows.Forms.Label();
+			this.accesoDetalle = new System.Windows.Forms.Label();
+			this.accesoTitulo = new System.Windows.Forms.Label();
+			this.presentacion.SuspendLayout();
+			this.accesoPanel.SuspendLayout();
 			this.SuspendLayout();
-			//
-			// vistas
-			//
-			this.vistas.Controls.Add(this.accesoTab);
-			this.vistas.Controls.Add(this.menuTab);
-			this.vistas.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.vistas.Location = new System.Drawing.Point(0, 0);
-			this.vistas.Name = "vistas";
-			this.vistas.SelectedIndex = 0;
-			this.vistas.Size = new System.Drawing.Size(520, 440);
-			this.vistas.TabIndex = 0;
-			//
-			// accesoTab
-			//
-			this.accesoTab.Controls.Add(this.acceso);
-			this.accesoTab.Location = new System.Drawing.Point(4, 26);
-			this.accesoTab.Name = "accesoTab";
-			this.accesoTab.Padding = new System.Windows.Forms.Padding(3);
-			this.accesoTab.Size = new System.Drawing.Size(512, 410);
-			this.accesoTab.TabIndex = 0;
-			this.accesoTab.Text = "Acceso";
-			this.accesoTab.UseVisualStyleBackColor = true;
-			//
-			// acceso
-			//
-			this.acceso.Controls.Add(this.usuarioLabel);
-			this.acceso.Controls.Add(this.nombre);
-			this.acceso.Controls.Add(this.claveLabel);
-			this.acceso.Controls.Add(this.clave);
-			this.acceso.Controls.Add(this.ingresarBoton);
-			this.acceso.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.acceso.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this.acceso.Location = new System.Drawing.Point(3, 3);
-			this.acceso.Name = "acceso";
-			this.acceso.Padding = new System.Windows.Forms.Padding(24);
-			this.acceso.Size = new System.Drawing.Size(506, 404);
-			this.acceso.TabIndex = 0;
-			//
+			// 
+			// presentacion
+			// 
+			this.presentacion.BackColor = System.Drawing.Color.FromArgb(15, 23, 42);
+			this.presentacion.Controls.Add(this.presentacionDetalle);
+			this.presentacion.Controls.Add(this.presentacionTitulo);
+			this.presentacion.Controls.Add(this.marcaDetalle);
+			this.presentacion.Controls.Add(this.marca);
+			this.presentacion.Dock = System.Windows.Forms.DockStyle.Left;
+			this.presentacion.Location = new System.Drawing.Point(0, 0);
+			this.presentacion.Name = "presentacion";
+			this.presentacion.Size = new System.Drawing.Size(380, 560);
+			this.presentacion.TabIndex = 0;
+			// 
+			// presentacionDetalle
+			// 
+			this.presentacionDetalle.Font = new System.Drawing.Font("Segoe UI", 11F);
+			this.presentacionDetalle.ForeColor = System.Drawing.Color.FromArgb(148, 163, 184);
+			this.presentacionDetalle.Location = new System.Drawing.Point(40, 336);
+			this.presentacionDetalle.Name = "presentacionDetalle";
+			this.presentacionDetalle.Size = new System.Drawing.Size(294, 96);
+			this.presentacionDetalle.TabIndex = 3;
+			this.presentacionDetalle.Text = "Disponibilidad, solicitudes, entregas y devoluciones en un sistema simple y ordenado.";
+			// 
+			// presentacionTitulo
+			// 
+			this.presentacionTitulo.Font = new System.Drawing.Font("Segoe UI", 23F, System.Drawing.FontStyle.Bold);
+			this.presentacionTitulo.ForeColor = System.Drawing.Color.White;
+			this.presentacionTitulo.Location = new System.Drawing.Point(36, 214);
+			this.presentacionTitulo.Name = "presentacionTitulo";
+			this.presentacionTitulo.Size = new System.Drawing.Size(310, 112);
+			this.presentacionTitulo.TabIndex = 2;
+			this.presentacionTitulo.Text = "Tu próxima producción empieza acá.";
+			// 
+			// marcaDetalle
+			// 
+			this.marcaDetalle.AutoSize = true;
+			this.marcaDetalle.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.marcaDetalle.ForeColor = System.Drawing.Color.FromArgb(96, 165, 250);
+			this.marcaDetalle.Location = new System.Drawing.Point(42, 100);
+			this.marcaDetalle.Name = "marcaDetalle";
+			this.marcaDetalle.Size = new System.Drawing.Size(139, 15);
+			this.marcaDetalle.TabIndex = 1;
+			this.marcaDetalle.Text = "ALQUILER AUDIOVISUAL";
+			// 
+			// marca
+			// 
+			this.marca.AutoSize = true;
+			this.marca.Font = new System.Drawing.Font("Segoe UI", 27F, System.Drawing.FontStyle.Bold);
+			this.marca.ForeColor = System.Drawing.Color.White;
+			this.marca.Location = new System.Drawing.Point(34, 44);
+			this.marca.Name = "marca";
+			this.marca.Size = new System.Drawing.Size(128, 50);
+			this.marca.TabIndex = 0;
+			this.marca.Text = "FOCO";
+			// 
+			// accesoPanel
+			// 
+			this.accesoPanel.BackColor = System.Drawing.Color.White;
+			this.accesoPanel.Controls.Add(this.mostrarClave);
+			this.accesoPanel.Controls.Add(this.ingresarBoton);
+			this.accesoPanel.Controls.Add(this.clave);
+			this.accesoPanel.Controls.Add(this.claveLabel);
+			this.accesoPanel.Controls.Add(this.nombre);
+			this.accesoPanel.Controls.Add(this.usuarioLabel);
+			this.accesoPanel.Controls.Add(this.accesoDetalle);
+			this.accesoPanel.Controls.Add(this.accesoTitulo);
+			this.accesoPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+			this.accesoPanel.Location = new System.Drawing.Point(380, 0);
+			this.accesoPanel.Name = "accesoPanel";
+			this.accesoPanel.Size = new System.Drawing.Size(520, 560);
+			this.accesoPanel.TabIndex = 0;
+			// 
+			// mostrarClave
+			// 
+			this.mostrarClave.AutoSize = true;
+			this.mostrarClave.Font = new System.Drawing.Font("Segoe UI", 9F);
+			this.mostrarClave.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
+			this.mostrarClave.Location = new System.Drawing.Point(80, 348);
+			this.mostrarClave.Name = "mostrarClave";
+			this.mostrarClave.Size = new System.Drawing.Size(127, 19);
+			this.mostrarClave.TabIndex = 3;
+			this.mostrarClave.Text = "Mostrar contraseña";
+			this.mostrarClave.UseVisualStyleBackColor = true;
+			this.mostrarClave.CheckedChanged += new System.EventHandler(this.MostrarClaveCambio);
+			// 
+			// ingresarBoton
+			// 
+			this.ingresarBoton.BackColor = System.Drawing.Color.FromArgb(37, 99, 235);
+			this.ingresarBoton.Cursor = System.Windows.Forms.Cursors.Hand;
+			this.ingresarBoton.FlatAppearance.BorderSize = 0;
+			this.ingresarBoton.FlatAppearance.MouseOverBackColor = System.Drawing.Color.FromArgb(29, 78, 216);
+			this.ingresarBoton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+			this.ingresarBoton.Font = new System.Drawing.Font("Segoe UI", 10F, System.Drawing.FontStyle.Bold);
+			this.ingresarBoton.ForeColor = System.Drawing.Color.White;
+			this.ingresarBoton.Location = new System.Drawing.Point(80, 396);
+			this.ingresarBoton.Name = "ingresarBoton";
+			this.ingresarBoton.Size = new System.Drawing.Size(350, 46);
+			this.ingresarBoton.TabIndex = 4;
+			this.ingresarBoton.Text = "Ingresar";
+			this.ingresarBoton.UseVisualStyleBackColor = false;
+			this.ingresarBoton.Click += new System.EventHandler(this.IngresarClick);
+			// 
+			// clave
+			// 
+			this.clave.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
+			this.clave.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.clave.Font = new System.Drawing.Font("Segoe UI", 11F);
+			this.clave.Location = new System.Drawing.Point(80, 304);
+			this.clave.MaxLength = 128;
+			this.clave.Name = "clave";
+			this.clave.Size = new System.Drawing.Size(350, 27);
+			this.clave.TabIndex = 2;
+			this.clave.UseSystemPasswordChar = true;
+			// 
+			// claveLabel
+			// 
+			this.claveLabel.AutoSize = true;
+			this.claveLabel.ForeColor = System.Drawing.Color.FromArgb(51, 65, 85);
+			this.claveLabel.Location = new System.Drawing.Point(76, 274);
+			this.claveLabel.Name = "claveLabel";
+			this.claveLabel.Size = new System.Drawing.Size(79, 19);
+			this.claveLabel.TabIndex = 0;
+			this.claveLabel.Text = "Contraseña";
+			// 
+			// nombre
+			// 
+			this.nombre.BackColor = System.Drawing.Color.FromArgb(248, 250, 252);
+			this.nombre.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+			this.nombre.Font = new System.Drawing.Font("Segoe UI", 11F);
+			this.nombre.Location = new System.Drawing.Point(80, 218);
+			this.nombre.MaxLength = 50;
+			this.nombre.Name = "nombre";
+			this.nombre.Size = new System.Drawing.Size(350, 27);
+			this.nombre.TabIndex = 1;
+			// 
 			// usuarioLabel
-			//
+			// 
 			this.usuarioLabel.AutoSize = true;
-			this.usuarioLabel.Location = new System.Drawing.Point(27, 24);
+			this.usuarioLabel.ForeColor = System.Drawing.Color.FromArgb(51, 65, 85);
+			this.usuarioLabel.Location = new System.Drawing.Point(76, 188);
 			this.usuarioLabel.Name = "usuarioLabel";
 			this.usuarioLabel.Size = new System.Drawing.Size(56, 19);
 			this.usuarioLabel.TabIndex = 0;
 			this.usuarioLabel.Text = "Usuario";
-			//
-			// nombre
-			//
-			this.nombre.Location = new System.Drawing.Point(27, 46);
-			this.nombre.MaxLength = 50;
-			this.nombre.Name = "nombre";
-			this.nombre.Size = new System.Drawing.Size(240, 25);
-			this.nombre.TabIndex = 1;
-			//
-			// claveLabel
-			//
-			this.claveLabel.AutoSize = true;
-			this.claveLabel.Location = new System.Drawing.Point(27, 74);
-			this.claveLabel.Name = "claveLabel";
-			this.claveLabel.Size = new System.Drawing.Size(79, 19);
-			this.claveLabel.TabIndex = 2;
-			this.claveLabel.Text = "Contraseña";
-			//
-			// clave
-			//
-			this.clave.Location = new System.Drawing.Point(27, 96);
-			this.clave.MaxLength = 128;
-			this.clave.Name = "clave";
-			this.clave.Size = new System.Drawing.Size(240, 25);
-			this.clave.TabIndex = 3;
-			this.clave.UseSystemPasswordChar = true;
-			//
-			// ingresarBoton
-			//
-			this.ingresarBoton.Location = new System.Drawing.Point(27, 127);
-			this.ingresarBoton.Name = "ingresarBoton";
-			this.ingresarBoton.Size = new System.Drawing.Size(400, 38);
-			this.ingresarBoton.TabIndex = 4;
-			this.ingresarBoton.Text = "Ingresar";
-			this.ingresarBoton.UseVisualStyleBackColor = true;
-			this.ingresarBoton.Click += new System.EventHandler(this.IngresarClick);
-			//
-			// menuTab
-			//
-			this.menuTab.Controls.Add(this.menu);
-			this.menuTab.Location = new System.Drawing.Point(4, 26);
-			this.menuTab.Name = "menuTab";
-			this.menuTab.Padding = new System.Windows.Forms.Padding(3);
-			this.menuTab.Size = new System.Drawing.Size(512, 410);
-			this.menuTab.TabIndex = 1;
-			this.menuTab.Text = "Menú";
-			this.menuTab.UseVisualStyleBackColor = true;
-			//
-			// menu
-			//
-			this.menu.Controls.Add(this.estado);
-			this.menu.Controls.Add(this.equiposBoton);
-			this.menu.Controls.Add(this.reservasBoton);
-			this.menu.Controls.Add(this.devolucionesBoton);
-			this.menu.Controls.Add(this.clientesBoton);
-			this.menu.Controls.Add(this.usuariosBoton);
-			this.menu.Controls.Add(this.cerrarBoton);
-			this.menu.Dock = System.Windows.Forms.DockStyle.Fill;
-			this.menu.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
-			this.menu.Location = new System.Drawing.Point(3, 3);
-			this.menu.Name = "menu";
-			this.menu.Padding = new System.Windows.Forms.Padding(24);
-			this.menu.Size = new System.Drawing.Size(506, 404);
-			this.menu.TabIndex = 0;
-			//
-			// estado
-			//
-			this.estado.AutoSize = true;
-			this.estado.Location = new System.Drawing.Point(27, 24);
-			this.estado.Name = "estado";
-			this.estado.Size = new System.Drawing.Size(97, 19);
-			this.estado.TabIndex = 0;
-			this.estado.Text = "Sesión iniciada";
-			//
-			// equiposBoton
-			//
-			this.equiposBoton.Location = new System.Drawing.Point(27, 46);
-			this.equiposBoton.Name = "equiposBoton";
-			this.equiposBoton.Size = new System.Drawing.Size(400, 38);
-			this.equiposBoton.TabIndex = 1;
-			this.equiposBoton.Text = "Consultar y gestionar equipos";
-			this.equiposBoton.UseVisualStyleBackColor = true;
-			this.equiposBoton.Click += new System.EventHandler(this.EquiposClick);
-			//
-			// reservasBoton
-			//
-			this.reservasBoton.Location = new System.Drawing.Point(27, 90);
-			this.reservasBoton.Name = "reservasBoton";
-			this.reservasBoton.Size = new System.Drawing.Size(400, 38);
-			this.reservasBoton.TabIndex = 2;
-			this.reservasBoton.Text = "Solicitudes, reservas y entrega";
-			this.reservasBoton.UseVisualStyleBackColor = true;
-			this.reservasBoton.Click += new System.EventHandler(this.ReservasClick);
-			// devolucionesBoton
-			this.devolucionesBoton.Name = "devolucionesBoton";
-			this.devolucionesBoton.Text = "Devolución, incidencias y alta técnica";
-			this.devolucionesBoton.Size = new System.Drawing.Size(400, 38);
-			this.devolucionesBoton.UseVisualStyleBackColor = true;
-			this.devolucionesBoton.Click += new System.EventHandler(this.DevolucionesClick);
-			//
-			// clientesBoton
-			//
-			this.clientesBoton.Location = new System.Drawing.Point(27, 134);
-			this.clientesBoton.Name = "clientesBoton";
-			this.clientesBoton.Size = new System.Drawing.Size(400, 38);
-			this.clientesBoton.TabIndex = 3;
-			this.clientesBoton.Text = "Clientes y seguros";
-			this.clientesBoton.UseVisualStyleBackColor = true;
-			this.clientesBoton.Click += new System.EventHandler(this.ClientesClick);
-			//
-			// usuariosBoton
-			//
-			this.usuariosBoton.Location = new System.Drawing.Point(27, 178);
-			this.usuariosBoton.Name = "usuariosBoton";
-			this.usuariosBoton.Size = new System.Drawing.Size(400, 38);
-			this.usuariosBoton.TabIndex = 4;
-			this.usuariosBoton.Text = "Usuarios y roles";
-			this.usuariosBoton.UseVisualStyleBackColor = true;
-			this.usuariosBoton.Click += new System.EventHandler(this.UsuariosClick);
-			//
-			// cerrarBoton
-			//
-			this.cerrarBoton.Location = new System.Drawing.Point(27, 222);
-			this.cerrarBoton.Name = "cerrarBoton";
-			this.cerrarBoton.Size = new System.Drawing.Size(400, 38);
-			this.cerrarBoton.TabIndex = 5;
-			this.cerrarBoton.Text = "Cerrar sesión";
-			this.cerrarBoton.UseVisualStyleBackColor = true;
-			this.cerrarBoton.Click += new System.EventHandler(this.CerrarClick);
-			//
+			// 
+			// accesoDetalle
+			// 
+			this.accesoDetalle.AutoSize = true;
+			this.accesoDetalle.Font = new System.Drawing.Font("Segoe UI", 10F);
+			this.accesoDetalle.ForeColor = System.Drawing.Color.FromArgb(100, 116, 139);
+			this.accesoDetalle.Location = new System.Drawing.Point(76, 130);
+			this.accesoDetalle.Name = "accesoDetalle";
+			this.accesoDetalle.Size = new System.Drawing.Size(195, 19);
+			this.accesoDetalle.TabIndex = 0;
+			this.accesoDetalle.Text = "Ingresá con tu cuenta de FOCO.";
+			// 
+			// accesoTitulo
+			// 
+			this.accesoTitulo.AutoSize = true;
+			this.accesoTitulo.Font = new System.Drawing.Font("Segoe UI", 22F, System.Drawing.FontStyle.Bold);
+			this.accesoTitulo.ForeColor = System.Drawing.Color.FromArgb(15, 23, 42);
+			this.accesoTitulo.Location = new System.Drawing.Point(72, 76);
+			this.accesoTitulo.Name = "accesoTitulo";
+			this.accesoTitulo.Size = new System.Drawing.Size(191, 41);
+			this.accesoTitulo.TabIndex = 0;
+			this.accesoTitulo.Text = "Bienvenido";
+			// 
 			// LoginForm
-			//
+			// 
 			this.AcceptButton = this.ingresarBoton;
 			this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 17F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-			this.ClientSize = new System.Drawing.Size(520, 440);
-			this.Controls.Add(this.vistas);
+			this.BackColor = System.Drawing.Color.White;
+			this.ClientSize = new System.Drawing.Size(900, 560);
+			this.Controls.Add(this.accesoPanel);
+			this.Controls.Add(this.presentacion);
 			this.Font = new System.Drawing.Font("Segoe UI", 10F);
+			this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
+			this.MaximizeBox = false;
 			this.Name = "LoginForm";
 			this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
-			this.Text = "Alquiler audiovisual · N01 / N02";
+			this.Text = "FOCO · Ingresar";
 			this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.Salir);
-			this.Load += new System.EventHandler(this.PrepararPantalla);
-			this.vistas.ResumeLayout(false);
-			this.accesoTab.ResumeLayout(false);
-			this.acceso.ResumeLayout(false);
-			this.acceso.PerformLayout();
-			this.menuTab.ResumeLayout(false);
-			this.menu.ResumeLayout(false);
-			this.menu.PerformLayout();
+			this.presentacion.ResumeLayout(false);
+			this.presentacion.PerformLayout();
+			this.accesoPanel.ResumeLayout(false);
+			this.accesoPanel.PerformLayout();
 			this.ResumeLayout(false);
 		}
-
 #endregion
-		private System.Windows.Forms.TabControl vistas;
-		private System.Windows.Forms.TabPage accesoTab;
-		private System.Windows.Forms.TabPage menuTab;
-		private System.Windows.Forms.FlowLayoutPanel acceso;
-		private System.Windows.Forms.FlowLayoutPanel menu;
+
+		private System.Windows.Forms.Panel presentacion;
+		private System.Windows.Forms.Panel accesoPanel;
+		private System.Windows.Forms.Label marca;
+		private System.Windows.Forms.Label marcaDetalle;
+		private System.Windows.Forms.Label presentacionTitulo;
+		private System.Windows.Forms.Label presentacionDetalle;
+		private System.Windows.Forms.Label accesoTitulo;
+		private System.Windows.Forms.Label accesoDetalle;
 		private System.Windows.Forms.Label usuarioLabel;
 		private System.Windows.Forms.Label claveLabel;
 		private System.Windows.Forms.TextBox nombre;
 		private System.Windows.Forms.TextBox clave;
+		private System.Windows.Forms.CheckBox mostrarClave;
 		private System.Windows.Forms.Button ingresarBoton;
-		private System.Windows.Forms.Label estado;
-		private System.Windows.Forms.Button equiposBoton;
-		private System.Windows.Forms.Button reservasBoton;
-		private System.Windows.Forms.Button devolucionesBoton;
-		private System.Windows.Forms.Button clientesBoton;
-		private System.Windows.Forms.Button usuariosBoton;
-		private System.Windows.Forms.Button cerrarBoton;
 	}
 }

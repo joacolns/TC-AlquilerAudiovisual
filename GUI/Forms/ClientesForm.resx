@@ -117,4 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="seguroNota.Text" xml:space="preserve">
+    <value>Básico: 25% de daño reparable. Intermedio: 50% de daños. Completo: 80% de daños y faltantes. Hasta el tope por unidad; atraso sin cobertura. La póliza se asigna desde Equipos; alquilar sin seguro está permitido.</value>
+  </data>
 </root>

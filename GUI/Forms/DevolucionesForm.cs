@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Drawing;
 using System.Windows.Forms;
 using BE;
 using BLL;
@@ -14,10 +15,19 @@ namespace GUI
 		private readonly ReservaBLL reservas = new ReservaBLL();
 		private readonly Seguridad seguridad = new Seguridad();
 		private bool cargando;
+		private Label fechaAyuda;
 
 		public DevolucionesForm()
 		{
 			InitializeComponent();
+			fechaAyuda = new Label();
+			fechaAyuda.AutoSize = false;
+			fechaAyuda.Size = new Size(235, 42);
+			fechaAyuda.ForeColor = Color.FromArgb(100, 116, 139);
+			fechaAyuda.Font = new Font("Segoe UI", 8.5F);
+			fechaCampo.Controls.Add(fechaAyuda);
+			fecha.ValueChanged += FechaDevolucionCambio;
+			AplicarEstilo();
 		}
 
 		public void RegistrarDevolucion()
@@ -29,6 +39,13 @@ namespace GUI
 				if (seleccionada == null || !cotejo.Checked)
 				{
 					throw new ArgumentException("Seleccioná un remito y confirmá el cotejo de todas las unidades.");
+				}
+
+				ValidarFechaDevolucion(seleccionada);
+
+				if (!conforme.Checked && !presente.Checked)
+				{
+					throw new ArgumentException("Para registrar una devolución con incidencias, confirmá que el cliente está presente.");
 				}
 
 				Devolucion devolucion = new Devolucion
@@ -246,9 +263,12 @@ namespace GUI
 
 			if (seleccionada == null)
 			{
+				fecha.Enabled = false;
+				fechaAyuda.Text = "Seleccioná un remito para habilitar la fecha.";
 				return;
 			}
 
+			ConfigurarRangoFecha(seleccionada);
 			StringBuilder texto = new StringBuilder();
 			texto.AppendLine("REMITO " + seleccionada.NumeroRemito + " · Cliente: " + seleccionada.Cliente.Nombre);
 			texto.AppendLine(
@@ -265,6 +285,93 @@ namespace GUI
 			}
 
 			remito.Text = texto.ToString();
+		}
+
+		private void ConfigurarRangoFecha(Reserva seleccionada)
+		{
+			DateTime maximo = DateTime.Now.AddMinutes(5);
+
+			if (seleccionada.Desde > maximo)
+			{
+				fecha.Enabled = false;
+				fechaAyuda.ForeColor = Color.FromArgb(185, 28, 28);
+				fechaAyuda.Text = "El alquiler todavía no comenzó. Revisá los datos antes de registrar la devolución.";
+				return;
+			}
+
+			fecha.Enabled = true;
+			fecha.MinDate = DateTimePicker.MinimumDateTime;
+			fecha.MaxDate = DateTimePicker.MaxDateTime;
+			fecha.Value = DateTime.Now;
+			fecha.MinDate = seleccionada.Desde;
+			fecha.MaxDate = maximo;
+
+			if (DateTime.Now < seleccionada.Desde)
+			{
+				fecha.Value = seleccionada.Desde;
+			}
+			else
+			{
+				fecha.Value = DateTime.Now;
+			}
+
+			ActualizarAyudaFecha();
+		}
+
+		private void ValidarFechaDevolucion(Reserva seleccionada)
+		{
+			if (fecha.Value < seleccionada.Desde)
+			{
+				throw new ArgumentException(
+					"La devolución no puede ser anterior al inicio del alquiler ("
+						+ seleccionada.Desde.ToString("dd/MM/yyyy HH:mm")
+						+ ")."
+				);
+			}
+
+			if (fecha.Value > DateTime.Now.AddMinutes(5))
+			{
+				throw new ArgumentException("La fecha y hora de devolución no pueden ser futuras.");
+			}
+
+			if (conforme.Checked && fecha.Value > seleccionada.Hasta)
+			{
+				throw new ArgumentException(
+					"La fecha supera el fin del alquiler. Destildá ‘conforme’ y registrá el atraso de cada unidad."
+				);
+			}
+		}
+
+		private void ActualizarAyudaFecha()
+		{
+			Reserva seleccionada = reserva.SelectedItem as Reserva;
+
+			if (seleccionada == null || !fecha.Enabled)
+			{
+				return;
+			}
+
+			if (fecha.Value > seleccionada.Hasta)
+			{
+				fechaAyuda.ForeColor = Color.FromArgb(180, 83, 9);
+				fechaAyuda.Text = "Hay atraso: la devolución debe registrarse como no conforme.";
+			}
+			else
+			{
+				fechaAyuda.ForeColor = Color.FromArgb(100, 116, 139);
+				fechaAyuda.Text = "Período: "
+					+ seleccionada.Desde.ToString("dd/MM/yy HH:mm")
+					+ " a "
+					+ seleccionada.Hasta.ToString("dd/MM/yy HH:mm");
+			}
+		}
+
+		private void FechaDevolucionCambio(object sender, EventArgs e)
+		{
+			if (!EnDiseno())
+			{
+				ActualizarAyudaFecha();
+			}
 		}
 
 		private void CargarInspeccion()
@@ -527,6 +634,91 @@ namespace GUI
 			{
 				MostrarTecnica();
 			}
+		}
+
+		private void AplicarEstilo()
+		{
+			BackColor = Color.FromArgb(244, 247, 251);
+			ForeColor = Color.FromArgb(15, 23, 42);
+			Text = "Devoluciones e incidencias";
+			cabecera.BackColor = Color.White;
+			cabecera.Height = 150;
+			fechaCampo.Height = 100;
+			cierreDevolucion.BackColor = Color.White;
+			hallazgos.BackColor = Color.White;
+			cierreInspeccion.BackColor = Color.White;
+			altaTecnica.BackColor = Color.White;
+			remito.BackColor = Color.White;
+			remito.Font = new Font("Segoe UI", 10F);
+			detalleTecnico.BackColor = Color.White;
+			detalleTecnico.Font = new Font("Segoe UI", 10F);
+
+			foreach (TabPage pagina in tabs.TabPages)
+			{
+				pagina.BackColor = Color.FromArgb(244, 247, 251);
+				pagina.Padding = new Padding(12);
+			}
+
+			EstilizarBotones(this);
+			EstiloBotonPrincipal(registrarBoton);
+			EstiloBotonPrincipal(incidenciaBoton);
+			EstiloBotonPrincipal(finalizarBoton);
+			EstiloBotonPrincipal(altaBoton);
+			ConfigurarGrilla(incidencias);
+			ConfigurarGrilla(tecnicas);
+		}
+
+		private void EstilizarBotones(Control contenedor)
+		{
+			foreach (Control control in contenedor.Controls)
+			{
+				Button boton = control as Button;
+
+				if (boton != null)
+				{
+					boton.FlatStyle = FlatStyle.Flat;
+					boton.FlatAppearance.BorderSize = 1;
+					boton.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+					boton.BackColor = Color.White;
+					boton.ForeColor = Color.FromArgb(51, 65, 85);
+					boton.Cursor = Cursors.Hand;
+					boton.MinimumSize = new Size(120, 36);
+				}
+
+				if (control.HasChildren)
+				{
+					EstilizarBotones(control);
+				}
+			}
+		}
+
+		private void EstiloBotonPrincipal(Button boton)
+		{
+			boton.BackColor = Color.FromArgb(37, 99, 235);
+			boton.ForeColor = Color.White;
+			boton.FlatAppearance.BorderSize = 0;
+			boton.FlatAppearance.MouseOverBackColor = Color.FromArgb(29, 78, 216);
+		}
+
+		private void ConfigurarGrilla(DataGridView grilla)
+		{
+			grilla.BackgroundColor = Color.White;
+			grilla.BorderStyle = BorderStyle.None;
+			grilla.RowHeadersVisible = false;
+			grilla.EnableHeadersVisualStyles = false;
+			grilla.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(15, 23, 42);
+			grilla.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+			grilla.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+			grilla.ColumnHeadersDefaultCellStyle.Padding = new Padding(4);
+			grilla.ColumnHeadersHeight = 38;
+			grilla.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+			grilla.DefaultCellStyle.BackColor = Color.White;
+			grilla.DefaultCellStyle.ForeColor = Color.FromArgb(30, 41, 59);
+			grilla.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
+			grilla.DefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 23, 42);
+			grilla.DefaultCellStyle.Padding = new Padding(3);
+			grilla.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
+			grilla.RowTemplate.Height = 32;
 		}
 
 		private void RegistrarClick(object sender, EventArgs e)

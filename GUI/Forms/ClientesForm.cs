@@ -13,10 +13,14 @@ namespace GUI
 		private readonly ClienteBLL bll = new ClienteBLL();
 		private readonly UsuarioBLL usuarios = new UsuarioBLL();
 		private int seguroId;
+		private const string NotaSeguro = "Básico: 25% de daño reparable. Intermedio: 50% de daños. Completo: 80% de daños y faltantes. Hasta el tope por unidad; los atrasos no tienen cobertura.";
 
 		public ClientesForm()
 		{
 			InitializeComponent();
+			desde.ValueChanged += FechasSeguroCambio;
+			hasta.ValueChanged += FechasSeguroCambio;
+			AplicarEstilo();
 		}
 
 		public void GuardarCliente()
@@ -47,6 +51,11 @@ namespace GUI
 		{
 			try
 			{
+				if (hasta.Value.Date <= desde.Value.Date)
+				{
+					throw new ArgumentException("La fecha final de la vigencia debe ser posterior a la fecha de inicio.");
+				}
+
 				int id = bll.GuardarSeguro(
 					new Seguro
 					{
@@ -57,7 +66,7 @@ namespace GUI
 						Poliza = poliza.Text,
 						Aseguradora = aseguradora.Text,
 						Desde = desde.Value.Date,
-						Hasta = hasta.Value.Date,
+						Hasta = hasta.Value.Date.AddDays(1).AddTicks(-1),
 						Cobertura = cobertura.Value
 					}
 				);
@@ -180,6 +189,9 @@ namespace GUI
 			poliza.Clear();
 			aseguradora.Clear();
 			cobertura.Value = 0;
+			desde.Value = DateTime.Today;
+			hasta.Value = DateTime.Today.AddYears(1);
+			ActualizarEstadoFechasSeguro();
 		}
 
 		private void SeguroCambio(object sender, EventArgs e)
@@ -205,6 +217,28 @@ namespace GUI
 			desde.Value = seguro.Desde;
 			hasta.Value = seguro.Hasta;
 			cobertura.Value = seguro.Cobertura;
+		}
+
+		private void FechasSeguroCambio(object sender, EventArgs e)
+		{
+			if (!DesignMode)
+			{
+				ActualizarEstadoFechasSeguro();
+			}
+		}
+
+		private void ActualizarEstadoFechasSeguro()
+		{
+			if (hasta.Value.Date <= desde.Value.Date)
+			{
+				seguroNota.ForeColor = Color.FromArgb(185, 28, 28);
+				seguroNota.Text = "La fecha final de la vigencia debe ser posterior a la fecha de inicio.";
+			}
+			else
+			{
+				seguroNota.ForeColor = Color.FromArgb(100, 116, 139);
+				seguroNota.Text = NotaSeguro;
+			}
 		}
 
 		private void GuardarClienteClick(object sender, EventArgs e)
@@ -240,6 +274,83 @@ namespace GUI
 			}
 		}
 
+		private void AplicarEstilo()
+		{
+			BackColor = Color.FromArgb(244, 247, 251);
+			ForeColor = Color.FromArgb(15, 23, 42);
+			alta.BackColor = Color.White;
+			formulario.BackColor = Color.White;
+			desde.Format = DateTimePickerFormat.Custom;
+			desde.CustomFormat = "dd/MM/yyyy";
+			hasta.Format = DateTimePickerFormat.Custom;
+			hasta.CustomFormat = "dd/MM/yyyy";
+
+			foreach (TabPage pagina in tabs.TabPages)
+			{
+				pagina.BackColor = Color.FromArgb(244, 247, 251);
+				pagina.Padding = new Padding(12);
+			}
+
+			EstilizarBotones(this);
+			EstiloBotonPrincipal(clienteBoton);
+			EstiloBotonPrincipal(guardarSeguroBoton);
+			ConfigurarGrilla(clientes);
+			ConfigurarGrilla(seguros);
+		}
+
+		private void EstilizarBotones(Control contenedor)
+		{
+			foreach (Control control in contenedor.Controls)
+			{
+				Button boton = control as Button;
+
+				if (boton != null)
+				{
+					boton.FlatStyle = FlatStyle.Flat;
+					boton.FlatAppearance.BorderSize = 1;
+					boton.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+					boton.BackColor = Color.White;
+					boton.ForeColor = Color.FromArgb(51, 65, 85);
+					boton.Cursor = Cursors.Hand;
+					boton.MinimumSize = new Size(120, 36);
+				}
+
+				if (control.HasChildren)
+				{
+					EstilizarBotones(control);
+				}
+			}
+		}
+
+		private void EstiloBotonPrincipal(Button boton)
+		{
+			boton.BackColor = Color.FromArgb(37, 99, 235);
+			boton.ForeColor = Color.White;
+			boton.FlatAppearance.BorderSize = 0;
+			boton.FlatAppearance.MouseOverBackColor = Color.FromArgb(29, 78, 216);
+		}
+
+		private void ConfigurarGrilla(DataGridView grilla)
+		{
+			grilla.BackgroundColor = Color.White;
+			grilla.BorderStyle = BorderStyle.None;
+			grilla.RowHeadersVisible = false;
+			grilla.EnableHeadersVisualStyles = false;
+			grilla.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(15, 23, 42);
+			grilla.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+			grilla.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+			grilla.ColumnHeadersDefaultCellStyle.Padding = new Padding(4);
+			grilla.ColumnHeadersHeight = 38;
+			grilla.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+			grilla.DefaultCellStyle.BackColor = Color.White;
+			grilla.DefaultCellStyle.ForeColor = Color.FromArgb(30, 41, 59);
+			grilla.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
+			grilla.DefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 23, 42);
+			grilla.DefaultCellStyle.Padding = new Padding(3);
+			grilla.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
+			grilla.RowTemplate.Height = 32;
+		}
+
 		private void CargarClick(object sender, EventArgs e)
 		{
 			if (DesignMode
@@ -269,6 +380,7 @@ namespace GUI
 
 			desde.Value = DateTime.Today;
 			hasta.Value = DateTime.Today.AddYears(1);
+			ActualizarEstadoFechasSeguro();
 		}
 	}
 }

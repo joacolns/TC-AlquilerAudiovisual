@@ -14,6 +14,7 @@ namespace GUI
 		public UsuariosForm()
 		{
 			InitializeComponent();
+			AplicarEstilo();
 		}
 
 		public void GuardarUsuario()
@@ -257,6 +258,75 @@ namespace GUI
 		private void AsignarClick(object sender, EventArgs e)
 		{
 			AsignarRol();
+		}
+
+		private void AplicarEstilo()
+		{
+			BackColor = Color.FromArgb(244, 247, 251);
+			ForeColor = Color.FromArgb(15, 23, 42);
+			Text = "Usuarios, roles y seguridad";
+			alta.BackColor = Color.White;
+			cambioClavePanel.BackColor = Color.White;
+			seguroUsuarioPanel.BackColor = Color.White;
+			altaLabel.Font = new Font("Segoe UI", 11F, FontStyle.Bold);
+			EstilizarBotones(this);
+			EstiloBotonPrincipal(crearBoton);
+			EstiloBotonPrincipal(cambiarClaveBoton);
+			EstiloBotonPrincipal(guardarSeguroUsuarioBoton);
+			ConfigurarGrilla(grilla);
+		}
+
+		private void EstilizarBotones(Control contenedor)
+		{
+			foreach (Control control in contenedor.Controls)
+			{
+				Button boton = control as Button;
+
+				if (boton != null)
+				{
+					boton.FlatStyle = FlatStyle.Flat;
+					boton.FlatAppearance.BorderSize = 1;
+					boton.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+					boton.BackColor = Color.White;
+					boton.ForeColor = Color.FromArgb(51, 65, 85);
+					boton.Cursor = Cursors.Hand;
+					boton.MinimumSize = new Size(120, 36);
+				}
+
+				if (control.HasChildren)
+				{
+					EstilizarBotones(control);
+				}
+			}
+		}
+
+		private void EstiloBotonPrincipal(Button boton)
+		{
+			boton.BackColor = Color.FromArgb(37, 99, 235);
+			boton.ForeColor = Color.White;
+			boton.FlatAppearance.BorderSize = 0;
+			boton.FlatAppearance.MouseOverBackColor = Color.FromArgb(29, 78, 216);
+		}
+
+		private void ConfigurarGrilla(DataGridView grilla)
+		{
+			grilla.BackgroundColor = Color.White;
+			grilla.BorderStyle = BorderStyle.None;
+			grilla.RowHeadersVisible = false;
+			grilla.EnableHeadersVisualStyles = false;
+			grilla.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(15, 23, 42);
+			grilla.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+			grilla.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+			grilla.ColumnHeadersDefaultCellStyle.Padding = new Padding(4);
+			grilla.ColumnHeadersHeight = 38;
+			grilla.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+			grilla.DefaultCellStyle.BackColor = Color.White;
+			grilla.DefaultCellStyle.ForeColor = Color.FromArgb(30, 41, 59);
+			grilla.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
+			grilla.DefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 23, 42);
+			grilla.DefaultCellStyle.Padding = new Padding(3);
+			grilla.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
+			grilla.RowTemplate.Height = 32;
 		}
 
 		private void CargarClick(object sender, EventArgs e)

@@ -21,6 +21,8 @@ namespace GUI
 		public ReservasForm()
 		{
 			InitializeComponent();
+			InicializarInventario();
+			AplicarEstilo();
 		}
 
 		public void Cotizar()
@@ -208,6 +210,7 @@ namespace GUI
 
 		private Reserva LeerReserva()
 		{
+			ValidarFechasAlquiler();
 			Cliente seleccionado = cliente.SelectedItem as Cliente;
 			List<Equipo> seleccion = new List<Equipo>();
 
@@ -237,8 +240,22 @@ namespace GUI
 			};
 		}
 
+		private void ValidarFechasAlquiler()
+		{
+			if (desde.Value < DateTime.Now.AddMinutes(-1))
+			{
+				throw new ArgumentException("La fecha de inicio no puede ser anterior a la fecha y hora actual.");
+			}
+
+			if (hasta.Value <= desde.Value)
+			{
+				throw new ArgumentException("La fecha de finalización debe ser posterior a la fecha de inicio.");
+			}
+		}
+
 		private void Disponibles()
 		{
+			ValidarFechasAlquiler();
 			List<Reserva> cotizaciones = new List<Reserva>();
 
 			foreach (Equipo equipo in equipos.ListarDisponibles(desde.Value, hasta.Value))
@@ -262,6 +279,7 @@ namespace GUI
 				cargandoUnidades = false;
 			}
 
+			cotizacion.ForeColor = Color.FromArgb(71, 85, 105);
 			cotizacion.Text = "Cada equipo muestra el alquiler, la seña y la garantía para las fechas elegidas.";
 			cotizarBoton.Enabled = false;
 			solicitarBoton.Enabled = false;
@@ -750,7 +768,22 @@ namespace GUI
 
 			cotizarBoton.Enabled = false;
 			solicitarBoton.Enabled = false;
-			cotizacion.Text = "Cambiaste las fechas. Consultá disponibles para ver los importes del nuevo período.";
+
+			if (hasta.Value <= desde.Value)
+			{
+				cotizacion.ForeColor = Color.FromArgb(185, 28, 28);
+				cotizacion.Text = "La fecha de finalización debe ser posterior a la fecha de inicio.";
+			}
+			else if (desde.Value < DateTime.Now.AddMinutes(-1))
+			{
+				cotizacion.ForeColor = Color.FromArgb(185, 28, 28);
+				cotizacion.Text = "La fecha de inicio no puede ser anterior a la fecha y hora actual.";
+			}
+			else
+			{
+				cotizacion.ForeColor = Color.FromArgb(71, 85, 105);
+				cotizacion.Text = "Fechas actualizadas. Consultá disponibilidad para ver los equipos y los importes.";
+			}
 		}
 
 		private void FormatearCliente(object sender, DataGridViewCellFormattingEventArgs e)
@@ -862,6 +895,94 @@ namespace GUI
 			return "Sin seguro";
 		}
 
+		private void AplicarEstilo()
+		{
+			BackColor = Color.FromArgb(244, 247, 251);
+			ForeColor = Color.FromArgb(15, 23, 42);
+			Text = "Equipos y reservas";
+			tabs.Font = new Font("Segoe UI", 10F);
+			fechas.BackColor = Color.White;
+			importes.BackColor = Color.White;
+			aprobacion.BackColor = Color.White;
+			pagoPanel.BackColor = Color.White;
+			entrega.BackColor = Color.White;
+			unidades.BackColor = Color.White;
+			unidades.BorderStyle = BorderStyle.FixedSingle;
+			unidades.IntegralHeight = false;
+			detalle.Font = new Font("Segoe UI", 10F);
+			detalle.BackColor = Color.White;
+			detalle.BorderStyle = BorderStyle.FixedSingle;
+
+			foreach (TabPage pagina in tabs.TabPages)
+			{
+				pagina.BackColor = Color.FromArgb(244, 247, 251);
+				pagina.Padding = new Padding(12);
+			}
+
+			EstilizarBotones(this);
+			EstiloBotonPrincipal(disponiblesBoton);
+			EstiloBotonPrincipal(solicitarBoton);
+			EstiloBotonPrincipal(aceptarBoton);
+			EstiloBotonPrincipal(pagarBoton);
+			EstiloBotonPrincipal(registrarBoton);
+			EstiloBotonPrincipal(guardarEquipoBoton);
+			ConfigurarGrilla(reservas);
+			ConfigurarGrilla(inventario);
+		}
+
+		private void EstilizarBotones(Control contenedor)
+		{
+			foreach (Control control in contenedor.Controls)
+			{
+				Button boton = control as Button;
+
+				if (boton != null)
+				{
+					boton.FlatStyle = FlatStyle.Flat;
+					boton.FlatAppearance.BorderSize = 1;
+					boton.FlatAppearance.BorderColor = Color.FromArgb(203, 213, 225);
+					boton.BackColor = Color.White;
+					boton.ForeColor = Color.FromArgb(51, 65, 85);
+					boton.Cursor = Cursors.Hand;
+					boton.MinimumSize = new Size(110, 36);
+				}
+
+				if (control.HasChildren)
+				{
+					EstilizarBotones(control);
+				}
+			}
+		}
+
+		private void EstiloBotonPrincipal(Button boton)
+		{
+			boton.BackColor = Color.FromArgb(37, 99, 235);
+			boton.ForeColor = Color.White;
+			boton.FlatAppearance.BorderSize = 0;
+			boton.FlatAppearance.MouseOverBackColor = Color.FromArgb(29, 78, 216);
+		}
+
+		private void ConfigurarGrilla(DataGridView grilla)
+		{
+			grilla.BackgroundColor = Color.White;
+			grilla.BorderStyle = BorderStyle.None;
+			grilla.RowHeadersVisible = false;
+			grilla.EnableHeadersVisualStyles = false;
+			grilla.ColumnHeadersDefaultCellStyle.BackColor = Color.FromArgb(15, 23, 42);
+			grilla.ColumnHeadersDefaultCellStyle.ForeColor = Color.White;
+			grilla.ColumnHeadersDefaultCellStyle.Font = new Font("Segoe UI", 9F, FontStyle.Bold);
+			grilla.ColumnHeadersDefaultCellStyle.Padding = new Padding(4);
+			grilla.ColumnHeadersHeight = 38;
+			grilla.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
+			grilla.DefaultCellStyle.BackColor = Color.White;
+			grilla.DefaultCellStyle.ForeColor = Color.FromArgb(30, 41, 59);
+			grilla.DefaultCellStyle.SelectionBackColor = Color.FromArgb(219, 234, 254);
+			grilla.DefaultCellStyle.SelectionForeColor = Color.FromArgb(15, 23, 42);
+			grilla.DefaultCellStyle.Padding = new Padding(3);
+			grilla.AlternatingRowsDefaultCellStyle.BackColor = Color.FromArgb(248, 250, 252);
+			grilla.RowTemplate.Height = 32;
+		}
+
 		private void EntregaClick(object sender, EventArgs e)
 		{
 			RegistrarEntrega();
@@ -902,12 +1023,18 @@ namespace GUI
 			try
 			{
 				cliente.DataSource = clientes.Listar();
+
+				if (tabs.TabPages.Contains(inventarioTab))
+				{
+					CargarInventario();
+				}
+
 				Disponibles();
 				Actualizar();
 			}
 			catch (Exception ex)
 			{
-				MessageBox.Show(this, ex.Message);
+				MessageBox.Show(this, ex.Message, "No se pudo abrir la pantalla", MessageBoxButtons.OK, MessageBoxIcon.Error);
 				Close();
 			}
 		}
@@ -920,12 +1047,17 @@ namespace GUI
 				return;
 			}
 
-			desde.Value = DateTime.Today;
-			hasta.Value = DateTime.Today.AddDays(1);
+			desde.Value = DateTime.Now;
+			hasta.Value = DateTime.Now.AddDays(1);
+			cliente.Enabled = SesionSingleton.Instancia.UsuarioActual.Rol != "Cliente";
 
-			if (!seguridad.TienePermiso("Reserva.Solicitar"))
+			bool puedeSolicitar = seguridad.TienePermiso("Reserva.Solicitar");
+			solicitarBoton.Visible = puedeSolicitar;
+			solicitudNota.Visible = puedeSolicitar;
+
+			if (!seguridad.TienePermiso("Equipo.Guardar"))
 			{
-				tabs.TabPages.Remove(solicitudTab);
+				tabs.TabPages.Remove(inventarioTab);
 			}
 
 			aprobacion.Visible = seguridad.TienePermiso("Reserva.Confirmar");
