@@ -4,6 +4,7 @@ using System.Collections.Generic;
 namespace BE
 {
 	// Relevamiento de una producción (brief) que el cliente completa para recibir una propuesta de equipamiento.
+	[Serializable]
 	public class BriefProduccion
 	{
 		public string TipoPieza { get; set; }

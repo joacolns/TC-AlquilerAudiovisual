@@ -363,7 +363,7 @@ namespace GUI
 
 		private void Actualizar()
 		{
-			MostrarReservas(bll.Listar());
+			MostrarReservas(bll.Listar()); //List <Reserva> List()
 			actualizacionTimer.Start();
 		}
 
@@ -998,6 +998,11 @@ namespace GUI
 
 		private void ReservasForm_Load(object sender, EventArgs e)
 		{
+			if (DesignMode || System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
+			{
+				return;
+			}
+
 			CargarPantalla();
 		}
 

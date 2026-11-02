@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using BE;
@@ -7,7 +7,7 @@ using PdfSharp.Pdf;
 
 namespace SERVICE
 {
-	// Genera los PDF del sistema (remito de alquiler y propuesta del asesor) con PDFsharp.
+
 	public class GeneradorPdf
 	{
 		private const double Margen = 40;

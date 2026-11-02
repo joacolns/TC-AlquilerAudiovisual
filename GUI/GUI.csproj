@@ -98,7 +98,7 @@
     </Compile>
     <Compile Include="Forms\ReservasForm.Inventario.cs">
       <DependentUpon>ReservasForm.cs</DependentUpon>
-      <SubType>Form</SubType>
+      <SubType>Code</SubType>
     </Compile>
     <EmbeddedResource Include="Forms\ReservasForm.resx">
       <DependentUpon>ReservasForm.cs</DependentUpon>

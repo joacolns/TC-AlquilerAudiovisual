@@ -349,12 +349,18 @@ namespace GUI
 				return;
 			}
 
-			BriefProduccion b = guardada.Brief;
+			AplicarBrief(guardada.Brief, true);
+			Calcular();
+			tabs.SelectedTab = guardada.Variante == "Economica" ? economicaTab : recomendadaTab;
+		}
+
+		private void AplicarBrief(BriefProduccion b, bool actualizarFechas)
+		{
 			DateTime inicio = b.Desde;
 			DateTime fin = b.Hasta;
 
 			// Si las fechas guardadas ya pasaron, se conserva la duración y se corre al día siguiente.
-			if (inicio.Date < DateTime.Today)
+			if (actualizarFechas && inicio.Date < DateTime.Today)
 			{
 				TimeSpan duracion = fin - inicio;
 				inicio = DateTime.Today.AddDays(1).AddHours(9);
@@ -385,8 +391,6 @@ namespace GUI
 				iniciando = false;
 			}
 
-			Calcular();
-			tabs.SelectedTab = guardada.Variante == "Economica" ? economicaTab : recomendadaTab;
 		}
 
 		private void AbrirGuardadaDoble(object sender, DataGridViewCellEventArgs e)
@@ -422,6 +426,47 @@ namespace GUI
 			}
 		}
 
+
+		private void ExportarBriefClick(object sender, EventArgs e)
+		{
+			try
+			{
+				using (SaveFileDialog dialogo = new SaveFileDialog())
+				{
+					dialogo.Filter = "Brief de producción XML (*.xml)|*.xml";
+					dialogo.DefaultExt = "xml";
+					dialogo.FileName = "Brief-" + desdeAsesor.Value.ToString("yyyyMMdd") + ".xml";
+					if (dialogo.ShowDialog(this) != DialogResult.OK) return;
+					bll.ExportarBrief(LeerBrief(), dialogo.FileName);
+					MessageBox.Show(this, "Relevamiento exportado. Podés recuperarlo con Importar brief XML.", "Asesor de rodaje");
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(this, ex.Message, "Exportar brief XML");
+			}
+		}
+
+		private void ImportarBriefClick(object sender, EventArgs e)
+		{
+			try
+			{
+				using (OpenFileDialog dialogo = new OpenFileDialog())
+				{
+					dialogo.Filter = "Brief de producción XML (*.xml)|*.xml";
+					if (dialogo.ShowDialog(this) != DialogResult.OK) return;
+					BriefProduccion briefImportado = bll.ImportarBrief(dialogo.FileName);
+					AplicarBrief(briefImportado, false);
+					Calcular();
+					tabs.SelectedTab = recomendadaTab;
+				}
+			}
+			catch (Exception ex)
+			{
+				MessageBox.Show(this, ex.Message, "Importar brief XML");
+			}
+		}
+
 		private void BriefCambio(object sender, EventArgs e)
 		{
 			if (!iniciando)
@@ -432,6 +477,11 @@ namespace GUI
 
 		private void AsesorForm_Load(object sender, EventArgs e)
 		{
+			if (DesignMode || System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
+			{
+				return;
+			}
+
 			CargarPantalla();
 		}
 

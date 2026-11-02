@@ -22,6 +22,11 @@ namespace GUI
 
 		private void MenuPrincipalForm_Load(object sender, EventArgs e)
 		{
+			if (DesignMode || System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
+			{
+				return;
+			}
+
 			CargarPantalla();
 		}
 

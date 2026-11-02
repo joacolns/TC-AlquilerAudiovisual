@@ -108,6 +108,8 @@
 			this.guardarComoLabel = new System.Windows.Forms.Label();
 			this.nombrePropuesta = new System.Windows.Forms.TextBox();
 			this.guardarPropuestaBoton = new System.Windows.Forms.Button();
+			this.exportarBriefBoton = new System.Windows.Forms.Button();
+			this.importarBriefBoton = new System.Windows.Forms.Button();
 			this.usarNota = new System.Windows.Forms.Label();
 			this.SuspendLayout();
 			this.desplazable.SuspendLayout();
@@ -1129,12 +1131,30 @@
 			this.asesorAcciones.Margin = new System.Windows.Forms.Padding(0, 4, 0, 0);
 			this.asesorAcciones.TabIndex = 3;
 			this.asesorAcciones.Name = "asesorAcciones";
-			this.asesorAcciones.Controls.Add(this.usarBoton);
+			this.exportarBriefBoton.Name = "exportarBriefBoton";
+            this.exportarBriefBoton.Text = "Exportar brief XML";
+            this.exportarBriefBoton.Size = new System.Drawing.Size(180, 38);
+            this.exportarBriefBoton.Margin = new System.Windows.Forms.Padding(0, 4, 10, 0);
+            this.exportarBriefBoton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.exportarBriefBoton.BackColor = System.Drawing.Color.White;
+            this.exportarBriefBoton.UseVisualStyleBackColor = false;
+            this.exportarBriefBoton.Click += new System.EventHandler(this.ExportarBriefClick);
+            this.importarBriefBoton.Name = "importarBriefBoton";
+            this.importarBriefBoton.Text = "Importar brief XML";
+            this.importarBriefBoton.Size = new System.Drawing.Size(180, 38);
+            this.importarBriefBoton.Margin = new System.Windows.Forms.Padding(0, 4, 10, 0);
+            this.importarBriefBoton.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.importarBriefBoton.BackColor = System.Drawing.Color.White;
+            this.importarBriefBoton.UseVisualStyleBackColor = false;
+            this.importarBriefBoton.Click += new System.EventHandler(this.ImportarBriefClick);
+            this.asesorAcciones.Controls.Add(this.usarBoton);
 			this.asesorAcciones.Controls.Add(this.imprimirBoton);
 			this.asesorAcciones.Controls.Add(this.actualizarAsesorBoton);
 			this.asesorAcciones.Controls.Add(this.guardarComoLabel);
 			this.asesorAcciones.Controls.Add(this.nombrePropuesta);
 			this.asesorAcciones.Controls.Add(this.guardarPropuestaBoton);
+			this.asesorAcciones.Controls.Add(this.exportarBriefBoton);
+			this.asesorAcciones.Controls.Add(this.importarBriefBoton);
 			this.asesorAcciones.Controls.Add(this.usarNota);
 			// 
 			// usarBoton
@@ -1356,6 +1376,8 @@
 		private System.Windows.Forms.Label guardarComoLabel;
 		private System.Windows.Forms.TextBox nombrePropuesta;
 		private System.Windows.Forms.Button guardarPropuestaBoton;
+		private System.Windows.Forms.Button exportarBriefBoton;
+		private System.Windows.Forms.Button importarBriefBoton;
 		private System.Windows.Forms.Label usarNota;
 	}
 }

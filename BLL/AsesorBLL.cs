@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.IO;
 using BE;
 using DAL;
 using SERVICE;
@@ -995,6 +996,48 @@ namespace BLL
 		{
 			Autorizar();
 			return propuestas.Listar(SesionSingleton.Instancia.UsuarioActual.Id);
+		}
+
+		public void ExportarBrief(BriefProduccion brief, string ruta)
+		{
+			Autorizar();
+			Normalizar(brief);
+			Validar(brief);
+			ValidarBriefArchivo(brief);
+			using (FileStream archivo = new FileStream(ruta, FileMode.Create, FileAccess.Write))
+			{
+				new XmlSerializador<BriefProduccion>().Serializar(archivo, brief);
+			}
+		}
+
+		public BriefProduccion ImportarBrief(string ruta)
+		{
+			Autorizar();
+			BriefProduccion brief;
+			using (FileStream archivo = new FileStream(ruta, FileMode.Open, FileAccess.Read))
+			{
+				brief = (BriefProduccion)new XmlSerializador<BriefProduccion>().Deserializar(archivo);
+			}
+			Normalizar(brief);
+			Validar(brief);
+			ValidarBriefArchivo(brief);
+			return brief;
+		}
+
+		private void ValidarBriefArchivo(BriefProduccion brief)
+		{
+			string[] piezas = { "Entrevista / documental", "Ficción / cortometraje", "Publicidad / spot", "Videoclip", "Evento / social", "Streaming / podcast" };
+			string[] locaciones = { "Interior", "Exterior", "Mixta" };
+			string[] luces = { "Buena", "Media", "Escasa" };
+			if (Array.IndexOf(piezas, brief.TipoPieza) < 0
+				|| Array.IndexOf(locaciones, brief.Locacion) < 0
+				|| Array.IndexOf(luces, brief.Luz) < 0
+				|| brief.Presupuesto > 999999999m
+				|| brief.Desde > new DateTime(9998, 12, 31)
+				|| brief.Hasta > new DateTime(9998, 12, 31))
+			{
+				throw new ArgumentException("El archivo contiene opciones o valores que no admite el asesor de rodaje.");
+			}
 		}
 
 		public bool EliminarGuardada(int id)

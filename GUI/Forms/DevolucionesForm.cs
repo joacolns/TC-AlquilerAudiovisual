@@ -132,7 +132,7 @@ namespace GUI
 				Cargar(id);
 				MessageBox.Show(
 					this,
-					"Inspección finalizada. Revisá la liquidación definitiva y entregá el remanente una sola vez."
+					"Inspección finalizada. Revisá los cargos definitivos y el saldo pendiente."
 				);
 			}
 			catch (Exception ex)
@@ -449,6 +449,11 @@ namespace GUI
 
 		private void DevolucionesForm_Load(object sender, EventArgs e)
 		{
+			if (DesignMode || System.ComponentModel.LicenseManager.UsageMode == System.ComponentModel.LicenseUsageMode.Designtime)
+			{
+				return;
+			}
+
 			CargarPantalla();
 		}
 
